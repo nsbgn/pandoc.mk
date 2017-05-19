@@ -4,13 +4,13 @@
 # The first argument is the source directory (default: current directory),
 # second argument is the destination directory (default: `dist` in sourc)
 
-MAKEDIR="$(dirname "$(readlink --canonicalize $0)")"
+SNEL="$(dirname "$(readlink --canonicalize $0)")"
 SRC="${1:-$PWD}"
-DEST="${2:-$SRC/dist}"
+DEST="${2:-$SRC/build}"
 
 # Execute twice: on the first run, the pages are created; on the second, any
 # auxiliary files that were referenced in the files are generated
 for TARGET in html resources; do
-    make --makefile="$MAKEDIR/makefile" \
-    SRC="$SRC" DEST="$DEST" MAKEDIR="$MAKEDIR" "$TARGET" || exit
+    make --makefile="$SNEL/makefile" \
+    SRC="$SRC" DEST="$DEST" SNEL="$SNEL" "$TARGET" || exit
 done

@@ -1,14 +1,13 @@
-MAKEDIR = .
-SRC = manual
-THEME = $(SRC)/theme
-DEST = dist
+SNEL = .
+SRC = example/content
+THEME = example/theme
+DEST = build
 CACHE = $(DEST)/.cache
 
 # Credentials
 USER=user
 HOST=host
 REMOTE=/home/user/public_html
-PROTOCOL=$(word 1,ftp ssh)
 
 # Source documents
 SOURCES = $(shell find $(SRC) -mindepth 1 -iname '*.md')
@@ -42,10 +41,6 @@ html: $(patsubst $(SRC)/%.md,$(DEST)/%.html,$(SOURCES))
 
 resources: $(RESOURCES_LOCAL) $(RESOURCES_GLOBAL)
 
-# Uploading ###################################################################
-
-upload: upload-$(PROTOCOL)
-
 upload-ssh: all
 	rsync -e ssh \
 		--recursive --exclude=.cache/ --times --copy-links \
@@ -62,24 +57,18 @@ upload-ftp: all
 
 # Static assets ###############################################################
 
-# Crimson Text font
-URL_CRIMSON := 'https://fonts.gstatic.com/s/crimsontext/v6/3IFMwfRa07i-auYR-B-zNegdm0LZdjqr5-oayXSOefg.woff2'
-$(DEST)/font.woff2:
-	@-mkdir -p $(@D)
-	wget -O $@ $(URL_CRIMSON)
-
+$(DEST)/%: $(THEME)/%
+	cp --dereference $< $@
 
 # Minified stylesheet
-$(DEST)/style.css: $(THEME)/style.less $(wildcard $(THEME)/*.less)
-	@-mkdir -p $(@D)
+$(DEST)/%.css: $(THEME)/%.less
 	lessc --clean-css="--s1 --advanced --compatibility=ie8" $< $@
 
-
 # Minified JavaScript for creating a dynamic navigation menu from the sitemap
-$(DEST)/index.js: $(MAKEDIR)/sitemap/index.js $(MAKEDIR)/sitemap/externs.js
+$(DEST)/index.js: $(SNEL)/sitemap/index.js $(SNEL)/sitemap/externs.js
 	@-mkdir -p $(@D)
 	closure-compiler -O ADVANCED --warning_level VERBOSE \
-		--externs $(MAKEDIR)/sitemap/externs.js \
+		--externs $(SNEL)/sitemap/externs.js \
 		--define='INDEX=/index.html' \
 		--js_output_file $@ $<
 
@@ -92,19 +81,17 @@ $(CACHE)/dummy.html: $(THEME)/template.html
 		--to html5 --standalone --output=$@
 
 
-# Pages & dynamic assets ######################################################
-
 # Create a table of contents of the source directory 
-$(DEST)/sitemap.json: $(MAKEDIR)/sitemap/sitemap.py $(SOURCES)
+$(DEST)/sitemap.json: $(SNEL)/sitemap/sitemap.py $(SOURCES)
 	@-mkdir -p $(@D)
-	python3 $< $(SRC) > $@
+	python3 $< $ $(SRC) > $@
 
 
 # Create a static index page for those cases in which the dynamic one is unavailable
 $(DEST)/index.html: \
- 		   $(MAKEDIR)/sitemap/index.dump.js \
+ 		   $(SNEL)/sitemap/index.dump.js \
 		   $(CACHE)/dummy.html \
-		   $(MAKEDIR)/sitemap/index.js \
+		   $(SNEL)/sitemap/index.js \
 		   $(DEST)/sitemap.json
 	@-mkdir -p $(@D)
 	@echo "Generating index page $@..."
@@ -114,11 +101,11 @@ $(DEST)/index.html: \
 # Create HTML documents
 $(DEST)/%.html: \
 		$(SRC)/%.md \
-		$(THEME)/template.html \
-		$(wildcard $(THEME)/*.py) \
-		$(MAKEDIR)/pandoc/filters/prerequisites.py \
+		$(SNEL)/pandoc/prerequisites.py \
                 $(CACHE)/logo-inline.svg \
-		$(SRC)/references.bib
+		$(wildcard $(THEME)/template.html) \
+		$(wildcard $(THEME)/filters/*.py) \
+		$(wildcard $(SRC)/references.bib) 
 	@echo "Generating $@..."
 	@-mkdir -p "$(@D)"
 	@-mkdir -p "$(patsubst $(DEST)/%,$(CACHE)/%,$(@D))"
@@ -127,16 +114,27 @@ $(DEST)/%.html: \
 		--mathml=https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=MML_HTMLorMML \
 		--smart --normalize --ascii --email-obfuscation=references \
 		--highlight-style=$(word 1, kate monochrome espresso zenburn haddock tango) \
-		--to html5 --standalone --template $(THEME)/template.html \
 		--variable inline_logo="$$(cat $(CACHE)/logo-inline.svg)" \
 		--from markdown+footnotes+inline_notes+table_captions \
-		--filter pandoc-citeproc $(foreach F,\
-			$(filter %.bib %/references.yaml, $^), --bibliography=$(F)\
+		--to html5 --standalone \
+		$(foreach F,\
+			$(filter $(THEME)/template.html, $^),\
+			--template $(F) \
 		) \
 		$(foreach F,\
-			$(filter $(THEME)/%.py, $^), --filter=$(F)\
-		)\
-		--filter $(MAKEDIR)/pandoc/filters/rearrange_main.py \
+			$(filter %.css, $^),\
+			--css=$(F) \
+		) \
+		--filter $(SNEL)/pandoc/prerequisites.py \
+		--filter pandoc-citeproc \
+		$(foreach F,\
+			$(filter %.bib %/references.yaml, $^),\
+			--bibliography=$(F) \
+		) \
+		$(foreach F,\
+			$(filter $(THEME)/%.py, $^),\
+			--filter=$(F) \
+		) \
 		--metadata root='$(shell realpath $(DEST) --relative-to $(@D))' \
 		--metadata req-dump='$(patsubst $(DEST)/%.html,$(CACHE)/%.md.req,$@)' \
 		--metadata req-prefix='$(@D)' \
@@ -145,10 +143,6 @@ $(DEST)/%.html: \
 		--metadata cache='$(CACHE)' \
 		--metadata path='$(shell realpath $(@D) --relative-to $(DEST))' \
 		--metadata file='$(@F)' \
-		--filter $(MAKEDIR)/pandoc/filters/prerequisites.py \
-		$(foreach F,\
-			$(filter %.css, $^), --css=$(F)\
-		)\
 		--output=$@ \
 		$< $(filter %/metadata.yaml, $^)
 

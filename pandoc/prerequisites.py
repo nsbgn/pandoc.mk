@@ -24,6 +24,7 @@ def action(el, doc):
                 
             doc.files.add(path)
 
+
 def finalize(doc):
     dump = doc.get_metadata("req-dump")  
     if dump:
@@ -31,6 +32,7 @@ def finalize(doc):
             for fn in doc.files:
                 handle.write(fn + "\n")
     del doc.files
+
 
 if __name__ == "__main__":
     pf.toJSONFilter(action, prepare, finalize)
