@@ -4,6 +4,12 @@ THEME = $(SRC)/theme
 DEST = dist
 CACHE = $(DEST)/.cache
 
+# Credentials
+USER=user
+HOST=host
+REMOTE=/home/user/public_html
+PROTOCOL=$(word 1,ftp ssh)
+
 # Source documents
 SOURCES = $(shell find $(SRC) -mindepth 1 -iname '*.md')
 
@@ -36,6 +42,22 @@ html: $(patsubst $(SRC)/%.md,$(DEST)/%.html,$(SOURCES))
 
 resources: $(RESOURCES_LOCAL) $(RESOURCES_GLOBAL)
 
+# Uploading ###################################################################
+
+upload: upload-$(PROTOCOL)
+
+upload-ssh: all
+	rsync -e ssh \
+		--recursive --exclude=.cache/ --times --copy-links \
+		--verbose --progress \
+		$(DEST)/ $(USER)@$(HOST):$(REMOTE)/
+
+
+upload-ftp: all
+	read -s -p 'FTP password: ' password && \
+	lftp -u $(USER),$$password -e \
+	"mirror --reverse --only-newer --verbose --dry-run --exclude .cache/ $(DEST) $(REMOTE)" \
+	$(HOST)
 
 
 # Static assets ###############################################################
