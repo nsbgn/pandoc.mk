@@ -5,39 +5,28 @@
 # second argument is the destination directory (default: `dist` in sourc)
 
 SNEL="$(dirname "$(readlink --canonicalize $0)")"
-SRC="${2:-$PWD}"
-DEST="${3:-$SRC/build}"
-MAKE="make --makefile="$SNEL/makefile""
 
-case $1 in
-    build )
-        # Execute twice: on the first run, the pages are created; on the
-        # second, auxiliary files that were referenced in the files are
-        # generated
-        for TARGET in html resources; do
-            $MAKE \
-                SNEL="$SNEL" \
-                SRC="$SRC/content" \
-                THEME="$SRC/theme" \
-                DEST="$DEST" \
-                "$TARGET" || exit
-        done
-         ;;
-    upload )
-        $MAKE upload-ftp ;;
-    * )
-        echo \
-"\
+SRC="$1"
+DEST="${2:-$SRC/build}"
+
+if [[ $SRC ]]; then
+    # Execute at least twice: on the first run, the pages are created; on the
+    # second, auxiliary files that were referenced in the files are
+    # generated
+    for TARGET in html resources upload-ftp; do
+        make --makefile="$SNEL/makefile" \
+            SNEL="$SNEL" \
+            SRC="$SRC" \
+            DEST="$DEST" \
+            "$TARGET" || exit
+    done
+else 
+    echo "\
 Usage: 
-    snel ACTION [SOURCE] [TARGET]
+    snel SOURCE [TARGET]
     
-ACTION: build|upload
+SOURCE: Directory with source files.
 
-SOURCE: Directory with a content and theme directory. Default: current directory.
-
-TARGET: Build directory.
-";;
-esac
-
-
-
+TARGET: Build directory. Default: SOURCE/build
+"
+fi
