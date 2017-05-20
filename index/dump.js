@@ -34,7 +34,7 @@ page.open(template, function(){
     
     page.evaluate(function(js, data){
         document.title = 'Index';
-        var ROOT = ".";
+        var ROOT = "./";
         eval(js);
         process(data);
         follow(INDEX);

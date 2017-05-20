@@ -15,7 +15,7 @@
 /* Defines *******************************************************************/
 
 /** @define {string} */ var INDEX = "/index.html"; // Link to static HTML index
-/** @define {string} */ var SITEMAP = "/sitemap.json"; // Link to JSON
+/** @define {string} */ var SITEMAP = "sitemap.json"; // Link to JSON
 /** @define {number} */ var EXPIRATION = 2<<22; // 2²²ms ≈ 3h
 
 /* Globals *******************************************************************/
@@ -67,7 +67,7 @@ function list(entries){
         if(!(entry = entries[i])["h"]) {
             var anchor = element(entry["p"] ? "a" : "span",
                 {
-                    "href": entry["p"],
+                    "href": ROOT + entry["p"],
                     "title": entry["a"]
                 },
                 [ entry["t"] || guess_title(entry["p"]) ]

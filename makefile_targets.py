@@ -17,16 +17,17 @@ def action(el, doc):
         url = urlparse(el.url, scheme="file")
         if not url.netloc:
             path = url.path
-            prefix = doc.get_metadata("req-prefix")
 
-            if not path.startswith("/") and prefix:
-                path = join(prefix, path)
+            if not path.startswith("/"):
+                destination = doc.get_metadata("destination")
+                prefix = doc.get_metadata("path")
+                path = join(destination, prefix, path)
                 
             doc.files.add(path)
 
 
 def finalize(doc):
-    dump = doc.get_metadata("req-dump")  
+    dump = doc.get_metadata("target-dump")
     if dump:
         with open(dump, "w") as handle:
             for fn in doc.files:

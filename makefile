@@ -1,6 +1,6 @@
 SNEL = .
-SRC = example/content
-THEME = example/theme
+THEME = $(SNEL)/theme
+SRC = $(SNEL)/example
 DEST = build
 CACHE = $(DEST)/.cache
 
@@ -9,8 +9,10 @@ USER=user
 HOST=host
 REMOTE=/home/user/public_html
 
+
 # Source documents
 SOURCES = $(shell find $(SRC) -mindepth 1 -iname '*.md')
+
 
 # Files that should always be present at the destination
 RESOURCES_GLOBAL = \
@@ -22,19 +24,25 @@ RESOURCES_GLOBAL = \
 	$(DEST)/favicon.ico \
 	$(DEST)/apple-touch-icon.png 
 
-# Upon a targeting `html`, filenames that are referenced in the source documents are stored.
-# When targeting `resources`, the filenames thus collected are targets themselves.
+
+# On the first run, files referenced in the source documents are stored
+# somewhere. Upon a second run, those filenames are collected here and thereby
+# become targets themselves.
 RESOURCES_LOCAL = \
 	$(foreach F,\
 		$(patsubst \
 			$(SRC)/%.md,\
-	    		$(CACHE)/%.md.req,\
+	    		$(CACHE)/%.md.targets,\
 			$(SOURCES)\
 		),\
 		$(shell [ -f $(F) ] && cat $(F) )\
 	)
 
+
+
+##########
 # Recipes
+
 all: | html resources
 
 html: $(patsubst $(SRC)/%.md,$(DEST)/%.html,$(SOURCES)) 
@@ -47,7 +55,6 @@ upload-ssh: all
 		--verbose --progress \
 		$(DEST)/ $(USER)@$(HOST):$(REMOTE)/
 
-
 upload-ftp: all
 	read -s -p 'FTP password: ' password && \
 	lftp -u $(USER),$$password -e \
@@ -55,109 +62,33 @@ upload-ftp: all
 	$(HOST)
 
 
-# Static assets ###############################################################
 
-$(DEST)/%: $(THEME)/%
-	cp --dereference $< $@
+##################
+# Styling & fonts
 
-# Minified stylesheet
-$(DEST)/%.css: $(THEME)/%.less
+# TODO: Make a target file for the css too
+$(DEST)/style.css: $(THEME)/styles/style.less $(wildcard $(THEME)/styles/*.less)
 	lessc --clean-css="--s1 --advanced --compatibility=ie8" $< $@
 
-# Minified JavaScript for creating a dynamic navigation menu from the sitemap
-$(DEST)/index.js: $(SNEL)/sitemap/index.js $(SNEL)/sitemap/externs.js
+
+
+#################
+# Logos & covers
+
+# Select appropriate logo
+$(CACHE)/logo.svg: $(wildcard $(SRC)/logo.svg) $(THEME)/default-logo.svg
 	@-mkdir -p $(@D)
-	closure-compiler -O ADVANCED --warning_level VERBOSE \
-		--externs $(SNEL)/sitemap/externs.js \
-		--define='INDEX=/index.html' \
-		--js_output_file $@ $<
+	ln -s --relative --force $< $@
 
-
-# Make dummy page for use in static page generation
-$(CACHE)/dummy.html: $(THEME)/template.html
-	@-mkdir -p $(@D)
-	echo "dummy" | pandoc \
-		--template $< --variable root='.' \
-		--to html5 --standalone --output=$@
-
-
-# Create a table of contents of the source directory 
-$(DEST)/sitemap.json: $(SNEL)/sitemap/sitemap.py $(SOURCES)
-	@-mkdir -p $(@D)
-	python3 $< $ $(SRC) > $@
-
-
-# Create a static index page for those cases in which the dynamic one is unavailable
-$(DEST)/index.html: \
- 		   $(SNEL)/sitemap/index.dump.js \
-		   $(CACHE)/dummy.html \
-		   $(SNEL)/sitemap/index.js \
-		   $(DEST)/sitemap.json
-	@-mkdir -p $(@D)
-	@echo "Generating index page $@..."
-	phantomjs $+ $@
-
-
-# Create HTML documents
-$(DEST)/%.html: \
-		$(SRC)/%.md \
-		$(SNEL)/pandoc/prerequisites.py \
-                $(CACHE)/logo-inline.svg \
-		$(wildcard $(THEME)/template.html) \
-		$(wildcard $(THEME)/filters/*.py) \
-		$(wildcard $(SRC)/references.bib) 
-	@echo "Generating $@..."
-	@-mkdir -p "$(@D)"
-	@-mkdir -p "$(patsubst $(DEST)/%,$(CACHE)/%,$(@D))"
-	pandoc --toc --toc-depth=3 \
-		--base-header-level=2 \
-		--mathml=https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=MML_HTMLorMML \
-		--smart --normalize --ascii --email-obfuscation=references \
-		--highlight-style=$(word 1, kate monochrome espresso zenburn haddock tango) \
-		--variable inline_logo="$$(cat $(CACHE)/logo-inline.svg)" \
-		--from markdown+footnotes+inline_notes+table_captions \
-		--to html5 --standalone \
-		$(foreach F,\
-			$(filter $(THEME)/template.html, $^),\
-			--template $(F) \
-		) \
-		$(foreach F,\
-			$(filter %.css, $^),\
-			--css=$(F) \
-		) \
-		--filter $(SNEL)/pandoc/prerequisites.py \
-		--filter pandoc-citeproc \
-		$(foreach F,\
-			$(filter %.bib %/references.yaml, $^),\
-			--bibliography=$(F) \
-		) \
-		$(foreach F,\
-			$(filter $(THEME)/%.py, $^),\
-			--filter=$(F) \
-		) \
-		--metadata root='$(shell realpath $(DEST) --relative-to $(@D))' \
-		--metadata req-dump='$(patsubst $(DEST)/%.html,$(CACHE)/%.md.req,$@)' \
-		--metadata req-prefix='$(@D)' \
-		--metadata source='$(SRC)' \
-		--metadata destination='$(DEST)' \
-		--metadata cache='$(CACHE)' \
-		--metadata path='$(shell realpath $(@D) --relative-to $(DEST))' \
-		--metadata file='$(@F)' \
-		--output=$@ \
-		$< $(filter %/metadata.yaml, $^)
-
-
-
-# Logo & covers ###############################################################
 
 # Favicon as bitmap
-$(DEST)/favicon.ico: $(THEME)/logo.svg
+$(DEST)/favicon.ico: $(CACHE)/logo.svg
 	@-mkdir -p $(@D)
 	convert -transparent white -resize 16x16 $< $@
 
 
 # Favicon as embedded PNG with boolean transparency
-$(DEST)/favicon2.ico: $(THEME)/logo.svg
+$(DEST)/favicon2.ico: $(CACHE)/logo.svg
 	@-mkdir -p $(@D)
 	convert -background none -resize 16x16 -transparent-color '#fff' \
 		-compress Zip -define 'png:format=png8' \
@@ -166,7 +97,7 @@ $(DEST)/favicon2.ico: $(THEME)/logo.svg
 
 
 # Icon for bookmark on Apple devices
-$(DEST)/apple-touch-icon.png: $(THEME)/logo.svg
+$(DEST)/apple-touch-icon.png: $(CACHE)/logo.svg
 	@-mkdir -p $(@D)
 	convert -density 1200 -resize 150x150 -colors 8 \
 		-border 26 -bordercolor '#fff' -background '#fff' -negate \
@@ -174,8 +105,8 @@ $(DEST)/apple-touch-icon.png: $(THEME)/logo.svg
 		$< $@
 
 
-# Generate ASCII art logo
-$(CACHE)/logo.txt: $(THEME)/logo.svg
+# ASCII art logo, centred for 79-column text files
+$(CACHE)/logo.txt: $(CACHE)/logo.svg
 	convert -density 1200 -resize 128x128 $< $@.jpg
 	jp2a --width=23 --chars=\ -~o0@ -i $@.jpg | sed 's/^/$(shell printf '%-28s')/' > $@
 	rm $@.jpg
@@ -183,7 +114,7 @@ $(CACHE)/logo.txt: $(THEME)/logo.svg
 
 # Create a logo suitable for inlining by removing the top <?XML?> declaration
 # and stripping any inline styles (GNU sed-specific and non-portable!)
-$(CACHE)/logo-inline.svg: $(THEME)/logo.svg
+$(CACHE)/logo-inline.svg: $(CACHE)/logo.svg
 	@-mkdir -p $(@D)
 	sed 's/\(^<?[^?]*?>\)\|\(\ style="[^"]*"\)//g' $< > $@
 
@@ -195,31 +126,134 @@ $(CACHE)/%/epub-cover.jpg: $(wildcard $(SRC)/%/cover.*)
 
 
 
-# Referenced files #####################################################################
+###############################
+# Dynamic & static index pages
+
+# JSON table of contents of the source directory 
+$(DEST)/sitemap.json: $(SNEL)/index/sitemap.py $(SOURCES)
+	@-mkdir -p $(@D)
+	python3 $< $ $(SRC) > $@
+
+
+# Client-side script to generate a dynamic index from the sitemap
+$(DEST)/index.js: $(SNEL)/index/view.js $(SNEL)/index/view.externs.js
+	@-mkdir -p $(@D)
+	closure-compiler -O ADVANCED --warning_level VERBOSE \
+		--externs $(SNEL)/index/view.externs.js \
+		--define='INDEX=/index.html' \
+		--js_output_file $@ $<
+
+
+# Static index page for when the client is unable to view the dynamic one
+$(DEST)/index.html: \
+ 		   $(SNEL)/index/dump.js \
+		   $(CACHE)/dummy.html \
+		   $(SNEL)/index/view.js \
+		   $(DEST)/sitemap.json
+	@-mkdir -p $(@D)
+	@echo "Generating index page $@..."
+	phantomjs $+ $@
+
+
+# Make dummy page for use in static index generation
+$(CACHE)/dummy.html: $(THEME)/templates/template.html
+	@-mkdir -p $(@D)
+	echo "dummy" | pandoc \
+		--template $< --variable root='.' \
+		--to html5 --standalone --output=$@
+
+
+
+########
+# Pages
+
+# Create HTML documents
+$(DEST)/%.html: \
+		$(SRC)/%.md \
+		$(SNEL)/makefile_targets.py \
+                $(CACHE)/logo-inline.svg \
+		$(THEME)/templates/template.html \
+		$(wildcard $(THEME)/filters/*.py) \
+		$(wildcard $(SRC)/references.bib) 
+	@echo "Generating $@..."
+	@-mkdir -p "$(@D)"
+	@-mkdir -p "$(patsubst $(DEST)/%,$(CACHE)/%,$(@D))"
+	pandoc  \
+		--metadata source='$(SRC)' \
+		--metadata destination='$(DEST)' \
+		--metadata cache='$(CACHE)' \
+		--metadata path='$(shell realpath $(@D) --relative-to $(DEST))' \
+		--metadata file='$(@F)' \
+		--metadata root='$(shell realpath $(DEST) --relative-to $(@D))/' \
+		--metadata target-dump='$(patsubst $(DEST)/%.html,$(CACHE)/%.md.targets,$@)' \
+		--from markdown+footnotes+inline_notes+table_captions \
+		--to html5 --standalone \
+		--template $(THEME)/templates/template.html \
+		$(foreach F,\
+			$(filter %.css, $^),\
+			--css=$(F) \
+		) \
+		--filter pandoc-citeproc \
+		$(foreach F,\
+			$(filter %.bib %/references.yaml, $^),\
+			--bibliography=$(F) \
+		)\
+		$(foreach F,\
+			$(filter %.py, $^),\
+			--filter=$(F) \
+		)\
+		--toc --toc-depth=3 \
+		--base-header-level=2 \
+		--mathml=https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=MML_HTMLorMML \
+		--smart --normalize --ascii --email-obfuscation=references \
+		--highlight-style=$(word 1, kate monochrome espresso zenburn haddock tango) \
+		--variable inline_logo="$$(cat $(CACHE)/logo-inline.svg)" \
+		--output=$@ \
+		$< $(filter %/metadata.yaml, $^)
+
+
+
+##########
+# Generic
+
+# Any file in the source is also available at the destination
+$(DEST)/%: $(SRC)/%
+	@-mkdir -p $(@D)
+	ln -s --relative $< $@
+
+
+# Any file in the cache is also available at the destination
+$(DEST)/%: $(CACHE)/%
+	@-mkdir -p $(@D)
+	ln -s --relative $< $@
+
+
+# Any file in the theme is also available at the destination
+$(DEST)/%: $(THEME)/%
+	@-mkdir -p $(@D)
+	ln -s --relative $< $@
+
 
 # Create a zipped archive
 $(DEST)/%.zip: $(SRC)/%
+	@-mkdir -p $(@D)
 	zip -r9 $@ $^
 
 
 # Create a zipped archive
 $(DEST)/%.tar.gz: $(SRC)/%
+	@-mkdir -p $(@D)
 	tar -zcvf $@ $^
 
 
-# Any file referenced in the source should show up in the destination
-$(DEST)/%: $(SRC)/%
-	cp --dereference $< $@
-
-
-# As a last resort, try to find a recipe in the source directory
+# As a last resort, try to find a recipe for the file in the source directory
 # Beware of infinite loops?
 # Find a way to also monitor changes to prerequisites here? To show all targets:
 # make --dry-run --always-make --debug=b <TARGET> | sed -n 's/\s*Must remake target '\(.*\)'\./\1/p"
 $(DEST)/%: 
 	@echo 'Trying to find recipe for $@...'
 	@cd $(patsubst $(DEST)%,$(SRC)%,$(@D)) && \
-	$(MAKE) $(@F) && mv $(@F) $(@D)
+	$(MAKE) $(@F) && mv $(@F) $(@D)/
 
 
 # Generate a YAML bibliography from a BIB bibliography
