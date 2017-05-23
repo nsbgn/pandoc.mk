@@ -1,0 +1,324 @@
+@PAGE_VMARGIN: 5em;      // Vertical margin on the page
+@PAGE_HMARGIN: 3em;      // Horizontal margin on the page
+@PAGE_CROUCH: 30em;      // Minimum width before margins scale down
+@PAGE_SIZE: 14pt;        // Base font size
+@L1_SIZE: 1.3em;         // Font size for section header
+@L2_SIZE: 1.5em;         // Font size for subsection header
+@L1_VSPACING: 6em;       // Vertical space between sections
+@L2_VSPACING: 2em;       // Vertical space between subsections
+@L1_WEDGE: 1em;          // Vertical space between section header and text
+@L2_WEDGE: -0.5em;       // Vertical space between subsection header and text
+@L3_WEDGE: 1em;          // Horizontal space between paragraph header and text
+@LINE_HEIGHT: 1.8em;     // Vertical spacing for lines
+@PAR_VSPACING: 1em;      // Vertical spacing around paragraphs and lists
+@FIG_VSPACING: 2.5em;    // Vertical spacing around figures, tables, listings...
+@HR_VSPACE_RESET: 2em;   // Space between <hr> (or document start) and a header
+@HR_VSPACING: 2.5em;     // Vertical spacing around horizontal rules
+@HR_SIZE: 1.2em;         // Size of the § in <hr>s
+@HR_WIDTH: 40%;          // Width of horizontal rule
+@CAPTION_WEDGE: 0.8em;   // Vertical space between fig/table caption and object
+@CAPTION_EXTRA: 0.5em;   // Additional space under captions
+
+
+////////////////////////////////////////////////////////////////////////////////
+
+body {
+    margin: @PAGE_VMARGIN @PAGE_HMARGIN;
+    color: @COLOR_FG;
+    background-color: @COLOR_BG;
+    font-family: @FONT;
+    font-size: @PAGE_SIZE;
+    text-align: justify;
+    word-wrap: break-word;
+}
+
+header {
+    text-align: center;
+    margin-bottom: @PAGE_VMARGIN*0.7; // Should be 'in the middle' at the top
+}
+
+section {
+    margin: 0.5em auto 0;
+    
+    hr { display:none; } // TODO This is too hacky. I should be able to prevent the HR from occurring in the code at all.
+    h1 {
+        margin: 0 0 0.2em;
+        font-size: @L2_SIZE;
+        font-weight: normal;
+    }
+    li {
+        padding: 0.2em 0 0.2em 0.4em;
+        margin-left: 3em;
+    }
+}
+
+main + section {
+    border-top: 1px solid @COLOR_FG;
+    padding-top: 1.5em;
+    margin: 3em auto 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+main {
+    margin: 0 auto;
+
+    // *************************************************************************
+    p, ul, ol {
+        margin: @PAR_VSPACING 0;
+        line-height: @LINE_HEIGHT;
+    }
+    ul, ol { ul, ol {
+        margin: 0;
+    }}
+    ol {
+        counter-reset: item;
+        >li {
+            display: block;
+        }
+        >li:before {
+            content: counters(item, ".") ") ";
+            counter-increment: item;
+        }
+    }    
+    li {
+        margin-left: 3em;
+    }
+    a {
+        text-decoration: underline;
+        color: @COLOR_FG_1;
+    }
+    a:hover{
+        color: @COLOR_FG_2;
+    }
+    
+    .MathJax {
+        font-size: 2em !important;
+    }
+
+    // *************************************************************************
+    > footer {
+        margin: 2em 0 0;
+        text-align: right;
+    }
+    
+    .abstract {
+    }
+    .abstract p {
+        margin: 0;
+    }
+
+} // main { // following never occur out of main; fake wrap only for readability
+
+
+    h1 {
+        margin: @L1_VSPACING 0 @L1_WEDGE;
+        font-size: @L1_SIZE;
+        letter-spacing: 0.08em;
+        text-align: center;
+        font-weight: 300;
+        text-transform: uppercase;
+    }
+    header + h1, h1:first-child, hr + h1, hr + h2, hr + h3 {
+        margin-top: @HR_VSPACE_RESET;
+    }
+    h2 {
+        margin: @L2_VSPACING 0 @L2_WEDGE;
+        font-size: @L1_SIZE;
+        font-weight: 600;
+    }
+    h3 {
+        margin: 0 @L3_WEDGE 0 0; 
+        font-size: 1em;
+        line-height: @LINE_HEIGHT;
+        float: left;
+        font-weight: 600;
+    }
+
+    // *************************************************************************
+    
+    sup {
+        line-height: 1em;
+    }
+    sup a {
+        text-decoration: none;
+    }
+
+    table {
+        margin: @FIG_VSPACING 0;
+        border-collapse: collapse;
+    }
+    figure table {
+        margin: 0;
+    }
+    caption {
+        font-style: italic;
+        margin-top: @CAPTION_WEDGE;
+        padding-bottom: @CAPTION_EXTRA;
+        caption-side: bottom;
+    }
+    th, td {
+        padding: 0.5em;
+    }
+    td:first-child {
+        font-weight: bold;
+    }
+    table>tr:first-child td, caption + tr td, thead th {
+        font-weight: bold;
+        border-bottom: 2px solid @COLOR_FG;
+        border-top: 1px solid @COLOR_FG;
+    }
+    table>tr:last-child td, tbody {
+        border-bottom: 1px solid @COLOR_FG;
+    }
+    tr + caption {
+        border-top: 1px solid @COLOR_FG;
+    }
+    table.no-col-header {
+        td:first-child {
+            font-weight: normal;
+        }
+    }
+    table.no-row-header {
+        > tr:first-child td, caption + tr td {
+            font-weight: normal;
+            border-bottom: none;
+        }
+    }
+
+    // *************************************************************************
+    figure {
+        margin: @FIG_VSPACING 0;
+        text-align: center;
+
+        code, img, table {
+            display: inline-block;
+            max-width: 100%;
+            vertical-align: top; // Gets rid of space under inlined image
+        }
+        figcaption {
+            margin-top: @CAPTION_WEDGE;
+            padding-bottom: @CAPTION_EXTRA;
+            font-style: italic;
+            
+            * {
+                margin: 0;
+            } 
+        }
+
+    }
+
+    // *************************************************************************
+    hr {
+        border: none;
+        border-top: 1px solid @COLOR_FG;
+        text-align: center;
+        margin: @HR_VSPACING auto;
+        width: @HR_WIDTH;
+        position: relative;
+    }
+    hr:after {
+        content: "\00a7";
+        font-size: @HR_SIZE;
+        line-height: @HR_SIZE;
+        color: @COLOR_FG;
+        position: absolute;
+        top: (-@HR_SIZE/2);
+        left: 50%;
+        margin-left: -0.5em;
+        width: 1em;
+        background: @COLOR_BG;
+    }
+    
+    // *************************************************************************
+    blockquote {
+        margin: @FIG_VSPACING 0 @FIG_VSPACING 2.5em;
+        font-style: italic;
+        quotes: "\201C""\201D""\2018""\2019";
+
+        p:before, p:after {
+            font-size: 2.5em;
+            line-height: 0.05em;
+            vertical-align: -0.4em;
+            color: @COLOR_FRILLS;
+        }
+        p:before {
+            content: open-quote;
+            padding-right: 0.4em;
+        }
+        p:after {
+            content: close-quote;
+            padding-left: 0.1em;
+        }
+        p {
+            // If another indent value is inherited, messes up quote symbol
+            text-indent: 0; 
+        }
+
+        em {
+            text-decoration: underline;
+        }
+
+        footer {
+            text-align: right;
+            font-style: normal;
+            margin: 0 5%;
+        }
+
+    }
+
+    // *************************************************************************
+    code {
+        white-space: pre-wrap;
+        font-size: 0.7em;
+    }
+    pre {
+        margin: @FIG_VSPACING 0;
+
+        code {
+            padding: 0.5em 1em;
+            text-align: left;
+            border-top: 1px solid @COLOR_FG;
+            border-bottom: 1px solid @COLOR_FG;
+        }
+    }
+    figure pre {
+        margin: 0;
+    }
+    
+// }
+
+
+////////////////////////////////////////////////////////////////////////////////
+
+.hide {
+    display: none;
+}
+
+.footnotes a:last-child {
+    padding: 0 0 0 0.5em;
+    text-decoration: none;
+}
+
+.right {
+    clear: right;
+    float: right;
+}
+.left {
+    clear: left;
+    float: left;
+}
+.invert {
+    display: inline-block;
+    -webkit-transform: matrix(-1, 0, 0, 1, 0, 0);
+    -moz-transform: matrix(-1, 0, 0, 1, 0, 0);
+    -o-transform: matrix(-1, 0, 0, 1, 0, 0);
+    transform: matrix(-1, 0, 0, 1, 0, 0);
+}
+
+// Once the width reaches a lower limit, margins start shrinking proportionally
+@media screen and (max-width: @PAGE_CROUCH) {
+    body {
+        margin: @PAGE_VMARGIN percentage(unit(@PAGE_HMARGIN/@PAGE_CROUCH));
+    }
+}

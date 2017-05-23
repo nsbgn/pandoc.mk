@@ -1,0 +1,162 @@
+@TOC_HMARGIN: 3em;       // Horizontal margin around table of contents
+@TOC_VMARGINTOP: 4em;    // Vertical margin around table of contents
+@TOC_VMARGINBOT: 5em;    // Vertical margin around table of contents
+@TOC_HEADER_HEIGHT: 4em; // Area of top vertical margin assigned to header
+@TOC_FOOTER_HEIGHT: 5em; // Area of bottom vertical margin assigned to footer
+@TOC_HEADER_SIZE: 1.1em; // Font size in header
+@TOC_FOOTER_SIZE: 0.7em; // Font size in footer
+@TOC_L1_SIZE: 3.1em;     // Font size in column header font size
+@TOC_L2_SIZE: 1.5em;     // Font size in subheader font size
+@TOC_L3_SIZE: 0.8em;     // Font size in menu items
+@TOC_L1_WEDGE: .6em;     // Vertical space under column header
+@TOC_L2_WEDGE: .15em;    // Vertical space under subheader
+@TOC_L1_HSPACING: 4.0em; // Horizontal spacing between columns
+@TOC_L2_VSPACING: 1.5em; // Vertical spacing between subheaded sections
+@TOC_L2_HMARGIN: 0.2em;  // Horizontal margin arount level 2, below header
+
+////////////////////////////////////////////////////////////////////////////////
+
+nav.up {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+}
+
+nav#toc {
+    font-size: 0.4em;
+    width: 100%;
+    padding-bottom: 1.5em;
+}
+nav#toc>div>ul{
+    padding-bottom: 1.5em;
+    border-bottom: 1px solid @COLOR_FG;
+}
+
+nav {
+    display: table;
+
+    a {
+        text-decoration: none;
+        color: @COLOR_FG;
+    }
+    a, span {
+        text-transform: lowercase;
+    }
+    a:hover {
+        text-decoration: underline;
+    }
+    a.selected, .selected>a {
+        font-style: italic;
+    }
+    a.selected:hover, .selected>a:hover {
+        text-decoration: none;
+    }
+    span {
+        color: mix(@COLOR_FG, @COLOR_BG, 60%);
+    }
+    
+    ul {
+        list-style: none;
+    }
+
+    > div {
+        display: table-cell;
+        vertical-align: middle;
+        text-align: center;
+//        padding: (@TOC_VMARGINTOP - @TOC_HEADER_HEIGHT)
+//                 (@TOC_HMARGIN    - (@TOC_L1_HSPACING/2))
+//                 (@TOC_VMARGINBOT - @TOC_FOOTER_HEIGHT);
+        
+        > ul {
+            display: inline-table;
+
+            > li {
+                display: table-cell;
+                width: 1px; // Forces wrapping
+                vertical-align: top;
+                padding: 0 (@TOC_L1_HSPACING/2);
+                
+                > a, > span {
+                    white-space: nowrap;
+                    font-size: @TOC_L1_SIZE;
+                }
+                
+                > ul {
+                    text-align: left;
+                    padding: 0 @TOC_L2_HMARGIN;
+                    margin-top: (@TOC_L1_WEDGE - @TOC_L2_VSPACING);
+                    
+                    > li {
+                        padding-top: @TOC_L2_VSPACING;
+                        
+                        > a, > span {
+                            font-size: @TOC_L2_SIZE;
+                        }
+
+                        > ul {
+                            padding-top: @TOC_L2_WEDGE;
+
+                            a, span {
+                                font-size: @TOC_L3_SIZE;
+                            }
+                            li, ul {
+                                display: inline;
+                            }
+                        }
+
+                    }
+                }
+            }
+        }
+    }
+    
+    // The margin should be the same even if there is no header or footer inside
+    // > div:first-child { padding-top:    @TOC_VMARGINTOP; }
+    // > div:last-child  { padding-bottom: @TOC_VMARGINBOT; }
+    
+    header {
+        display: table-row;
+        height: @TOC_HEADER_HEIGHT;
+        
+        div {
+            display: table-cell;
+            text-align: right;
+            vertical-align: middle;
+            padding: 0 (@TOC_HEADER_HEIGHT/4);
+        }        
+        
+        a {
+            font-size: @TOC_HEADER_SIZE;
+        }
+        a:hover {
+            font-weight: bold;
+            text-decoration: none;
+        }
+    }
+    
+    footer {
+        display: table-row;
+        height: @TOC_FOOTER_HEIGHT;
+        
+        ul {
+            display: table-cell;
+            text-align: center;
+            vertical-align: middle;
+            li {
+                display: inline-block;
+                font-size: @TOC_FOOTER_SIZE;
+            }
+        }
+    }
+
+    // Items between which a dot is placed
+    footer li + li:before,
+    ul ul ul li + li:before {
+        content: "\ \2022\00a0\ ";
+        font-size: 0.6em;
+        color: mix(@COLOR_FG, @COLOR_BG, 60%);
+    }
+
+}
