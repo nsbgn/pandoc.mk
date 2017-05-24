@@ -1,0 +1,54 @@
+<!DOCTYPE html><html$if(lang)$ lang="$lang$"$endif$$if(dir)$ dir="$dir$"$endif$>
+<head>
+<meta charset="utf-8">
+$for(author-meta)$
+<meta name="author" content="$author-meta$">
+$endfor$
+$if(date-meta)$
+<meta name="dcterms.date" content="$date-meta$">
+$endif$
+$if(keywords)$
+<meta name="keywords" content="$for(keywords)$$keywords$$sep$, $endfor$">
+$endif$
+<title>$if(title-prefix)$$title-prefix$ – $endif$$pagetitle$</title>
+$if(quotes)$
+<style type="text/css">q { quotes: "“" "”" "‘" "’"; }</style>
+$endif$
+$if(highlighting-css)$
+<style type="text/css">
+$highlighting-css$
+</style>
+$endif$
+$for(css)$
+<link rel="stylesheet" href="$css$">
+$endfor$
+$if(root)$
+<link rel="shortcut icon" href="$root$/favicon.ico">
+<link rel="stylesheet" href="$root$/style.css">
+<script type="text/javascript">var ROOT="$root$";</script>
+<script type="text/javascript" src="$root$/index.js" async></script>
+$endif$
+$if(math)$
+$math$
+$endif$
+$for(header-includes)$
+$header-includes$
+$endfor$
+</head>
+<body>
+$for(include-before)$
+$include-before$
+$endfor$
+<header><a href="/index.html">$if(inline_logo)$$inline_logo$$endif$menu</a></header>
+<h1>$title$</h1>
+$if(toc)$
+<nav id="$idprefix$toc">
+<div>
+$toc$
+</div>
+</nav>
+$endif$
+$body$
+$for(include-after)$$include-after$$endfor$
+</body>
+</html>
