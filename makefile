@@ -1,10 +1,17 @@
 SNEL = .
-THEME = $(SNEL)/theme
 SRC = $(SNEL)/example
 DEST = build
 CACHE = $(DEST)/.cache
 
+INDEXER = $(SNEL)/index
+THEME = $(SNEL)/theme
+STYLES = $(THEME)/styles
+TEMPLATES = $(THEME)/templates
+FILTERS = $(THEME)/filters
+
+
 # Credentials
+EMAIL=user@domain.com
 USER=user
 HOST=host
 REMOTE=/home/user/public_html
@@ -19,7 +26,6 @@ RESOURCES_GLOBAL = \
 	$(DEST)/sitemap.json \
 	$(DEST)/index.html \
 	$(DEST)/index.js \
-	$(DEST)/font.woff2 \
 	$(DEST)/style.css \
 	$(DEST)/favicon.ico \
 	$(DEST)/apple-touch-icon.png 
@@ -62,21 +68,23 @@ upload-ftp: all
 	$(HOST)
 
 
+# Public GPG key
+$(DEST)/public.gpg:
+	gpg --export $(EMAIL) > $@
+
 
 ##################
 # Styling & fonts
 
-# TODO: Make a target file for the css too
-$(DEST)/style.css: $(THEME)/styles/style.less $(wildcard $(THEME)/styles/*.less)
+$(DEST)/style.css: $(STYLES)/main.less $(wildcard $(STYLE)/*.less)
 	lessc --clean-css="--s1 --advanced --compatibility=ie8" $< $@
-
 
 
 #################
 # Logos & covers
 
 # Select appropriate logo
-$(CACHE)/logo.svg: $(wildcard $(SRC)/logo.svg) $(THEME)/default-logo.svg
+$(CACHE)/logo.svg: $(wildcard $(SRC)/logo.svg) $(THEME)/up.svg
 	@-mkdir -p $(@D)
 	ln -s --relative --force $< $@
 
@@ -130,13 +138,13 @@ $(CACHE)/%/epub-cover.jpg: $(wildcard $(SRC)/%/cover.*)
 # Dynamic & static index pages
 
 # JSON table of contents of the source directory 
-$(DEST)/sitemap.json: $(SNEL)/index/sitemap.py $(SOURCES)
+$(DEST)/sitemap.json: $(INDEXER)/sitemap.py $(SOURCES)
 	@-mkdir -p $(@D)
 	python3 $< $ $(SRC) > $@
 
 
 # Client-side script to generate a dynamic index from the sitemap
-$(DEST)/index.js: $(SNEL)/index/view.js $(SNEL)/index/view.externs.js
+$(DEST)/index.js: $(INDEXER)/view.js $(INDEXER)/view.externs.js
 	@-mkdir -p $(@D)
 	closure-compiler -O ADVANCED --warning_level VERBOSE \
 		--externs $(SNEL)/index/view.externs.js \
@@ -146,9 +154,9 @@ $(DEST)/index.js: $(SNEL)/index/view.js $(SNEL)/index/view.externs.js
 
 # Static index page for when the client is unable to view the dynamic one
 $(DEST)/index.html: \
- 		   $(SNEL)/index/dump.js \
+ 		   $(INDEXER)/dump.js \
 		   $(CACHE)/dummy.html \
-		   $(SNEL)/index/view.js \
+		   $(INDEXER)/view.js \
 		   $(DEST)/sitemap.json
 	@-mkdir -p $(@D)
 	@echo "Generating index page $@..."
@@ -156,7 +164,7 @@ $(DEST)/index.html: \
 
 
 # Make dummy page for use in static index generation
-$(CACHE)/dummy.html: $(THEME)/templates/template.html
+$(CACHE)/dummy.html: $(TEMPLATES)/template.html
 	@-mkdir -p $(@D)
 	echo "dummy" | pandoc \
 		--template $< --variable root='.' \
@@ -172,7 +180,7 @@ $(DEST)/%.html: \
 		$(SRC)/%.md \
 		$(SNEL)/makefile_targets.py \
                 $(CACHE)/logo-inline.svg \
-		$(THEME)/templates/template.html \
+		$(TEMPLATES)/template.html \
 		$(wildcard $(THEME)/filters/*.py) \
 		$(wildcard $(SRC)/references.bib) 
 	@echo "Generating $@..."
@@ -188,7 +196,7 @@ $(DEST)/%.html: \
 		--metadata target-dump='$(patsubst $(DEST)/%.html,$(CACHE)/%.md.targets,$@)' \
 		--from markdown+footnotes+inline_notes+table_captions \
 		--to html5 --standalone \
-		--template $(THEME)/templates/template.html \
+		--template $(TEMPLATES)/template.html \
 		$(foreach F,\
 			$(filter %.css, $^),\
 			--css=$(F) \
@@ -250,6 +258,9 @@ $(DEST)/%.tar.gz: $(SRC)/%
 # Beware of infinite loops?
 # Find a way to also monitor changes to prerequisites here? To show all targets:
 # make --dry-run --always-make --debug=b <TARGET> | sed -n 's/\s*Must remake target '\(.*\)'\./\1/p"
+# Note: these targets should not be remade here, that's what the make call is
+# for. We should only note that they have changed. (e.g. one of the files is
+# newer than the destination file)
 $(DEST)/%: 
 	@echo 'Trying to find recipe for $@...'
 	@cd $(patsubst $(DEST)%,$(SRC)%,$(@D)) && \
