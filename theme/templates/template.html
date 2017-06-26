@@ -48,7 +48,15 @@ $toc$
 </div>
 </nav>
 $endif$
+<main>
 $body$
+<footer>&mdash; $if(author)$$author$$else$Anonymous$endif$$if(date)$$date$$endif$</footer>
+</main>
+$if(references)$
+<section class="references">
+$references$
+</section>
+$endif$
 $for(include-after)$$include-after$$endfor$
 </body>
 </html>
