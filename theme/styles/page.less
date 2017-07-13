@@ -34,7 +34,15 @@ body {
 
 header {
     text-align: center;
-    margin-bottom: @PAGE_VMARGIN*0.7; // Should be 'in the middle' at the top
+    padding-bottom: @PAGE_VMARGIN;
+    border-bottom: 1px solid mix(@COLOR_FG, @COLOR_BG, 20%);
+    a {
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        font-size: 0.6em;
+        text-decoration: none;
+        color: @COLOR_FG;
+    }
 }
 
 section {
@@ -119,7 +127,7 @@ main {
         font-weight: 300;
         text-transform: uppercase;
     }
-    header + h1, h1:first-child, hr + h1, hr + h2, hr + h3 {
+    h1:first-child, hr + h1, hr + h2, hr + h3 {
         margin-top: @HR_VSPACE_RESET;
     }
     h2 {

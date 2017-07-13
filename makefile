@@ -227,7 +227,7 @@ $(DEST)/%.html: \
 # Any file in the source is also available at the destination
 $(DEST)/%: $(SRC)/%
 	@-mkdir -p $(@D)
-	ln -s --relative $< $@
+	-ln -s --relative $< $@
 
 
 # Any file in the cache is also available at the destination
