@@ -1,28 +1,43 @@
-SNEL = .
-SRC = $(SNEL)/example
-DEST = build
-CACHE = $(DEST)/.cache
+# Source and destination directories and FTP or SSH credentials. These are
+# expected to be changed in the `make` call or before the `include` statement
+# that refers to this file.
+ifndef SRC
+    SRC := example
+endif
+ifndef DEST
+    DEST := build
+endif
+ifndef GPG_ID
+    GPG_ID := user@domain.com
+endif
+ifndef USER
+    USER := user
+endif
+ifndef HOST
+    HOST := host
+endif
+ifndef REMOTE
+    REMOTE := /home/user/public_html
+endif
 
-INDEXER = $(SNEL)/index
-THEME = $(SNEL)/theme
-STYLES = $(THEME)/styles
-TEMPLATES = $(THEME)/templates
-FILTERS = $(THEME)/filters
 
+# Find out where this makefile is and assume that important directories are 
+# relative to it. The idea is to include this makefile from within other
+# makefiles, so this is important.
+# The shell dirname is used because make doesn't like spaces.
+MAKEFILE_PATH := $(abspath $(lastword $(MAKEFILE_LIST)))
+MAKEFILE_DIR := $(shell dirname "$(MAKEFILE_PATH)")
+INDEX_DIR := $(MAKEFILE_DIR)/index
+THEME_DIR := $(MAKEFILE_DIR)/theme
+STYLE_DIR := $(THEME_DIR)/stylesheet
+PANDOC_DIR := $(THEME_DIR)/pandoc
 
-# Credentials
-EMAIL=user@domain.com
-USER=user
-HOST=host
-REMOTE=/home/user/public_html
-
-
-# Source documents
+# Find source files
+CACHE := $(DEST)/.cache
 SOURCES = $(shell find $(SRC) -mindepth 1 -iname '*.md')
 
-
 # Files that should always be present at the destination
-RESOURCES_GLOBAL = \
+RESOURCES_GLOBAL := \
 	$(DEST)/sitemap.json \
 	$(DEST)/index.html \
 	$(DEST)/index.js \
@@ -70,13 +85,13 @@ upload-ftp: all
 
 # Public GPG key
 $(DEST)/public.gpg:
-	gpg --export $(EMAIL) > $@
+	gpg --export $(GPG_ID) > $@
 
 
 ##################
 # Styling & fonts
 
-$(DEST)/style.css: $(STYLES)/main.less $(wildcard $(STYLE)/*.less)
+$(DEST)/style.css: $(STYLE_DIR)/main.less $(wildcard $(STYLE_DIR)/*.less)
 	lessc --clean-css="--s1 --advanced --compatibility=ie8" $< $@
 
 
@@ -84,7 +99,7 @@ $(DEST)/style.css: $(STYLES)/main.less $(wildcard $(STYLE)/*.less)
 # Logos & covers
 
 # Select appropriate logo
-$(CACHE)/logo.svg: $(wildcard $(SRC)/logo.svg) $(THEME)/up.svg
+$(CACHE)/logo.svg: $(wildcard $(SRC)/logo.svg) $(THEME_DIR)/up.svg
 	@-mkdir -p $(@D)
 	ln -s --relative --force $< $@
 
@@ -138,25 +153,25 @@ $(CACHE)/%/epub-cover.jpg: $(wildcard $(SRC)/%/cover.*)
 # Dynamic & static index pages
 
 # JSON table of contents of the source directory 
-$(DEST)/sitemap.json: $(INDEXER)/sitemap.py $(SOURCES)
+$(DEST)/sitemap.json: $(INDEX_DIR)/sitemap.py $(SOURCES)
 	@-mkdir -p $(@D)
 	python3 $< $ $(SRC) > $@
 
 
 # Client-side script to generate a dynamic index from the sitemap
-$(DEST)/index.js: $(INDEXER)/view.js $(INDEXER)/view.externs.js
+$(DEST)/index.js: $(INDEX_DIR)/view.js $(INDEX_DIR)/view.externs.js
 	@-mkdir -p $(@D)
 	closure-compiler -O ADVANCED --warning_level VERBOSE \
-		--externs $(SNEL)/index/view.externs.js \
+		--externs $(INDEX_DIR)/view.externs.js \
 		--define='INDEX=/index.html' \
 		--js_output_file $@ $<
 
 
 # Static index page for when the client is unable to view the dynamic one
 $(DEST)/index.html: \
- 		   $(INDEXER)/dump.js \
+ 		   $(INDEX_DIR)/dump.js \
 		   $(CACHE)/dummy.html \
-		   $(INDEXER)/view.js \
+		   $(INDEX_DIR)/view.js \
 		   $(DEST)/sitemap.json
 	@-mkdir -p $(@D)
 	@echo "Generating index page $@..."
@@ -164,7 +179,7 @@ $(DEST)/index.html: \
 
 
 # Make dummy page for use in static index generation
-$(CACHE)/dummy.html: $(TEMPLATES)/template.html
+$(CACHE)/dummy.html: $(PANDOC_DIR)/template.html
 	@-mkdir -p $(@D)
 	echo "dummy" | pandoc \
 		--template $< --variable root='.' \
@@ -178,10 +193,10 @@ $(CACHE)/dummy.html: $(TEMPLATES)/template.html
 # Create HTML documents
 $(DEST)/%.html: \
 		$(SRC)/%.md \
-		$(SNEL)/makefile_targets.py \
+		$(MAKEFILE_DIR)/makefile_targets.py \
                 $(CACHE)/logo-inline.svg \
-		$(TEMPLATES)/template.html \
-		$(wildcard $(THEME)/filters/*.py) \
+		$(PANDOC_DIR)/template.html \
+		$(wildcard $(PANDOC_DIR)/*.py) \
 		$(wildcard $(SRC)/references.bib) 
 	@echo "Generating $@..."
 	@-mkdir -p "$(@D)"
@@ -196,7 +211,7 @@ $(DEST)/%.html: \
 		--metadata target-dump='$(patsubst $(DEST)/%.html,$(CACHE)/%.md.targets,$@)' \
 		--from markdown+footnotes+inline_notes+table_captions \
 		--to html5 --standalone \
-		--template $(TEMPLATES)/template.html \
+		--template $(PANDOC_DIR)/template.html \
 		$(foreach F,\
 			$(filter %.css, $^),\
 			--css=$(F) \
@@ -237,7 +252,7 @@ $(DEST)/%: $(CACHE)/%
 
 
 # Any file in the theme is also available at the destination
-$(DEST)/%: $(THEME)/%
+$(DEST)/%: $(THEME_DIR)/%
 	@-mkdir -p $(@D)
 	ln -s --relative $< $@
 

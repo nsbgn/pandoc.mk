@@ -3,8 +3,8 @@ snel
 
 `snel` is a [lightweight](http://idlewords.com/talks/website_obesity.htm) 
 template and a static website generator. It is currently a work-in-progress, 
-but it is functional. It roughly consists of three parts, each of which, I 
-hope, may prove useful to someone:
+but it is mostly functional. It roughly consists of three parts, each of 
+which, I hope, may prove useful to someone:
 
 1.  A simple `makefile` to create documents and other assets from plain text 
     sources.
@@ -16,8 +16,16 @@ hope, may prove useful to someone:
 3.  A minimalist theme to present the above in as clear and concise a way as 
     possible.
 
-To generate a `build/` directory containing all scripts, stylesheets, icons 
-and example documents, simply invoke `make`.
+Execute `make` to generate a `build/` directory containing all scripts, 
+stylesheets and the example website. 
+
+To use `snel` in another project, set the proper variables in the other 
+project's makefile, and then include this makefile in it. Among the variables 
+that need changing is probably at least `SRC`, the source directory. See 
+`snel.sh` for an alternative approach.
+
+(Note that putting certain files in `/usr/include` enables us to simply do 
+`include snel`.) 
 
 Should `snel` be a bit primitive for your tastes, try 
 [hugo](http://gohugo.io/), [hakyll](https://jaspervdj.be/hakyll/about.html),
@@ -47,6 +55,7 @@ together into a website generator. As of now, the recipe calls for at least
 [less](http://lesscss.org/) with 
 [clean-css](https://github.com/less/less-plugin-clean-css),
 [ImageMagick](http://www.imagemagick.org/),
+[jp2a](https://csl.name/jp2a/),
 [lftp](http://lftp.yar.ru/),
 [rsync](https://rsync.samba.org/) and
 [find](https://www.gnu.org/software/findutils/) --- but you could easily 
@@ -54,10 +63,11 @@ substitute any ingredient.
 
 In short, the recipe `find`s Markdown documents under the source directory 
 and, using `pandoc`, produces the corresponding HTML document under the 
-destination directory. Any image or other resource referenced in that source 
-file will also be created at the destination if a suitable recipe is found. 
-With the appropriate configuration, the results are then uploaded using `lftp` 
-or `rsync`.
+destination directory. Note that, upon running `make` a second time, any image 
+or other resource referenced in the source file will also be created at the 
+destination, if a suitable recipe was found. With the appropriate 
+configuration, the results can be uploaded by calling `make upload` (using 
+`lftp` or `rsync`).
 
 
 

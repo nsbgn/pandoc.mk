@@ -2,7 +2,7 @@
 
 # Wrapper that leverages a `make` recipe into compiling a static website.
 # The first argument is the source directory (default: current directory),
-# second argument is the destination directory (default: `dist` in sourc)
+# second argument is the destination directory (default: `build` in source)
 
 SNEL="$(dirname "$(readlink --canonicalize $0)")"
 
@@ -14,8 +14,7 @@ if [[ $SRC ]]; then
     # second, auxiliary files that were referenced in the files are
     # generated
     for TARGET in html resources upload-ftp; do
-        make --makefile="$SNEL/makefile" \
-            SNEL="$SNEL" \
+        cd $SNEL && make \
             SRC="$SRC" \
             DEST="$DEST" \
             "$TARGET" || exit
