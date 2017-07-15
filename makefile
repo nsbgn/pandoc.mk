@@ -107,9 +107,9 @@ $(DEST)/favicon2.ico: $(CACHE)/logo.svg
 # Icon for bookmark on Apple devices
 $(DEST)/apple-touch-icon.png: $(CACHE)/logo.svg
 	@-mkdir -p $(@D)
-	convert -density 1200 -resize 150x150 -colors 8 \
-		-border 26 -bordercolor '#fff' -background '#fff' -negate \
-		-define 'png:format=png8' -define 'png:compression-level=9' \
+	convert -density 1200 -resize 150x150 -gravity center -extent 180x180 \
+	    	-colors 8 -background '#fff' -negate \
+		-compress Zip -define 'png:format=png8' -define 'png:compression-level=9' \
 		$< $@
 
 

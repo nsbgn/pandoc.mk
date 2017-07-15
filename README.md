@@ -3,10 +3,8 @@ snel
 
 `snel` is a [lightweight](http://idlewords.com/talks/website_obesity.htm) 
 template and a static website generator. It is currently a work-in-progress, 
-but it is functional.
-
-It roughly consists of three parts, each of which, I hope, may prove
-useful to someone else:
+but it is functional. It roughly consists of three parts, each of which, I 
+hope, may prove useful to someone:
 
 1.  A simple `makefile` to create documents and other assets from plain text 
     sources.
@@ -21,7 +19,7 @@ useful to someone else:
 To generate a `build/` directory containing all scripts, stylesheets, icons 
 and example documents, simply invoke `make`.
 
-Should `snel` be a bit primitive for your tastes, you could try 
+Should `snel` be a bit primitive for your tastes, try 
 [hugo](http://gohugo.io/), [hakyll](https://jaspervdj.be/hakyll/about.html),
 [jekyll](http://jekyllrb.com/), [nanoc](https://nanoc.ws/), 
 [yst](https://github.com/jgm/yst) or [middleman](https://middlemanapp.com/)!
@@ -33,12 +31,12 @@ Makefile
 
 The most open format imaginable is plain text. It is lightweight, immediately 
 understandable and readily modifiable. It is also easy to 
-[manipulate](https://en.wikipedia.org/wiki/Unix_philosophy) such files using 
-standard tools, especially if you follow common formats like 
+[process](https://en.wikipedia.org/wiki/Unix_philosophy) such files using 
+standard tools, especially if you adhere to specifications like 
 [Markdown](http://commonmark.org/help/) and [YAML](http://www.yaml.org/spec/).
 
 It is in this spirit that I wrote a 
-[make](https://www.gnu.org/software/make)-recipe to glue some suitable tools 
+[make](https://www.gnu.org/software/make)-recipe to glue a couple of tools 
 together into a website generator. As of now, the recipe calls for at least
 [Pandoc](http://pandoc.org/) with 
 [pandoc-citeproc](https://github.com/jgm/pandoc-citeproc),
@@ -51,11 +49,11 @@ together into a website generator. As of now, the recipe calls for at least
 [ImageMagick](http://www.imagemagick.org/),
 [lftp](http://lftp.yar.ru/),
 [rsync](https://rsync.samba.org/) and
-[find](https://www.gnu.org/software/findutils/) --- but of course you could 
-easily substitute any ingredient.
+[find](https://www.gnu.org/software/findutils/) --- but you could easily 
+substitute any ingredient.
 
 In short, the recipe `find`s Markdown documents under the source directory 
-and, using `pandoc`, produces a corresponding HTML document under the 
+and, using `pandoc`, produces the corresponding HTML document under the 
 destination directory. Any image or other resource referenced in that source 
 file will also be created at the destination if a suitable recipe is found. 
 With the appropriate configuration, the results are then uploaded using `lftp` 
@@ -66,9 +64,9 @@ or `rsync`.
 Index
 ------------------------------------------------------------------------------
 
-For more or less the same reasons that I like plain text files, I'm attached 
-to the folder hierarchy they are in. The `sitemap.py` script generates a 
-site-wide table of contents directly from the directory structure.
+For more or less the same reasons that I like plain text files, I like the 
+folder hierarchy they are in. The `sitemap.py` script generates a site-wide 
+table of contents directly from the directory structure.
 
 The `index.js` script can then display this overview dynamically, so that it 
 is always accessible without further HTTP requests (and so that it may allow 
@@ -81,10 +79,10 @@ optional, since a static fallback is created using `phantomjs`.
 Style
 ------------------------------------------------------------------------------
 
-The theme is kept simple and monochrome. The most distinguishing quality is 
+The theme is kept simple and monochrome. Its most distinguishing quality is 
 that the table of contents extends horizontally and that all its entries are 
-visible without further tapping, hovering or sliding --- it is supposed to act 
-as a vantage point.
+visible without further tapping, hovering or sliding; it is supposed to act as 
+a vantage point.
 
 The CSS is written using `lessc` and minified with its `clean-css` plugin. The 
 filters are made with `panflute`.
