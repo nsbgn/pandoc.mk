@@ -1,3 +1,15 @@
+# Find out where this makefile is and assume that important directories are 
+# relative to it. The idea is to include this makefile from within other
+# makefiles, so this is important.
+# The shell dirname is used because make doesn't like spaces.
+MAKEFILE_PATH := $(abspath $(lastword $(MAKEFILE_LIST)))
+MAKEFILE_DIR := $(shell dirname "$(MAKEFILE_PATH)")
+INDEX_DIR := $(MAKEFILE_DIR)/index
+THEME_DIR := $(MAKEFILE_DIR)/theme
+STYLE_DIR := $(THEME_DIR)/stylesheet
+PANDOC_DIR := $(THEME_DIR)/pandoc
+
+
 # Source and destination directories and FTP or SSH credentials. These are
 # expected to be changed in the `make` call or before the `include` statement
 # that refers to this file.
@@ -19,22 +31,15 @@ endif
 ifndef REMOTE
     REMOTE := /home/user/public_html
 endif
+ifndef LOGO
+    LOGO := $(THEME_DIR)/up.svg
+endif
 
-
-# Find out where this makefile is and assume that important directories are 
-# relative to it. The idea is to include this makefile from within other
-# makefiles, so this is important.
-# The shell dirname is used because make doesn't like spaces.
-MAKEFILE_PATH := $(abspath $(lastword $(MAKEFILE_LIST)))
-MAKEFILE_DIR := $(shell dirname "$(MAKEFILE_PATH)")
-INDEX_DIR := $(MAKEFILE_DIR)/index
-THEME_DIR := $(MAKEFILE_DIR)/theme
-STYLE_DIR := $(THEME_DIR)/stylesheet
-PANDOC_DIR := $(THEME_DIR)/pandoc
 
 # Find source files
 CACHE := $(DEST)/.cache
-SOURCES = $(shell find $(SRC) -mindepth 1 -iname '*.md')
+SOURCES = $(shell find $(SRC) -mindepth 1 -iname '*.md' -print)
+
 
 # Files that should always be present at the destination
 RESOURCES_GLOBAL := \
@@ -49,15 +54,7 @@ RESOURCES_GLOBAL := \
 # On the first run, files referenced in the source documents are stored
 # somewhere. Upon a second run, those filenames are collected here and thereby
 # become targets themselves.
-RESOURCES_LOCAL = \
-	$(foreach F,\
-		$(patsubst \
-			$(SRC)/%.md,\
-	    		$(CACHE)/%.md.targets,\
-			$(SOURCES)\
-		),\
-		$(shell [ -f $(F) ] && cat $(F) )\
-	)
+RESOURCES_LOCAL = $(shell [ -d $(CACHE) ] && cat /dev/null `find $(CACHE) -mindepth 1 -iname '*.targets' -print`)
 
 
 
@@ -69,14 +66,16 @@ all: | html resources
 html: $(patsubst $(SRC)/%.md,$(DEST)/%.html,$(SOURCES)) 
 
 resources: $(RESOURCES_LOCAL) $(RESOURCES_GLOBAL)
+	@echo "The following additional resources were created: $(RESOURCES_LOCAL)"
 
-upload-ssh: all
+
+upload-ssh:
 	rsync -e ssh \
 		--recursive --exclude=.cache/ --times --copy-links \
 		--verbose --progress \
 		$(DEST)/ $(USER)@$(HOST):$(REMOTE)/
 
-upload-ftp: all
+upload-ftp:
 	read -s -p 'FTP password: ' password && \
 	lftp -u $(USER),$$password -e \
 	"mirror --reverse --only-newer --verbose --dry-run --exclude .cache/ $(DEST) $(REMOTE)" \
@@ -92,16 +91,18 @@ $(DEST)/public.gpg:
 # Styling & fonts
 
 $(DEST)/style.css: $(STYLE_DIR)/main.less $(wildcard $(STYLE_DIR)/*.less)
+	@-mkdir -p $(@D)
 	lessc --clean-css="--s1 --advanced --compatibility=ie8" $< $@
 
 
 #################
 # Logos & covers
 
-# Select appropriate logo
-$(CACHE)/logo.svg: $(wildcard $(SRC)/logo.svg) $(THEME_DIR)/up.svg
+# Optimise the SVG logo for inlining
+# Note that svgo doesn't use the proper exit code upon failure
+$(CACHE)/logo.svg: $(LOGO)
 	@-mkdir -p $(@D)
-	ln -s --relative --force $< $@
+	svgo $< $@
 
 
 # Favicon as bitmap
@@ -130,6 +131,7 @@ $(DEST)/apple-touch-icon.png: $(CACHE)/logo.svg
 
 # ASCII art logo, centred for 79-column text files
 $(CACHE)/logo.txt: $(CACHE)/logo.svg
+	@-mkdir -p $(@D)
 	convert -density 1200 -resize 128x128 $< $@.jpg
 	jp2a --width=23 --chars=\ -~o0@ -i $@.jpg | sed 's/^/$(shell printf '%-28s')/' > $@
 	rm $@.jpg
@@ -187,7 +189,7 @@ $(CACHE)/dummy.html: $(PANDOC_DIR)/template.html
 $(DEST)/%.html: \
 		$(SRC)/%.md \
 		$(MAKEFILE_DIR)/makefile_targets.py \
-                $(CACHE)/logo.min.svg \
+                $(CACHE)/logo.svg \
 		$(PANDOC_DIR)/template.html \
 		$(wildcard $(PANDOC_DIR)/*.py) \
 		$(wildcard $(SRC)/references.bib) 
@@ -223,7 +225,7 @@ $(DEST)/%.html: \
 		--mathml=https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=MML_HTMLorMML \
 		--smart --normalize --ascii --email-obfuscation=references \
 		--highlight-style=$(word 1, kate monochrome espresso zenburn haddock tango) \
-		--include-before-body="$(CACHE)/logo.min.svg" \
+		--include-before-body="$(CACHE)/logo.svg" \
 		--output=$@ \
 		$< $(filter %/metadata.yaml, $^)
 
@@ -231,11 +233,6 @@ $(DEST)/%.html: \
 
 ##########
 # Generic
-
-# Compress SVG
-$(CACHE)/%.min.svg: $(CACHE)/%.svg
-	svgo $< $@
-
 
 # Any file in the source is also available at the destination
 $(DEST)/%: $(SRC)/%
@@ -246,13 +243,13 @@ $(DEST)/%: $(SRC)/%
 # Any file in the cache is also available at the destination
 $(DEST)/%: $(CACHE)/%
 	@-mkdir -p $(@D)
-	ln -s --relative $< $@
+	-ln -s --relative $< $@
 
 
 # Any file in the theme is also available at the destination
 $(DEST)/%: $(THEME_DIR)/%
 	@-mkdir -p $(@D)
-	ln -s --relative $< $@
+	-ln -s --relative $< $@
 
 
 # Create a zipped archive
