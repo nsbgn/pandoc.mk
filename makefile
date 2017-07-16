@@ -135,13 +135,6 @@ $(CACHE)/logo.txt: $(CACHE)/logo.svg
 	rm $@.jpg
 
 
-# Create a logo suitable for inlining by removing the top <?XML?> declaration
-# and stripping any inline styles (GNU sed-specific and non-portable!)
-$(CACHE)/logo-inline.svg: $(CACHE)/logo.svg
-	@-mkdir -p $(@D)
-	sed 's/\(^<?[^?]*?>\)\|\(\ style="[^"]*"\)//g' $< > $@
-
-
 # Cover for EPUB books
 $(CACHE)/%/epub-cover.jpg: $(wildcard $(SRC)/%/cover.*)
 	@echo 'Generating EPUB cover...'
@@ -194,7 +187,7 @@ $(CACHE)/dummy.html: $(PANDOC_DIR)/template.html
 $(DEST)/%.html: \
 		$(SRC)/%.md \
 		$(MAKEFILE_DIR)/makefile_targets.py \
-                $(CACHE)/logo-inline.svg \
+                $(CACHE)/logo.min.svg \
 		$(PANDOC_DIR)/template.html \
 		$(wildcard $(PANDOC_DIR)/*.py) \
 		$(wildcard $(SRC)/references.bib) 
@@ -230,7 +223,7 @@ $(DEST)/%.html: \
 		--mathml=https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=MML_HTMLorMML \
 		--smart --normalize --ascii --email-obfuscation=references \
 		--highlight-style=$(word 1, kate monochrome espresso zenburn haddock tango) \
-		--variable inline_logo="$$(cat $(CACHE)/logo-inline.svg)" \
+		--include-before-body="$(CACHE)/logo.min.svg" \
 		--output=$@ \
 		$< $(filter %/metadata.yaml, $^)
 
@@ -238,6 +231,11 @@ $(DEST)/%.html: \
 
 ##########
 # Generic
+
+# Compress SVG
+$(CACHE)/%.min.svg: $(CACHE)/%.svg
+	svgo $< $@
+
 
 # Any file in the source is also available at the destination
 $(DEST)/%: $(SRC)/%
@@ -276,10 +274,10 @@ $(DEST)/%.tar.gz: $(SRC)/%
 # Note: these targets should not be remade here, that's what the make call is
 # for. We should only note that they have changed. (e.g. one of the files is
 # newer than the destination file)
-$(DEST)/%: 
-	@echo 'Trying to find recipe for $@...'
-	@cd $(patsubst $(DEST)%,$(SRC)%,$(@D)) && \
-	$(MAKE) $(@F) && mv $(@F) $(@D)/
+#$(DEST)/%: 
+#	@echo 'Trying to find recipe for $@...'
+#	@cd $(patsubst $(DEST)%,$(SRC)%,$(@D)) && \
+#	$(MAKE) $(@F) && mv $(@F) $(@D)/
 
 
 # Generate a YAML bibliography from a BIB bibliography

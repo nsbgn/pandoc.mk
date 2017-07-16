@@ -36,10 +36,7 @@ $header-includes$
 $endfor$
 </head>
 <body>
-$for(include-before)$
-$include-before$
-$endfor$
-<header><a href="/index.html"><div>$if(inline_logo)$$inline_logo$$endif$</div><div>Table of contents</div></a></header>
+<header><a href="/index.html"><div>$for(include-before)$$include-before$$endfor$</div><div>Table of contents</div></a></header>
 $if(toc)$
 <nav id="$idprefix$toc">
 <div>

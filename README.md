@@ -54,6 +54,7 @@ together into a website generator. As of now, the recipe calls for at least
 [PhantomJS](https://phantomjs.org),
 [less](http://lesscss.org/) with 
 [clean-css](https://github.com/less/less-plugin-clean-css),
+[svgo](https://github.com/svg/svgo),
 [ImageMagick](http://www.imagemagick.org/),
 [jp2a](https://csl.name/jp2a/),
 [lftp](http://lftp.yar.ru/),

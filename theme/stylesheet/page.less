@@ -36,8 +36,12 @@ header {
     text-align: center;
     padding-bottom: @PAGE_VMARGIN;
     border-bottom: 1px solid mix(@COLOR_FG, @COLOR_BG, 20%);
+
+    svg {
+        margin-bottom: 0.4em;
+    }
     a {
-        letter-spacing: 0.08em;
+        letter-spacing: 0.04em;
         text-transform: uppercase;
         font-size: 0.6em;
         text-decoration: none;
@@ -48,7 +52,6 @@ header {
 section {
     margin: 0.5em auto 0;
     
-    hr { display:none; } // TODO This is too hacky. I should be able to prevent the HR from occurring in the code at all.
     h1 {
         margin: 0 0 0.2em;
         font-size: @L2_SIZE;
