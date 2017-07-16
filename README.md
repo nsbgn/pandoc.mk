@@ -6,8 +6,8 @@ template and a static website generator. It is currently a work-in-progress,
 but it is mostly functional. It roughly consists of three parts, each of 
 which, I hope, may prove useful to someone:
 
-1.  A simple `makefile` to create documents and other assets from plain text 
-    sources.
+1.  A simple `snel.mk` makefile to create documents and other assets from 
+    plain text sources.
 
 2.  A Python script to generate a table of contents directly from the 
     directory structure. A small JavaScript can optionally show this overview 
@@ -16,16 +16,13 @@ which, I hope, may prove useful to someone:
 3.  A minimalist theme to present the above in as clear and concise a way as 
     possible.
 
-Execute `make` to generate a `build/` directory containing all scripts, 
+Simply execute `make` to generate a `build/` directory containing all scripts, 
 stylesheets and the example website. 
 
-To use `snel` in another project, set the proper variables in the other 
-project's makefile, and then include this makefile in it. Among the variables 
-that need changing is probably at least `SRC`, the source directory. See 
-`snel.sh` for an alternative approach.
-
-(Note that putting certain files in `/usr/include` enables us to simply do 
-`include snel`.) 
+To make `snel` available globally, do `sudo make install`. You can then simply 
+`include snel.mk` from any other makefile to import all its recipes and 
+variables. Among the variables you will want to set prior to including is 
+probably at least `SRC`, the source directory.
 
 Should `snel` be a bit primitive for your tastes, try 
 [hugo](http://gohugo.io/), [hakyll](https://jaspervdj.be/hakyll/about.html),

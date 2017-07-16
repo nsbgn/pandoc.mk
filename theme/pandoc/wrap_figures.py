@@ -1,3 +1,5 @@
+#!/bin/env python3
+
 """
 Wrap code blocks and tables in figures, just like images are by default.
 """

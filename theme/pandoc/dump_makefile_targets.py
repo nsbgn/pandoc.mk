@@ -1,3 +1,5 @@
+#!/bin/env python3
+
 """
 Filter that dumps the local links in a document to a file
 """
