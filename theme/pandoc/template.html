@@ -36,7 +36,7 @@ $header-includes$
 $endfor$
 </head>
 <body>
-<header><a href="/index.html"><div>$for(include-before)$$include-before$$endfor$</div><div>Table of contents</div></a></header>
+<header><a href="/index.html">$for(include-before)$<div>$include-before$</div>$endfor$<span>Table of contents</span></a></header>
 $if(toc)$
 <nav id="$idprefix$toc">
 <div>
@@ -45,7 +45,7 @@ $toc$
 </nav>
 $endif$
 <main>
-<h1>$title$</h1>
+<h1>$if(title)$$title$$else$Untitled$endif$</h1>
 $body$
 <footer>&mdash; $if(author)$$author$$else$Anonymous$endif$$if(date)$, $date$$endif$</footer>
 </main>

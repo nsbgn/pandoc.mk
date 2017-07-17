@@ -39,9 +39,9 @@ endif
 ifndef LOGO
     LOGO := $(THEME_DIR)/up.svg
 endif
-
-
-CACHE := $(DEST)/.cache
+ifndef CACHE
+    CACHE := $(DEST)/.cache
+endif
 
 
 # Find source files
@@ -50,12 +50,14 @@ SOURCES = $(shell find $(SRC) -mindepth 1 -iname '*.md' -print)
 # On the first run, files referenced in the source documents are stored
 # somewhere using a filter. Upon a second run, those filenames are collected 
 # here and will be targets themselves.
-RESOURCES = $(shell [ -d $(CACHE) ] && cat /dev/null `find $(CACHE) -mindepth 1 -iname '*.targets' -print`)
+RESOURCES = $(shell \
+	[ -d $(CACHE) ] && \
+	cat /dev/null `find $(CACHE) -mindepth 1 -iname '*.targets' -print` \
+)
 
 
-
-##########
-# Recipes
+##########################################################################$$$$
+# Phony targets
 
 all: | html resources
 
@@ -69,7 +71,6 @@ resources: \
 		$(DEST)/favicon.ico \
 		$(DEST)/apple-touch-icon.png \
 		$(RESOURCES)
-	@echo "The following resources were created: $^"
 
 
 upload-ssh:
@@ -85,53 +86,40 @@ upload-ftp:
 	$(HOST)
 
 
-# Public GPG key
-$(DEST)/public.gpg:
-	gpg --export $(GPG_ID) > $@
+upload: upload-ftp
 
 
-##################
-# Styling & fonts
+.PHONY: prepare all html resources upload upload-ssh upload-ftp
 
+
+
+##########################################################################$$$$
+# Theme
+
+# Stylesheet
 $(DEST)/style.css: $(STYLE_DIR)/main.less $(wildcard $(STYLE_DIR)/*.less)
 	@-mkdir -p $(@D)
 	lessc --clean-css="--s1 --advanced --compatibility=ie8" $< $@
 
 
-#################
-# Logos & covers
-
-# Optimise the SVG logo for inlining
+# Optimised SVG logo for inlining
 # Note that svgo doesn't use the proper exit code upon failure
 $(CACHE)/logo.svg: $(LOGO)
 	@-mkdir -p $(@D)
 	svgo $< $@
 
 
-# Favicon as bitmap # -draw "circle 7.5,7.5 0,7.5"
+# Favicon as bitmap
 $(DEST)/favicon.ico: $(CACHE)/logo.svg
 	@-mkdir -p $(@D)
-	convert xc:none -resize 16x16 \
-	    -fill white -draw "roundrectangle 0,0 15,15 3,3" \
-	    \( $< -transparent white -resize 16x16 \) \
-	    -composite $@
+	convert $< -transparent white -resize 16x16 -level '0%,100%,0.6' $@
 
 
-
-# Favicon as embedded PNG with boolean transparency
-$(DEST)/favicon2.ico: $(CACHE)/logo.svg
-	@-mkdir -p $(@D)
-	convert -background none -resize 16x16 -transparent-color '#fff' \
-		-compress Zip -define 'png:format=png8' \
-		-define 'png:compression-level=9' -gravity center \
-		$< $@
-
-
-# Icon for bookmark on Apple devices   -colors 8 
+# Icon for bookmark on Apple devices
 $(DEST)/apple-touch-icon.png: $(CACHE)/logo.svg
 	@-mkdir -p $(@D)
 	convert -density 1200 -resize 140x140 -gravity center -extent 180x180 \
-	    	-background '#fff' +level-colors '#fff,#711' -colors 16 \
+	    	+level-colors '#fff,#711' -colors 16 \
 		-compress Zip -define 'png:format=png8' -define 'png:compression-level=9' \
 		$< $@
 
@@ -151,8 +139,8 @@ $(CACHE)/%/epub-cover.jpg: $(wildcard $(SRC)/%/cover.*)
 
 
 
-###############################
-# Dynamic & static index pages
+##########################################################################$$$$
+# Index
 
 # JSON table of contents of the source directory 
 $(DEST)/sitemap.json: $(INDEX_DIR)/sitemap.py $(SOURCES)
@@ -189,8 +177,8 @@ $(CACHE)/dummy.html: $(PANDOC_DIR)/template.html
 
 
 
-########
-# Pages
+##########################################################################$$$$
+# Documents
 
 # Create HTML documents
 $(DEST)/%.html: \
@@ -226,7 +214,6 @@ $(DEST)/%.html: \
 			$(filter %.py, $^),\
 			--filter=$(F) \
 		)\
-		--toc --toc-depth=3 \
 		--base-header-level=2 \
 		--mathml=https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=MML_HTMLorMML \
 		--smart --normalize --ascii --email-obfuscation=references \
@@ -237,8 +224,8 @@ $(DEST)/%.html: \
 
 
 
-##########
-# Generic
+##########################################################################$$$$
+# Generic recipes
 
 # Any file in the source is also available at the destination
 $(DEST)/%: $(SRC)/%
@@ -249,13 +236,18 @@ $(DEST)/%: $(SRC)/%
 # Any file in the cache is also available at the destination
 $(DEST)/%: $(CACHE)/%
 	@-mkdir -p $(@D)
-	-ln -s --relative $< $@
+	-cp $< $@
 
 
 # Any file in the theme is also available at the destination
 $(DEST)/%: $(THEME_DIR)/%
 	@-mkdir -p $(@D)
 	-ln -s --relative $< $@
+
+
+# Public GPG key
+$(DEST)/public.gpg:
+	gpg --export $(GPG_ID) > $@
 
 
 # Create a zipped archive
@@ -270,22 +262,6 @@ $(DEST)/%.tar.gz: $(SRC)/%
 	tar -zcvf $@ $^
 
 
-# As a last resort, try to find a recipe for the file in the source directory
-# Beware of infinite loops?
-# Find a way to also monitor changes to prerequisites here? To show all targets:
-# make --dry-run --always-make --debug=b <TARGET> | sed -n 's/\s*Must remake target '\(.*\)'\./\1/p"
-# Note: these targets should not be remade here, that's what the make call is
-# for. We should only note that they have changed. (e.g. one of the files is
-# newer than the destination file)
-#$(DEST)/%: 
-#	@echo 'Trying to find recipe for $@...'
-#	@cd $(patsubst $(DEST)%,$(SRC)%,$(@D)) && \
-#	$(MAKE) $(@F) && mv $(@F) $(@D)/
-
-
 # Generate a YAML bibliography from a BIB bibliography
 %.yaml: %.bib
 	pandoc-citeproc --bib2yaml $< > $@
-
-
-.PHONY: prepare all html resources
