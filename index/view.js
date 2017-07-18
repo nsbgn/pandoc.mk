@@ -207,7 +207,17 @@ function guess_title(path){
  * @return {undefined}
  */
 function process(raw){
-    var json = JSON.parse(raw);
+    var json;
+    try {
+        json = JSON.parse(raw);
+    } 
+    catch(e) {
+        // upon e.name == "SyntaxError", clear the local storage so that it 
+        // might work next time
+        localStorage.clear();
+        return;
+    }
+
 
     // Populate object containing the original page
     var nodes = [];
