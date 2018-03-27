@@ -13,16 +13,10 @@ which, I hope, may prove useful to someone:
     directory structure. A small JavaScript can optionally show this overview 
     dynamically. 
 
-3.  A minimalist theme to present the above in as clear and concise a way as 
-    possible.
+3.  A concise theme to present the above.
 
-Simply execute `make` or `make -j` to generate a `build/` directory containing 
-all scripts, stylesheets and the example website. 
-
-To make `snel` available globally, do `sudo make install`. You can then simply 
-`include snel.mk` from any other makefile to import all its recipes and 
-variables. Among the variables you will want to set prior to including is 
-probably at least `SRC`, the source directory.
+Execute `make -f snel.mk` to generate a `build/` directory containing scripts, 
+stylesheets and the example website. 
 
 Should `snel` be a bit primitive for your tastes, try 
 [hugo](http://gohugo.io/), [hakyll](https://jaspervdj.be/hakyll/about.html),
@@ -34,15 +28,19 @@ Should `snel` be a bit primitive for your tastes, try
 Makefile
 ------------------------------------------------------------------------------
 
-The most open format imaginable is plain text. It is lightweight, immediately 
-understandable and readily modifiable. It is also easy to 
-[process](https://en.wikipedia.org/wiki/Unix_philosophy) such files using 
-standard tools, especially if you adhere to specifications like 
-[Markdown](http://commonmark.org/help/) and [YAML](http://www.yaml.org/spec/).
+Plain text formats like [Markdown](http://commonmark.org/help/) and 
+[YAML](http://www.yaml.org/spec/) are lightweight, understandable, and 
+modifiable. I glued a couple of 
+[standard](https://en.wikipedia.org/wiki/Unix_philosophy) tools into a 
+[make](https://www.gnu.org/software/make)-recipe for website generation.
 
-It is in this spirit that I wrote a 
-[make](https://www.gnu.org/software/make)-recipe to glue a couple of tools 
-together into a website generator. As of now, the recipe calls for at least
+It creates an HTML document for every Markdown document it can `find` in the 
+source directory, using `pandoc`. Upon running `make` a second time, any image 
+or other resource referenced in the source file will also be generated. With 
+the appropriate configuration, the results can be uploaded by calling `make 
+upload` (using `lftp` or `rsync`).
+
+As of now, the recipe calls for at least
 [Pandoc](http://pandoc.org/) 2.x with 
 [pandoc-citeproc](https://github.com/jgm/pandoc-citeproc),
 [Panflute](https://github.com/sergiocorreia/panflute),
@@ -60,22 +58,13 @@ together into a website generator. As of now, the recipe calls for at least
 [find](https://www.gnu.org/software/findutils/) --- but you could easily 
 substitute any ingredient.
 
-In short, the recipe `find`s Markdown documents under the source directory 
-and, using `pandoc`, produces the corresponding HTML document under the 
-destination directory. Note that, upon running `make` a second time, any image 
-or other resource referenced in the source file will also be created at the 
-destination, if a suitable recipe was found. With the appropriate 
-configuration, the results can be uploaded by calling `make upload` (using 
-`lftp` or `rsync`).
-
-
 
 Index
 ------------------------------------------------------------------------------
 
-For more or less the same reasons that I like plain text files, I like the 
-folder hierarchy they are in. The `sitemap.py` script generates a site-wide 
-table of contents directly from the directory structure.
+The directory hierarchy is useful for much the same reason that plain text is 
+useful. The `generate-index.py` script generates a site-wide table of contents 
+directly from the folder structure.
 
 The `index.js` script can then display this overview dynamically, so that it 
 is always accessible without further HTTP requests (and so that it may allow 
@@ -91,13 +80,8 @@ Style
 The theme is kept simple and monochrome. Its most distinguishing quality is 
 that the table of contents extends horizontally and that all its entries are 
 visible without further tapping, hovering or sliding; it is supposed to act as 
-a vantage point.
-
-The CSS is written using `lessc` and minified with its `clean-css` plugin. The 
-filters are made with `panflute`.
-
-Note that citation styles can be found at
-[CSL](https://github.com/citation-style-language/styles).
+a vantage point. The CSS is written using `lessc` and minified with its 
+`clean-css` plugin. The filters are made with `panflute`.
 
 
 

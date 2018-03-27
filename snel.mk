@@ -1,19 +1,10 @@
-# Installation directories
-PREFIX := /usr/local
-INCLUDE_DIR := $(PREFIX)/include
-SHARE_DIR := $(PREFIX)/share/snel
-
-# Unless specified otherwise, we're assuming that the resources snel needs are
-# installed here
+# Source and destination directories, and FTP or SSH credentials. These are
+# expected to be changed in the `make` call or before the `include` statement.
 ifndef SNEL_DIR
-    SNEL_DIR := $(SHARE_DIR)
+    BASE := .
 endif
-
-# Source and destination directories and FTP or SSH credentials. These are
-# expected to be changed in the `make` call or before the `include` statement
-# that refers to this file.
 ifndef SRC
-    SRC := example
+    SRC := $(BASE)/example
 endif
 ifndef DEST
     DEST := build
@@ -37,7 +28,7 @@ ifndef CACHE
     CACHE := $(DEST)/.cache
 endif
 ifndef ASSETS
-    ASSETS := assets
+    ASSETS := $(BASE)/assets
 endif
 
 # Find source files
