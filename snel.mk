@@ -1,6 +1,6 @@
 # Source and destination directories, and FTP or SSH credentials. These are
 # expected to be changed in the `make` call or before the `include` statement.
-ifndef SNEL_DIR
+ifndef BASE
     BASE := .
 endif
 ifndef SRC
@@ -8,6 +8,12 @@ ifndef SRC
 endif
 ifndef DEST
     DEST := build
+endif
+ifndef CACHE
+    CACHE := $(DEST)/.cache
+endif
+ifndef ASSETS
+    ASSETS := $(BASE)/assets
 endif
 ifndef GPG_ID
     GPG_ID := user@domain.com
@@ -21,15 +27,6 @@ endif
 ifndef REMOTE
     REMOTE := /home/user/public_html
 endif
-ifndef LOGO
-    LOGO := $(SRC)/logo.svg
-endif
-ifndef CACHE
-    CACHE := $(DEST)/.cache
-endif
-ifndef ASSETS
-    ASSETS := $(BASE)/assets
-endif
 
 # Find source files
 SOURCES = $(shell find $(SRC) -mindepth 1 -iname '*.md' -print)
@@ -38,7 +35,7 @@ SOURCES = $(shell find $(SRC) -mindepth 1 -iname '*.md' -print)
 METADATA = $(patsubst $(SRC)/%,$(CACHE)/%.meta.json,$(SOURCES))
 
 # Files referenced in the source documents are targets themselves
-REFERENCED = $(shell cat /dev/null $(METADATA) | jq --raw-output '.targets[]?' )
+REFERENCED = $(shell [ -d $(CACHE) ] && cat /dev/null $(METADATA) | jq --raw-output '.targets[]?' )
 
 
 ##########################################################################$$$$
@@ -89,7 +86,7 @@ $(DEST)/style.css: $(ASSETS)/style-main.less $(wildcard $(ASSETS)/*.less)
 
 
 # Optimised SVG logo for inlining
-$(CACHE)/logo.svg: $(LOGO)
+$(CACHE)/logo.svg: $(SRC)/logo.svg
 	@-mkdir -p $(@D)
 	svgo --input=$< --output=$@
 
@@ -121,9 +118,9 @@ $(CACHE)/logo.txt: $(CACHE)/logo.svg
 # Index
 
 # JSON table of contents of the source directory 
-$(DEST)/sitemap.json: $(ASSETS)/index-generate.py $(SOURCES) $(METADATA)
+$(DEST)/sitemap.json: $(ASSETS)/index-generate.py $(METADATA)
 	@-mkdir -p $(@D)
-	python3 $< $ $(SRC) > $@
+	python3 $< $(CACHE) > $@
 
 
 # Compressed client-side script to generate a dynamic index from the sitemap
@@ -218,9 +215,8 @@ $(DEST)/%.html: \
 $(CACHE)/%.md.meta.json: $(SRC)/%.md $(CACHE)/metadata-template.txt
 	@-mkdir -p "$(@D)"
 	pandoc \
-		--metadata root='$(shell realpath $(CACHE) --relative-to $(@D))/' \
-		--metadata path='$(shell realpath $(@D) --relative-to $(CACHE))' \
-		--metadata file='$(patsubst %.meta.json,%,$(@F))' \
+		--metadata link='$(patsubst $(CACHE)/%.md.meta.json,%.html,$@)' \
+		--metadata original='$(patsubst $(CACHE)/%.md.meta.json,$(SRC)/%.md,$@)' \
 		--template='$(CACHE)/metadata-template.txt' \
 		--to=plain \
 		--output=$@ \

@@ -69,7 +69,7 @@ function list(entries){
                     "href": ROOT + entry["p"],
                     "title": entry["a"]
                 },
-                [ entry["t"] || entry["p"] ]
+                [ entry["t"] || "untitled" ]
             );
 
             items.push(
