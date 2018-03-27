@@ -5,8 +5,6 @@ This filter puts references in the metadata, so that they can be
 relocated in the template.
 """
 
-# TODO: Do the same for footnotes, somehow
-
 import panflute as pf
 
 def prepare(doc):

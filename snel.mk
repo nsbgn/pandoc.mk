@@ -9,12 +9,6 @@ ifndef SNEL_DIR
     SNEL_DIR := $(SHARE_DIR)
 endif
 
-INDEX_DIR := $(SNEL_DIR)/index
-THEME_DIR := $(SNEL_DIR)/theme
-STYLE_DIR := $(THEME_DIR)/stylesheet
-PANDOC_DIR := $(THEME_DIR)/pandoc
-
-
 # Source and destination directories and FTP or SSH credentials. These are
 # expected to be changed in the `make` call or before the `include` statement
 # that refers to this file.
@@ -37,23 +31,23 @@ ifndef REMOTE
     REMOTE := /home/user/public_html
 endif
 ifndef LOGO
-    LOGO := $(THEME_DIR)/up.svg
+    LOGO := $(SRC)/logo.svg
 endif
 ifndef CACHE
     CACHE := $(DEST)/.cache
 endif
-
+ifndef ASSETS
+    ASSETS := assets
+endif
 
 # Find source files
 SOURCES = $(shell find $(SRC) -mindepth 1 -iname '*.md' -print)
 
-# On the first run, files referenced in the source documents are stored
-# somewhere using a filter. Upon a second run, those filenames are collected 
-# here and will be targets themselves.
-RESOURCES = $(shell \
-	[ -d $(CACHE) ] && \
-	cat /dev/null `find $(CACHE) -mindepth 1 -iname '*.targets' -print` \
-)
+# Metadata is collected for each source file
+METADATA = $(patsubst $(SRC)/%,$(CACHE)/%.meta.json,$(SOURCES))
+
+# Files referenced in the source documents are targets themselves
+REFERENCED = $(shell cat /dev/null $(METADATA) | jq --raw-output '.targets[]?' )
 
 
 ##########################################################################$$$$
@@ -70,8 +64,9 @@ resources: \
 		$(DEST)/style.css \
 		$(DEST)/favicon.ico \
 		$(DEST)/apple-touch-icon.png \
-		$(RESOURCES)
+		$(REFERENCED)
 
+metadata: $(METADATA)
 
 upload-ssh:
 	rsync -e ssh \
@@ -97,16 +92,15 @@ upload: upload-ftp
 # Theme
 
 # Stylesheet
-$(DEST)/style.css: $(STYLE_DIR)/main.less $(wildcard $(STYLE_DIR)/*.less)
+$(DEST)/style.css: $(ASSETS)/style-main.less $(wildcard $(ASSETS)/*.less)
 	@-mkdir -p $(@D)
-	lessc --clean-css="--s1 --advanced --compatibility=ie8" $< $@
+	lessc --clean-css="--s1 --advanced" $< $@
 
 
 # Optimised SVG logo for inlining
-# Note that svgo doesn't use the proper exit code upon failure
 $(CACHE)/logo.svg: $(LOGO)
 	@-mkdir -p $(@D)
-	svgo $< $@
+	svgo --input=$< --output=$@
 
 
 # Favicon as bitmap
@@ -132,48 +126,56 @@ $(CACHE)/logo.txt: $(CACHE)/logo.svg
 	rm $@.jpg
 
 
-# Cover for EPUB books
-$(CACHE)/%/epub-cover.jpg: $(wildcard $(SRC)/%/cover.*)
-	@echo 'Generating EPUB cover...'
-	convert -resize 600x800 $< $@
-
-
-
 ##########################################################################$$$$
 # Index
 
 # JSON table of contents of the source directory 
-$(DEST)/sitemap.json: $(INDEX_DIR)/sitemap.py $(SOURCES)
+$(DEST)/sitemap.json: $(ASSETS)/index-generate.py $(SOURCES) $(METADATA)
 	@-mkdir -p $(@D)
 	python3 $< $ $(SRC) > $@
 
 
-# Client-side script to generate a dynamic index from the sitemap
-$(DEST)/index.js: $(INDEX_DIR)/view.js $(INDEX_DIR)/view.externs.js
+# Compressed client-side script to generate a dynamic index from the sitemap
+$(DEST)/index.js: $(ASSETS)/index-view.js $(CACHE)/closure-externs.js
 	@-mkdir -p $(@D)
 	closure-compiler -O ADVANCED --warning_level VERBOSE \
-		--externs $(INDEX_DIR)/view.externs.js \
+		--externs $(CACHE)/closure-externs.js \
 		--define='INDEX=/index.html' \
 		--js_output_file $@ $<
 
 
 # Static index page for when the client is unable to view the dynamic one
 $(DEST)/index.html: \
- 		   $(INDEX_DIR)/dump.js \
-		   $(CACHE)/dummy.html \
-		   $(INDEX_DIR)/view.js \
-		   $(DEST)/sitemap.json
+ 		$(ASSETS)/index-dump.js \
+		$(CACHE)/dummy.html \
+		$(ASSETS)/index-view.js \
+		$(DEST)/sitemap.json
 	@-mkdir -p $(@D)
 	@echo "Generating index page $@..."
 	phantomjs $+ $@
 
 
-# Make dummy page for use in static index generation
-$(CACHE)/dummy.html: $(PANDOC_DIR)/template.html
+# Dummy page for use in static index generation
+$(CACHE)/dummy.html: $(ASSETS)/pandoc-template.html
 	@-mkdir -p $(@D)
 	echo "dummy" | pandoc \
-		--template $< --variable root='.' \
-		--to html5 --standalone --output=$@
+		--template $< \
+		--variable root='.' \
+		--to html5 \
+		--standalone \
+		--output=$@
+
+
+# Dummy page for metadata export
+$(CACHE)/metadata-template.txt:
+	@-mkdir -p $(@D)
+	echo '$$meta-json$$' > $@
+
+
+# Dummy page defining external variables for the closure compiler
+$(CACHE)/closure-externs.js:
+	@-mkdir -p $(@D)
+	echo 'var ROOT,localStorage;' > $@
 
 
 
@@ -184,8 +186,8 @@ $(CACHE)/dummy.html: $(PANDOC_DIR)/template.html
 $(DEST)/%.html: \
 		$(SRC)/%.md \
                 $(CACHE)/logo.svg \
-		$(PANDOC_DIR)/template.html \
-		$(wildcard $(PANDOC_DIR)/*.py) \
+		$(ASSETS)/pandoc-template.html \
+		$(ASSETS)/pandoc-extract-references.py \
 		$(wildcard $(SRC)/references.bib) 
 	@echo "Generating $@..."
 	@-mkdir -p "$(@D)"
@@ -197,31 +199,41 @@ $(DEST)/%.html: \
 		--metadata path='$(shell realpath $(@D) --relative-to $(DEST))' \
 		--metadata file='$(@F)' \
 		--metadata root='$(shell realpath $(DEST) --relative-to $(@D))/' \
-		--metadata target-dump='$(patsubst $(DEST)/%.html,$(CACHE)/%.md.targets,$@)' \
-		--from markdown+footnotes+inline_notes+table_captions \
-		--to html5 --standalone \
-		--template $(PANDOC_DIR)/template.html \
+		--from markdown+smart+fenced_divs+footnotes+inline_notes+table_captions \
+		--to html5 \
+		--standalone \
+		--filter $(ASSETS)/pandoc-extract-references.py \
+		--include-before-body="$(CACHE)/logo.svg" \
+		--template $(ASSETS)/pandoc-template.html \
 		$(foreach F,\
 			$(filter %.css, $^),\
 			--css=$(F) \
 		) \
 		--filter pandoc-citeproc \
 		$(foreach F,\
-			$(filter %.bib %/references.yaml, $^),\
+			$(filter %.bib, $^),\
 			--bibliography=$(F) \
 		)\
-		$(foreach F,\
-			$(filter %.py, $^),\
-			--filter=$(F) \
-		)\
 		--base-header-level=2 \
-		--mathml=https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=MML_HTMLorMML \
-		--smart --normalize --ascii --email-obfuscation=references \
-		--highlight-style=$(word 1, kate monochrome espresso zenburn haddock tango) \
-		--include-before-body="$(CACHE)/logo.svg" \
+		--ascii \
+		--email-obfuscation=references \
+		--highlight-style=monochrome \
 		--output=$@ \
-		$< $(filter %/metadata.yaml, $^)
+		$< \
+		$(filter %/metadata.yaml, $^)
 
+
+# Record metadata for each document
+$(CACHE)/%.md.meta.json: $(SRC)/%.md $(CACHE)/metadata-template.txt
+	@-mkdir -p "$(@D)"
+	pandoc \
+		--metadata root='$(shell realpath $(CACHE) --relative-to $(@D))/' \
+		--metadata path='$(shell realpath $(@D) --relative-to $(CACHE))' \
+		--metadata file='$(patsubst %.meta.json,%,$(@F))' \
+		--template='$(CACHE)/metadata-template.txt' \
+		--to=plain \
+		--output=$@ \
+		$<
 
 
 ##########################################################################$$$$
@@ -229,18 +241,6 @@ $(DEST)/%.html: \
 
 # Any file in the source is also available at the destination
 $(DEST)/%: $(SRC)/%
-	@-mkdir -p $(@D)
-	-ln -s --relative $< $@
-
-
-# Any file in the cache is also available at the destination
-$(DEST)/%: $(CACHE)/%
-	@-mkdir -p $(@D)
-	-cp $< $@
-
-
-# Any file in the theme is also available at the destination
-$(DEST)/%: $(THEME_DIR)/%
 	@-mkdir -p $(@D)
 	-ln -s --relative $< $@
 
@@ -261,7 +261,3 @@ $(DEST)/%.tar.gz: $(SRC)/%
 	@-mkdir -p $(@D)
 	tar -zcvf $@ $^
 
-
-# Generate a YAML bibliography from a BIB bibliography
-%.yaml: %.bib
-	pandoc-citeproc --bib2yaml $< > $@

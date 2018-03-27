@@ -9,14 +9,13 @@
  * JavaScript is disabled and ones that don't support one of the prerequisites
  * will simply see the link to the static page.
  *
- * [ To test locally on Chromium, do --allow-file-access-from-files. ]
  *****************************************************************************/
 
 /* Defines *******************************************************************/
 
 /** @define {string} */ var INDEX = "/index.html"; // Link to static HTML index
 /** @define {string} */ var SITEMAP = "sitemap.json"; // Link to JSON
-/** @define {number} */ var EXPIRATION = 2<<22; // 2²²ms ≈ 3h
+/** @define {number} */ var EXPIRATION = 12*60*60*1000;
 
 /* Globals *******************************************************************/
 
@@ -70,7 +69,7 @@ function list(entries){
                     "href": ROOT + entry["p"],
                     "title": entry["a"]
                 },
-                [ entry["t"] || guess_title(entry["p"]) ]
+                [ entry["t"] || entry["p"] ]
             );
 
             items.push(
@@ -91,7 +90,9 @@ function list(entries){
 /**
  * Change the anchor nodes within a node, in such a way that activating one
  * generates the dynamic page counterpart of the original link, if available.
- * Does not work when the hash or query part of the link is non-empty.
+ * Does not work when the hash or query part of the link is non-empty, since
+ * we'd have to combine a 'real' hash with the one we are using for our
+ * purposes.
  *
  * @param {Node} node : The anchor or node whose anchors are to be routed.
  * @return {undefined}
@@ -180,19 +181,6 @@ function prepare(){
     }
     else process(storage.getItem("map"));
 }
-
-
-
-/**
- * Guess a page title from its page name.
- *
- * @param {string} path : Path to file
- * @return {string}
- */
-function guess_title(path){
-    return path.split(/[\\/]/).pop();
-}
-
 
 
 /**

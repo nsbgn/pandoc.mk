@@ -43,13 +43,14 @@ standard tools, especially if you adhere to specifications like
 It is in this spirit that I wrote a 
 [make](https://www.gnu.org/software/make)-recipe to glue a couple of tools 
 together into a website generator. As of now, the recipe calls for at least
-[Pandoc](http://pandoc.org/) with 
+[Pandoc](http://pandoc.org/) 2.x with 
 [pandoc-citeproc](https://github.com/jgm/pandoc-citeproc),
 [Panflute](https://github.com/sergiocorreia/panflute),
 [Python](https://www.python.org/),
+[jq](https://stedolan.github.io/jq/),
 [Closure](https://developers.google.com/closure/compiler/).
 [PhantomJS](https://phantomjs.org),
-[less](http://lesscss.org/) with 
+[less](http://lesscss.org/) 2.7.1 with 
 [clean-css](https://github.com/less/less-plugin-clean-css),
 [svgo](https://github.com/svg/svgo),
 [ImageMagick](http://www.imagemagick.org/),

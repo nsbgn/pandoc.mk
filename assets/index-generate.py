@@ -48,6 +48,7 @@ ATTRIBUTES = {
     "children"      : "c",
     "hidden"        : "h",
     "modified"      : "m",
+    "subsection"    : "s" # Whether to make a sub-table of contents for this entry 
 }
 
 
@@ -202,7 +203,7 @@ class sitemap(collections.MutableMapping):
         self._directory = dirname(path)
         self._basename, self._extension = splitext(basename(path))
         
-        # Relevant regardless of whether this ia a document or a directory
+        # Relevant regardless of whether this is a document or a directory
         self.title = self.meta("title") or self.meta("header")
         self.description = self.meta("description") or self.meta("abstract")
 
@@ -228,7 +229,7 @@ class sitemap(collections.MutableMapping):
                 )
             )
 
-            # Sort headers by their metadata"s `index`; filename as fallback 
+            # Sort headers by their metadata"s `index`; & the filename as fallback 
             children = sorted(children, key=lambda child: str(
                 child.meta("index", inherit=False) or child._basename
             ))
@@ -302,6 +303,11 @@ def load_metadata(path):
     Note: Only YAML blocks at the beginning of the file are recognised.
     """
 
+
+    # TODO: I can just do pandoc -t html5 --template=templtest.json example/02-example.md
+    # Maybe combine with `jq` to have both target dumps to be parsed into a
+    # single file?
+    
     def delimiter(line, char):
         return len(line) > 3 and len(line.rstrip(char)) == 0
 
@@ -340,6 +346,7 @@ def load_metadata(path):
         if yaml_block:
             metadata = leftjoin(metadata, yaml.safe_load("\n".join(yaml_block)))
 
+    print(metadata, file=sys.stderr)
     return metadata
 
 
@@ -356,7 +363,7 @@ if __name__ == "__main__":
 
     main = footer = None
     if isdir(path):
-        main = sitemap(path, ignore=["dist", "footer", "__pycache__"]).children
+        main = sitemap(path, ignore=["build", "dist", "footer", "__pycache__"]).children
     if isdir(path_footer):
         footer = sitemap(path_footer, ignore=["__pychache__"]).children
 
