@@ -86,7 +86,7 @@ $(DEST)/style.css: $(ASSETS)/style-main.less $(wildcard $(ASSETS)/*.less)
 
 
 # Optimised SVG logo for inlining
-$(CACHE)/logo.svg: $(SRC)/logo.svg
+$(CACHE)/logo.svg: $(ASSETS)/logo-snail.svg
 	@-mkdir -p $(@D)
 	svgo --input=$< --output=$@
 
