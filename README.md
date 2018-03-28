@@ -1,25 +1,32 @@
 snel
 ==============================================================================
 
-`snel` is a [lightweight](http://idlewords.com/talks/website_obesity.htm) 
-template and a static website generator. It is currently a work-in-progress, 
-but it is mostly functional. It roughly consists of three parts, each of 
-which, I hope, may prove useful to someone:
+`snel` is the [lightweight](http://idlewords.com/talks/website_obesity.htm) 
+template and a static website generator that I use for my personal website. It 
+is currently a work-in-progress, but it is mostly functional. It roughly 
+consists of three parts, each of which, I hope, may prove useful to someone:
 
-1.  A simple makefile, `snel.mk`, to create documents and other assets from 
-    plain text sources.
+1.  A simple makefile, to create documents and other assets from plain text 
+    sources.
 
 2.  A Python script to generate a table of contents directly from the 
     directory structure. A small JavaScript can optionally show this overview 
     dynamically. 
 
-3.  A concise theme to present the above.
+3.  A logo and a minimalist style to present the above concisely.
 
-Execute `make -f snel.mk` to generate a `build/` directory containing scripts, 
-stylesheets and the example website. 
 
-Should `snel` be a bit primitive for your tastes, try 
-[hugo](http://gohugo.io/), [hakyll](https://jaspervdj.be/hakyll/about.html),
+Executing `make` will generate a `build/` directory containing scripts, 
+stylesheets and the example website. To use with your own project, simply 
+create a `makefile` with the following lines:
+
+    SRC=/path/to/sources
+    DEST=/path/to/build
+    include /path_to_snel/makefile
+
+Should this be a bit primitive for your tastes, try other static website 
+generators such as [hugo](http://gohugo.io/), 
+[hakyll](https://jaspervdj.be/hakyll/about.html),
 [jekyll](http://jekyllrb.com/), [nanoc](https://nanoc.ws/), 
 [yst](https://github.com/jgm/yst) or [middleman](https://middlemanapp.com/)!
 
@@ -34,9 +41,9 @@ modifiable. I glued a couple of
 [standard](https://en.wikipedia.org/wiki/Unix_philosophy) tools into a 
 [make](https://www.gnu.org/software/make)-recipe for website generation.
 
-It creates an HTML document for every Markdown document it can `find` in the 
-source directory, using `pandoc`. Upon running `make` a second time, any image 
-or other resource referenced in the source file will also be generated. With 
+Using `pandoc`, it creates an HTML file for every Markdown document it can 
+`find` in the source directory. Upon running `make` a second time, any 
+resource referenced in the source file metadata will also be generated. With 
 the appropriate configuration, the results can be uploaded by calling `make 
 upload` (using `lftp` or `rsync`).
 

@@ -1,8 +1,8 @@
+# Location of makefile itself
+BASE := $(patsubst %/,%,$(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
+
 # Source and destination directories, and FTP or SSH credentials. These are
 # expected to be changed in the `make` call or before the `include` statement.
-ifndef BASE
-    BASE := .
-endif
 ifndef SRC
     SRC := $(BASE)/example
 endif
