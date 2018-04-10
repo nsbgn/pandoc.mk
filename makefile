@@ -114,33 +114,10 @@ $(CACHE)/logo.txt: $(CACHE)/logo.svg
 	rm $@.jpg
 
 
-##########################################################################$$$$
-# Index
-
-# JSON table of contents of the source directory 
-$(DEST)/sitemap.json: $(ASSETS)/index-generate.py $(METADATA)
+# Generate static index page 
+$(DEST)/index.html: $(ASSETS)/index.py $(CACHE)/dummy.html $(METADATA)
 	@-mkdir -p $(@D)
-	python3 $< $(CACHE) > $@
-
-
-# Compressed client-side script to generate a dynamic index from the sitemap
-$(DEST)/index.js: $(ASSETS)/index-view.js $(CACHE)/closure-externs.js
-	@-mkdir -p $(@D)
-	closure-compiler -O ADVANCED --warning_level VERBOSE \
-		--externs $(CACHE)/closure-externs.js \
-		--define='INDEX=/index.html' \
-		--js_output_file $@ $<
-
-
-# Static index page for when the client is unable to view the dynamic one
-$(DEST)/index.html: \
- 		$(ASSETS)/index-dump.js \
-		$(CACHE)/dummy.html \
-		$(ASSETS)/index-view.js \
-		$(DEST)/sitemap.json
-	@-mkdir -p $(@D)
-	@echo "Generating index page $@..."
-	phantomjs $+ $@
+	python3 $< --template $(CACHE)/dummy.html --directory $(CACHE) > $@
 
 
 # Dummy page for use in static index generation
@@ -158,12 +135,6 @@ $(CACHE)/dummy.html: $(ASSETS)/pandoc-template.html
 $(CACHE)/metadata-template.txt:
 	@-mkdir -p $(@D)
 	echo '$$meta-json$$' > $@
-
-
-# Dummy page defining external variables for the closure compiler
-$(CACHE)/closure-externs.js:
-	@-mkdir -p $(@D)
-	echo 'var ROOT,localStorage;' > $@
 
 
 

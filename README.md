@@ -6,14 +6,12 @@ template and a static website generator that I use for my personal website. It
 is currently a work-in-progress, but it is mostly functional. It roughly 
 consists of three parts, each of which, I hope, may prove useful to someone:
 
-1.  A simple makefile, to create documents and other assets from plain text 
-    sources.
+1.  A simple makefile, to create documents and other resources.
 
 2.  A Python script to generate a table of contents directly from the 
-    directory structure. A small JavaScript can optionally show this overview 
-    dynamically. 
+    directory structure.
 
-3.  A logo and a minimalist style to present the above concisely.
+3.  A logo and a minimalist style to present the above.
 
 
 Executing `make` will generate a `build/` directory containing scripts, 
@@ -47,14 +45,10 @@ resource referenced in the source file metadata will also be generated. With
 the appropriate configuration, the results can be uploaded by calling `make 
 upload` (using `lftp` or `rsync`).
 
-As of now, the recipe calls for at least
-[Pandoc](http://pandoc.org/) 2.x with 
+As of now, the recipe calls for [Pandoc](http://pandoc.org/) 2.x with 
 [pandoc-citeproc](https://github.com/jgm/pandoc-citeproc),
 [Panflute](https://github.com/sergiocorreia/panflute),
 [Python](https://www.python.org/),
-[jq](https://stedolan.github.io/jq/),
-[Closure](https://developers.google.com/closure/compiler/).
-[PhantomJS](https://phantomjs.org),
 [less](http://lesscss.org/) 2.7.1 with 
 [clean-css](https://github.com/less/less-plugin-clean-css),
 [svgo](https://github.com/svg/svgo),
@@ -62,7 +56,7 @@ As of now, the recipe calls for at least
 [jp2a](https://csl.name/jp2a/),
 [lftp](http://lftp.yar.ru/),
 [rsync](https://rsync.samba.org/) and
-[find](https://www.gnu.org/software/findutils/) --- but you could easily 
+[find](https://www.gnu.org/software/findutils/) — but you could easily 
 substitute any ingredient.
 
 
@@ -70,15 +64,8 @@ Index
 ------------------------------------------------------------------------------
 
 The directory hierarchy is useful for much the same reason that plain text is 
-useful. The `generate-index.py` script generates a site-wide table of contents 
-directly from the folder structure.
-
-The `index.js` script can then display this overview dynamically, so that it 
-is always accessible without further HTTP requests (and so that it may allow 
-interaction in the future). After minification with `closure-compiler`, this 
-script weighs less than 2kB, and it has no dependencies. It is also completely 
-optional, since a static fallback is created using `phantomjs`.
-
+useful. The `index.py` script generates a site-wide table of contents directly 
+from the folder structure.
 
 
 Style
