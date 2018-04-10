@@ -1,6 +1,12 @@
 snel
 ==============================================================================
 
+This branch contains a fancy JavaScript menu that brings up the table of 
+contents instantly. While it is useful and it was a fun project, I would like 
+the main branch to be even more static and primitive.
+
+-------------------------------------------------------------------------------
+
 `snel` is the [lightweight](http://idlewords.com/talks/website_obesity.htm) 
 template and a static website generator that I use for my personal website. It 
 is currently a work-in-progress, but it is mostly functional. It roughly 
