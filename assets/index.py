@@ -5,7 +5,7 @@ import sys
 import bs4 
 import json
 import argparse
-from os.path import join, isdir, isfile
+from os.path import join, isdir, isfile, basename
 
 
 def index(path, ignore=[]):
@@ -23,9 +23,9 @@ def index(path, ignore=[]):
     if isdir(path):
         try:
             with open(join(path, "index.md.meta.json"), "r") as f:
-                meta = json.load()
+                meta = json.load(f)
         except FileNotFoundError:
-            None
+            meta = {"title": basename(path)}
     elif isfile(path):
         with open(path, "r") as f:
             meta = json.load(f)
