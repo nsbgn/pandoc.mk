@@ -173,7 +173,7 @@ $(DEST)/%.html: \
 
 
 # Record metadata for each document
-$(CACHE)/%.md.meta.json: $(SRC)/%.md $(CACHE)/metadata-template.txt
+$(CACHE)/%.md.meta.json: $(SRC)/%.md $(CACHE)/metadata-template.txt $(ASSETS)/pandoc-target-images.py
 	@-mkdir -p "$(@D)"
 	@echo $@
 	pandoc \
@@ -181,6 +181,7 @@ $(CACHE)/%.md.meta.json: $(SRC)/%.md $(CACHE)/metadata-template.txt
 		--metadata original='$(patsubst $(CACHE)/%.md.meta.json,$(SRC)/%.md,$@)' \
 		--metadata builddir='$(DEST)/$(shell realpath $(@D) --relative-to $(CACHE) --canonicalize-missing)' \
 		--template='$(CACHE)/metadata-template.txt' \
+		--filter $(ASSETS)/pandoc-target-images.py \
 		--to=plain \
 		--output=$@ \
 		$<
