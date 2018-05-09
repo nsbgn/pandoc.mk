@@ -1,8 +1,11 @@
 # Location of makefile itself
 BASE := $(patsubst %/,%,$(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
 
-# Source and destination directories, and FTP or SSH credentials. These are
+# Source and destination directories, and FTP credentials. These are
 # expected to be changed in the `make` call or before the `include` statement.
+ifndef ASSETS
+    ASSETS := $(BASE)/assets
+endif
 ifndef SRC
     SRC := $(BASE)/example
 endif
@@ -11,9 +14,6 @@ ifndef DEST
 endif
 ifndef CACHE
     CACHE := $(DEST)/.cache
-endif
-ifndef ASSETS
-    ASSETS := $(BASE)/assets
 endif
 ifndef GPG_ID
     GPG_ID := user@domain.com
@@ -31,48 +31,38 @@ endif
 # Find source files
 SOURCES = $(shell find $(SRC) -mindepth 1 -iname '*.md' -print)
 
-# Metadata is collected for each source file
+# Metadata is collected for each source in a corresponding file
 METADATA = $(patsubst $(SRC)/%,$(CACHE)/%.meta.json,$(SOURCES))
 
 # Files referenced in the source documents are targets themselves
-REFERENCED = $(shell [ -d $(CACHE) ] && cat /dev/null $(METADATA) | jq --raw-output '.targets[]?' )
+REFERENCED = $(shell \
+	cat /dev/null $(METADATA) 2> /dev/null \
+	| jq --raw-output '.builddir + "/" + .targets[]?' \
+	| uniq )
+
 
 
 ##########################################################################$$$$
 # Phony targets
 
-all: | html resources
+all: html resources
 
 html: $(patsubst $(SRC)/%.md,$(DEST)/%.html,$(SOURCES)) 
 
 resources: \
-		$(DEST)/sitemap.json \
 		$(DEST)/index.html \
-		$(DEST)/index.js \
 		$(DEST)/style.css \
 		$(DEST)/favicon.ico \
 		$(DEST)/apple-touch-icon.png \
 		$(REFERENCED)
 
-metadata: $(METADATA)
-
-upload-ssh:
-	rsync -e ssh \
-		--recursive --exclude=.cache/ --times --copy-links \
-		--verbose --progress \
-		$(DEST)/ $(USER)@$(HOST):$(REMOTE)/
-
-upload-ftp:
+upload:
 	read -s -p 'FTP password: ' password && \
 	lftp -u $(USER),$$password -e \
 	"mirror --reverse --only-newer --verbose --dry-run --exclude .cache/ $(DEST) $(REMOTE)" \
 	$(HOST)
 
-
-upload: upload-ftp
-
-
-.PHONY: prepare all html resources upload upload-ssh upload-ftp
+.PHONY: prepare all html resources upload
 
 
 
@@ -82,8 +72,9 @@ upload: upload-ftp
 # Stylesheet
 $(DEST)/style.css: $(ASSETS)/style-main.less $(wildcard $(ASSETS)/*.less)
 	@-mkdir -p $(@D)
-	lessc --clean-css="--s1 --advanced" $< $@
+	lessc $< $@
 
+# | cleancss --remove-empty --s1 >
 
 # Optimised SVG logo for inlining
 $(CACHE)/logo.svg: $(ASSETS)/logo-snail.svg
@@ -144,10 +135,11 @@ $(CACHE)/metadata-template.txt:
 # Create HTML documents
 $(DEST)/%.html: \
 		$(SRC)/%.md \
+		$(CACHE)/%.md.meta.json \
                 $(CACHE)/logo.svg \
 		$(ASSETS)/pandoc-template.html \
 		$(ASSETS)/pandoc-extract-references.py \
-		$(wildcard $(SRC)/references.bib) 
+		$(wildcard $(SRC)/*.bib) 
 	@echo "Generating $@..."
 	@-mkdir -p "$(@D)"
 	@-mkdir -p "$(patsubst $(DEST)/%,$(CACHE)/%,$(@D))"
@@ -155,9 +147,9 @@ $(DEST)/%.html: \
 		--metadata source='$(SRC)' \
 		--metadata destination='$(DEST)' \
 		--metadata cache='$(CACHE)' \
-		--metadata path='$(shell realpath $(@D) --relative-to $(DEST))' \
+		--metadata path='$(shell realpath $(@D) --relative-to $(DEST) --canonicalize-missing)' \
 		--metadata file='$(@F)' \
-		--metadata root='$(shell realpath $(DEST) --relative-to $(@D))/' \
+		--metadata root='$(shell realpath $(DEST) --relative-to $(@D) --canonicalize-missing)' \
 		--from markdown+smart+fenced_divs+footnotes+inline_notes+table_captions \
 		--to html5 \
 		--standalone \
@@ -185,9 +177,11 @@ $(DEST)/%.html: \
 # Record metadata for each document
 $(CACHE)/%.md.meta.json: $(SRC)/%.md $(CACHE)/metadata-template.txt
 	@-mkdir -p "$(@D)"
+	@echo $@
 	pandoc \
 		--metadata link='$(patsubst $(CACHE)/%.md.meta.json,%.html,$@)' \
 		--metadata original='$(patsubst $(CACHE)/%.md.meta.json,$(SRC)/%.md,$@)' \
+		--metadata builddir='$(DEST)/$(shell realpath $(@D) --relative-to $(CACHE) --canonicalize-missing)' \
 		--template='$(CACHE)/metadata-template.txt' \
 		--to=plain \
 		--output=$@ \
@@ -196,6 +190,12 @@ $(CACHE)/%.md.meta.json: $(SRC)/%.md $(CACHE)/metadata-template.txt
 
 ##########################################################################$$$$
 # Generic recipes
+
+# Any image file
+$(DEST)/%.jpg: $(SRC)/%.jpg
+	@-mkdir -p $(@D)
+	convert -resize '600x' -quality '60%' $< $@
+
 
 # Any file in the source is also available at the destination
 $(DEST)/%: $(SRC)/%
@@ -219,3 +219,6 @@ $(DEST)/%.tar.gz: $(SRC)/%
 	@-mkdir -p $(@D)
 	tar -zcvf $@ $^
 
+# Create gzipped archive
+$(DEST)/%: $(DEST)/%.gz
+	gzip --best --to-stdout < $< > $@

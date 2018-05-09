@@ -20,7 +20,10 @@ create a `makefile` with the following lines:
 
     SRC=/path/to/sources
     DEST=/path/to/build
-    include /path_to_snel/makefile
+    USER=ftp_username
+    HOST=ftp_host
+    REMOTE=ftp_directory
+    include /path/to/snel/makefile
 
 Should this be a bit primitive for your tastes, try other static website 
 generators such as [hugo](http://gohugo.io/), 
@@ -41,21 +44,20 @@ modifiable. I glued a couple of
 
 Using `pandoc`, it creates an HTML file for every Markdown document it can 
 `find` in the source directory. Upon running `make` a second time, any 
-resource referenced in the source file metadata will also be generated. With 
-the appropriate configuration, the results can be uploaded by calling `make 
-upload` (using `lftp` or `rsync`).
+resource referenced in the source file metadata will also be generated. Given 
+an appropriate configuration, the results are uploaded with `lftp` by calling 
+`make upload`.
 
 As of now, the recipe calls for [Pandoc](http://pandoc.org/) 2.x with 
 [pandoc-citeproc](https://github.com/jgm/pandoc-citeproc),
 [Panflute](https://github.com/sergiocorreia/panflute),
-[Python](https://www.python.org/),
-[less](http://lesscss.org/) 2.7.1 with 
-[clean-css](https://github.com/less/less-plugin-clean-css),
+[Python](https://www.python.org/) 3.x,
+[less](http://lesscss.org/) 2.7.1,
+[clean-css](https://github.com/jakubpawlowicz/clean-css),
 [svgo](https://github.com/svg/svgo),
 [ImageMagick](http://www.imagemagick.org/),
 [jp2a](https://csl.name/jp2a/),
-[lftp](http://lftp.yar.ru/),
-[rsync](https://rsync.samba.org/) and
+[lftp](http://lftp.yar.ru/) and
 [find](https://www.gnu.org/software/findutils/) — but you could easily 
 substitute any ingredient.
 
@@ -74,8 +76,8 @@ Style
 The theme is kept simple and monochrome. Its most distinguishing quality is 
 that the table of contents extends horizontally and that all its entries are 
 visible without further tapping, hovering or sliding; it is supposed to act as 
-a vantage point. The CSS is written using `lessc` and minified with its 
-`clean-css` plugin. The filters are made with `panflute`.
+a vantage point. The CSS is written using `lessc` and minified with 
+`clean-css`. The filters are made with `panflute`.
 
 
 
