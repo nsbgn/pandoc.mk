@@ -72,9 +72,7 @@ upload:
 # Stylesheet
 $(DEST)/style.css: $(ASSETS)/style-main.less $(wildcard $(ASSETS)/*.less)
 	@-mkdir -p $(@D)
-	lessc $< $@
-
-# | cleancss --remove-empty --s1 >
+	lessc $< | cleancss --remove-empty --s1 > $@
 
 # Optimised SVG logo for inlining
 $(CACHE)/logo.svg: $(ASSETS)/logo-snail.svg
