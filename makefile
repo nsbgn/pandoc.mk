@@ -52,6 +52,7 @@ html: $(patsubst $(SRC)/%.md,$(DEST)/%.html,$(SOURCES))
 resources: \
 		$(DEST)/index.html \
 		$(DEST)/style.css \
+		$(DEST)/crimson.woff2 \
 		$(DEST)/favicon.ico \
 		$(DEST)/apple-touch-icon.png \
 		$(REFERENCED)
@@ -68,6 +69,10 @@ upload:
 
 ##########################################################################$$$$
 # Theme
+
+# Font (source: https://github.com/skosch/Crimson)
+$(DEST)/crimson.woff2: $(ASSETS)/crimson.woff2
+	cp $< $@
 
 # Stylesheet
 $(DEST)/style.css: $(ASSETS)/style-main.less $(wildcard $(ASSETS)/*.less)
