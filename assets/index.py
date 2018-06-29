@@ -81,16 +81,37 @@ if __name__ == "__main__":
         data = template.read()
     soup = bs4.BeautifulSoup(data, "lxml")
     
-    # Populate soup 
+    # Populate soup
+    title = soup.find("title")
+    title.clear()
+    title.append("Slakkenhuis")
     body = soup.find("body")
     body.clear()
     nav = soup.new_tag("nav")
-    nav["class"]="up"
+    nav["id"]="index"
     div = soup.new_tag("div")
+    header = soup.new_tag("header")
+
+    div2 = soup.new_tag("div")
+    
+    img = soup.new_tag("img")
+    img["src"] = "logo.svg"
+    img["onerror"] = "this.onerror=null; this.src='logo.png'"
+    div2.append(img)
+
+    footer = soup.new_tag("footer")
+    div3 = soup.new_tag("div")
+    span = soup.new_tag("span")
+    div3.append(span)
+    footer.append(div3)
+
 
     (title, sub) = index(path=args.directory, ignore=args.ignore)
     div.append(sub)
+    header.append(div2)
+    nav.append(header)
     nav.append(div)
+    nav.append(footer)
     body.append(nav)
 
     # Output

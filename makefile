@@ -62,7 +62,7 @@ upload:
 	"mirror --reverse --only-newer --verbose --dry-run --exclude .cache/ $(DEST) $(REMOTE)" \
 	$(HOST)
 
-.PHONY: prepare all html resources upload
+.PHONY: all html resources upload
 
 
 
@@ -72,16 +72,21 @@ upload:
 # Stylesheet
 $(DEST)/style.css: $(ASSETS)/style-main.less $(wildcard $(ASSETS)/*.less)
 	@-mkdir -p $(@D)
-	lessc $< | cleancss --remove-empty --s1 > $@
+	lessc $< --clean-css="--s1 --advanced --compatibility=ie8" > $@
 
-# Optimised SVG logo for inlining
-$(CACHE)/logo.svg: $(ASSETS)/logo-snail.svg
+# Optimised SVG logo
+$(DEST)/logo.svg: $(ASSETS)/logo-snail.svg
 	@-mkdir -p $(@D)
 	svgo --input=$< --output=$@
 
+# Fallback logo
+$(DEST)/logo.png: $(DEST)/logo.svg
+	@-mkdir -p $(@D)
+	convert $< $@
+
 
 # Favicon as bitmap
-$(DEST)/favicon.ico: $(CACHE)/logo.svg
+$(DEST)/favicon.ico: $(DEST)/logo.svg
 	@-mkdir -p $(@D)
 	convert $< -transparent white -resize 16x16 -level '0%,100%,0.6' $@
 
@@ -104,7 +109,7 @@ $(CACHE)/logo.txt: $(CACHE)/logo.svg
 
 
 # Generate static index page 
-$(DEST)/index.html: $(ASSETS)/index.py $(CACHE)/dummy.html $(METADATA)
+$(DEST)/index.html: $(ASSETS)/index.py $(CACHE)/dummy.html $(METADATA) $(DEST)/logo.png $(DEST)/logo.svg
 	@-mkdir -p $(@D)
 	python3 $< --template $(CACHE)/dummy.html --directory $(CACHE) > $@
 
@@ -134,7 +139,6 @@ $(CACHE)/metadata-template.txt:
 $(DEST)/%.html: \
 		$(SRC)/%.md \
 		$(CACHE)/%.md.meta.json \
-                $(CACHE)/logo.svg \
 		$(ASSETS)/pandoc-template.html \
 		$(ASSETS)/pandoc-extract-references.py \
 		$(wildcard $(SRC)/*.bib) 
@@ -148,11 +152,12 @@ $(DEST)/%.html: \
 		--metadata path='$(shell realpath $(@D) --relative-to $(DEST) --canonicalize-missing)' \
 		--metadata file='$(@F)' \
 		--metadata root='$(shell realpath $(DEST) --relative-to $(@D) --canonicalize-missing)' \
-		--from markdown+smart+fenced_divs+footnotes+inline_notes+table_captions \
+		--filter $(ASSETS)/pandoc-extract-references.py \
+		--from markdown+smart+fenced_divs+inline_notes+table_captions \
 		--to html5 \
 		--standalone \
-		--filter $(ASSETS)/pandoc-extract-references.py \
-		--include-before-body="$(CACHE)/logo.svg" \
+		--table-of-contents \
+		--toc-depth=3 \
 		--template $(ASSETS)/pandoc-template.html \
 		$(foreach F,\
 			$(filter %.css, $^),\
@@ -166,7 +171,7 @@ $(DEST)/%.html: \
 		--base-header-level=2 \
 		--ascii \
 		--email-obfuscation=references \
-		--highlight-style=monochrome \
+		--highlight-style=kate \
 		--output=$@ \
 		$< \
 		$(filter %/metadata.yaml, $^)
