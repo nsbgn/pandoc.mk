@@ -77,7 +77,7 @@ $(DEST)/crimson.woff2: $(ASSETS)/crimson.woff2
 # Stylesheet
 $(DEST)/style.css: $(ASSETS)/style-main.less $(wildcard $(ASSETS)/*.less)
 	@-mkdir -p $(@D)
-	lessc $< --clean-css="--s1 --advanced --compatibility=ie8" > $@
+	sassc --style compressed $< $@
 
 # Optimised SVG logo
 $(DEST)/logo.svg: $(ASSETS)/logo-snail.svg
@@ -97,7 +97,7 @@ $(DEST)/favicon.ico: $(DEST)/logo.svg
 
 
 # Icon for bookmark on Apple devices
-$(DEST)/apple-touch-icon.png: $(CACHE)/logo.svg
+$(DEST)/apple-touch-icon.png: $(DEST)/logo.svg
 	@-mkdir -p $(@D)
 	convert -density 1200 -resize 140x140 -gravity center -extent 180x180 \
 	    	+level-colors '#fff,#711' -colors 16 \
@@ -106,7 +106,7 @@ $(DEST)/apple-touch-icon.png: $(CACHE)/logo.svg
 
 
 # ASCII art logo, centred for 79-column text files
-$(CACHE)/logo.txt: $(CACHE)/logo.svg
+$(CACHE)/logo.txt: $(DEST)/logo.svg
 	@-mkdir -p $(@D)
 	convert -density 1200 -resize 128x128 $< $@.jpg
 	jp2a --width=23 --chars=\ -~o0@ -i $@.jpg | sed 's/^/$(shell printf '%-28s')/' > $@

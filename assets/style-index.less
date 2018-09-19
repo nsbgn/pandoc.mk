@@ -1,13 +1,13 @@
-@TOC_HMARGIN: 3em;       // Horizontal margin around table of contents
-@TOC_VMARGIN: 2em;       // Vertical margin around table of contents
-@TOC_L1_SIZE: 3.1em;     // Font size in column header font size
-@TOC_L1_WEDGE: .6em;     // Vertical space under column header
-@TOC_L1_HSPACING: 4.0em; // Horizontal spacing between columns
-@TOC_L2_SIZE: 1.5em;     // Font size in subheader font size
-@TOC_L2_WEDGE: .15em;    // Vertical space under subheader
-@TOC_L2_VSPACING: 1.5em; // Vertical spacing between subheaded sections
-@TOC_L2_HMARGIN: 0.2em;  // Horizontal margin arount level 2, below header
-@TOC_L3_SIZE: 0.8em;     // Font size in menu items
+$TOC_HMARGIN: 3em;       // Horizontal margin around table of contents
+$TOC_VMARGIN: 2em;       // Vertical margin around table of contents
+$TOC_L1_SIZE: 3.1em;     // Font size in column header font size
+$TOC_L1_WEDGE: .6em;     // Vertical space under column header
+$TOC_L1_HSPACING: 4.0em; // Horizontal spacing between columns
+$TOC_L2_SIZE: 1.5em;     // Font size in subheader font size
+$TOC_L2_WEDGE: .15em;    // Vertical space under subheader
+$TOC_L2_VSPACING: 1.5em; // Vertical spacing between subheaded sections
+$TOC_L2_HMARGIN: 0.2em;  // Horizontal margin arount level 2, below header
+$TOC_L3_SIZE: 0.8em;     // Font size in menu items
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -21,7 +21,7 @@ nav#index {
 
     a {
         text-decoration: none;
-        color: @COLOR_FG;
+        color: $COLOR_FG;
     }
     a, span {
         text-transform: lowercase;
@@ -37,7 +37,7 @@ nav#index {
     }
     span {
         cursor: default;
-        color: mix(@COLOR_FG, @COLOR_BG, 30%);
+        color: mix($COLOR_FG, $COLOR_BG, 30%);
     }
     
     ul {
@@ -48,7 +48,7 @@ nav#index {
         display: table-cell;
         vertical-align: middle;
         text-align: center;
-        padding: (@TOC_VMARGIN) (@TOC_HMARGIN - (@TOC_L1_HSPACING/2));
+        padding: ($TOC_VMARGIN) ($TOC_HMARGIN - ($TOC_L1_HSPACING/2));
         
         > ul {
             display: inline-table;
@@ -57,30 +57,30 @@ nav#index {
                 display: table-cell;
                 width: 1px; // Forces wrapping
                 vertical-align: top;
-                padding: 0 (@TOC_L1_HSPACING/2);
+                padding: 0 ($TOC_L1_HSPACING/2);
                 
                 > a, > span {
                     white-space: nowrap;
-                    font-size: @TOC_L1_SIZE;
+                    font-size: $TOC_L1_SIZE;
                 }
                 
                 > ul {
                     text-align: left;
-                    padding: 0 @TOC_L2_HMARGIN;
-                    margin-top: (@TOC_L1_WEDGE - @TOC_L2_VSPACING);
+                    padding: 0 $TOC_L2_HMARGIN;
+                    margin-top: ($TOC_L1_WEDGE - $TOC_L2_VSPACING);
                     
                     > li {
-                        padding-top: @TOC_L2_VSPACING;
+                        padding-top: $TOC_L2_VSPACING;
                         
                         > a, > span {
-                            font-size: @TOC_L2_SIZE;
+                            font-size: $TOC_L2_SIZE;
                         }
 
                         > ul {
-                            padding-top: @TOC_L2_WEDGE;
+                            padding-top: $TOC_L2_WEDGE;
 
                             a, span {
-                                font-size: @TOC_L3_SIZE;
+                                font-size: $TOC_L3_SIZE;
                             }
                             li, ul {
                                 display: inline;
@@ -97,7 +97,7 @@ nav#index {
     ul ul ul li + li:before {
         content: "\ \2022\00a0\ ";
         font-size: 0.6em;
-        color: mix(@COLOR_FG, @COLOR_BG, 60%);
+        color: mix($COLOR_FG, $COLOR_BG, 60%);
     }
 
 
