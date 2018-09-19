@@ -52,15 +52,13 @@ As of now, the recipe calls for [Pandoc](http://pandoc.org/) 2.x with
 [pandoc-citeproc](https://github.com/jgm/pandoc-citeproc),
 [Panflute](https://github.com/sergiocorreia/panflute),
 [Python](https://www.python.org/) 3.x,
-[less](http://lesscss.org/) 2.7.1,
-[clean-css](https://github.com/jakubpawlowicz/clean-css),
+[sass](http://sass-lang.com/),
 [svgo](https://github.com/svg/svgo),
 [ImageMagick](http://www.imagemagick.org/),
 [jp2a](https://csl.name/jp2a/),
 [lftp](http://lftp.yar.ru/) and
 [find](https://www.gnu.org/software/findutils/) — but you could easily 
-substitute any ingredient.
-
+substitute or add any ingredient.
 
 Index
 ------------------------------------------------------------------------------

@@ -75,7 +75,7 @@ $(DEST)/crimson.woff2: $(ASSETS)/crimson.woff2
 	cp $< $@
 
 # Stylesheet
-$(DEST)/style.css: $(ASSETS)/style-main.less $(wildcard $(ASSETS)/*.less)
+$(DEST)/style.css: $(ASSETS)/style.scss
 	@-mkdir -p $(@D)
 	sassc --style compressed $< $@
 
