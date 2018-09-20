@@ -1,9 +1,10 @@
-$COLOR_BG:      #fff; // Background color
-$COLOR_FG:      #000; // Color for normal text
-$COLOR_FG_1:    #901; // Color for links
-$COLOR_FG_2:    #f02; // Color for focused links
-$COLOR_FRILLS:  #777; // Color for quote symbols and other embellishments
 $FONT: 'Crimson Text', 'Georgia', serif;
+
+$COLOR_BG:      #fff;    // Background color
+$COLOR_FG:      #000;    // Color for normal text
+$COLOR_FG_1:    #901;    // Color for links
+$COLOR_FG_2:    #f02;    // Color for focused links
+$COLOR_FRILLS:  #777;    // Color for quote symbols and other embellishments
 
 $PAGE_MINWIDTH: 25em;    // Minimum width before margin scales down
 $PAGE_MAXWIDTH: 40em;    // Maximum width before margin scales up
@@ -17,40 +18,37 @@ $L2_SIZE: 1.2em;         // Font size for section header
 $L3_SIZE: 1.1em;         // Font size for subsection header
 $L4_SIZE: 1em;           // Font size for paragraph header
 
-$PAR_VSPACING: 1em;      // Vertical spacing around paragraphs and lists
-$FIG_VSPACING: 2.5em;    // Vertical spacing around figures, tables, listings…
+$PAR_VSPACE: 1em;        // Vertical spacing around paragraphs and lists
+$FIG_VSPACE: 2.5em;      // Vertical spacing around figures, tables, listings…
 $ITEM_INDENT: 2.5em;     // Indent for lists and blockquotes
 $CAPTION_WEDGE: 0.8em;   // Vertical space between fig/table caption and item
 $CAPTION_EXTRA: 0.5em;   // Additional space under captions
-$L1_VSPACING: 6em;       // Vertical space between previous content and title
-$L2_VSPACING: 3em;       // Vertical space between sections
-$L3_VSPACING: 3em;       // Vertical space between subsections
+$L1_VSPACE: 6em;         // Vertical space between previous content and title
+$L2_VSPACE: 3em;         // Vertical space between sections
+$L3_VSPACE: 3em;         // Vertical space between subsections
 $L1_WEDGE: 1em;          // Vertical space between title and content
 $L2_WEDGE: -0.5em;       // Vertical space between section header and text
 $L3_WEDGE: 1em;          // Vertical space between subsection header and text
 $L4_WEDGE: 1em;          // Horizontal space between paragraph header and text
 
 $HR_VSPACE_RESET: 2em;   // Space between <hr> or document start and a header
-$HR_VSPACING: 2.5em;     // Vertical spacing around horizontal rules
+$HR_VSPACE: 2.5em;       // Vertical spacing around horizontal rules
 $HR_SIZE: 1.2em;         // Size of the § in <hr>s
 $HR_WIDTH: 40%;          // Width of horizontal rule
 
 $TOC_WIDTH: 9em;         // Width of table of contents when moved to the side
 $TOC_WEDGE: 1.5em;       // Horizontal space between ToC and content
 
-
-// TOC is index here
-
-$TOC_HMARGIN: 3em;       // Horizontal margin around table of contents
-$TOC_VMARGIN: 2em;       // Vertical margin around table of contents
-$TOC_L1_SIZE: 3.1em;     // Font size in column header font size
-$TOC_L1_WEDGE: .6em;     // Vertical space under column header
-$TOC_L1_HSPACING: 4.0em; // Horizontal spacing between columns
-$TOC_L2_SIZE: 1.5em;     // Font size in subheader font size
-$TOC_L2_WEDGE: .15em;    // Vertical space under subheader
-$TOC_L2_VSPACING: 1.5em; // Vertical spacing between subheaded sections
-$TOC_L2_HMARGIN: 0.2em;  // Horizontal margin arount level 2, below header
-$TOC_L3_SIZE: 0.8em;     // Font size in menu items
+$INDEX_HMARGIN: 3em;     // Horizontal margin around table of contents
+$INDEX_VMARGIN: 2em;     // Vertical margin around table of contents
+$INDEX_L1_SIZE: 3.1em;   // Font size in column header font size
+$INDEX_L1_WEDGE: .6em;   // Vertical space under column header
+$INDEX_L1_HSPACE: 4.0em; // Horizontal spacing between columns
+$INDEX_L2_SIZE: 1.5em;   // Font size in subheader font size
+$INDEX_L2_WEDGE: .15em;  // Vertical space under subheader
+$INDEX_L2_VSPACE: 1.5em; // Vertical spacing between subheaded sections
+$INDEX_L2_HMARGIN:0.2em; // Horizontal margin arount level 2, below header
+$INDEX_L3_SIZE: 0.8em;   // Font size in menu items
 
 @font-face {
   font-family: 'Crimson Text';
@@ -88,13 +86,13 @@ main {
     margin: 0 auto;
 
     p, ul, ol {
-        margin: $PAR_VSPACING 0;
+        margin: $PAR_VSPACE 0;
         line-height: $LINE_HEIGHT;
     }
 }
 
 main h1 {
-    margin: $L1_VSPACING 0 $L1_WEDGE;
+    margin: $L1_VSPACE 0 $L1_WEDGE;
     font-size: $L1_SIZE;
     letter-spacing: 0.08em;
     text-align: center;
@@ -105,14 +103,14 @@ h1:first-child, hr + h1, hr + h2, hr + h3, hr + h4 {
     margin-top: $HR_VSPACE_RESET;
 }
 h2 {
-    margin: $L2_VSPACING 0 $L2_WEDGE;
+    margin: $L2_VSPACE 0 $L2_WEDGE;
     font-size: $L2_SIZE;
     font-weight: 600;
     padding-bottom: 5px;
     border-bottom: 3px double $COLOR_FRILLS;
 }
 h3 {
-    margin: $L3_VSPACING 0 $L3_WEDGE;
+    margin: $L3_VSPACE 0 $L3_WEDGE;
     font-size: $L3_SIZE;
     font-weight: 600;
     border-bottom: 1px solid $COLOR_FRILLS;
@@ -127,7 +125,7 @@ h4 {
 /* I originally put this in to fix an issue with the floating header messing
    up the margins, but for reasons unknown to me, it is no longer necessary
 h1 + h4, h2 + h4, h3 + h4 {
-    margin-top: $PAR_VSPACING;
+    margin-top: $PAR_VSPACE;
 }
 */
 
@@ -232,7 +230,7 @@ li p {
 /* Tables *******************************************************************/
 
 table {
-    margin: $FIG_VSPACING auto;
+    margin: $FIG_VSPACE auto;
     border-collapse: collapse;
 }
 caption {
@@ -275,7 +273,7 @@ table.no-row-header {
 /* Images *******************************************************************/
 
 figure {
-    margin: $FIG_VSPACING 0;
+    margin: $FIG_VSPACE 0;
     text-align: center;
 
     img {
@@ -303,7 +301,7 @@ hr {
     border: none;
     border-top: 1px solid $COLOR_FG;
     text-align: center;
-    margin: $HR_VSPACING auto;
+    margin: $HR_VSPACE auto;
     width: $HR_WIDTH;
     position: relative;
 }
@@ -325,7 +323,7 @@ hr:after {
 /* Quotes and line blocks ***************************************************/
 
 blockquote, .line-block {
-    margin: $FIG_VSPACING 0 $FIG_VSPACING $ITEM_INDENT;
+    margin: $FIG_VSPACE 0 $FIG_VSPACE $ITEM_INDENT;
     font-style: italic;
     quotes: "\201C""\201D""\2018""\2019";
 
@@ -366,7 +364,7 @@ code {
     font-size: 0.7em;
 }
 code pre {
-    margin: $FIG_VSPACING 0;
+    margin: $FIG_VSPACE 0;
 }
 
 
@@ -480,7 +478,7 @@ nav#index {
         display: table-cell;
         vertical-align: middle;
         text-align: center;
-        padding: ($TOC_VMARGIN) ($TOC_HMARGIN - ($TOC_L1_HSPACING/2));
+        padding: ($INDEX_VMARGIN) ($INDEX_HMARGIN - ($INDEX_L1_HSPACE/2));
         
         > ul {
             display: inline-table;
@@ -489,30 +487,30 @@ nav#index {
                 display: table-cell;
                 width: 1px; // Forces wrapping
                 vertical-align: top;
-                padding: 0 ($TOC_L1_HSPACING/2);
+                padding: 0 ($INDEX_L1_HSPACE/2);
                 
                 > a, > span {
                     white-space: nowrap;
-                    font-size: $TOC_L1_SIZE;
+                    font-size: $INDEX_L1_SIZE;
                 }
                 
                 > ul {
                     text-align: left;
-                    padding: 0 $TOC_L2_HMARGIN;
-                    margin-top: ($TOC_L1_WEDGE - $TOC_L2_VSPACING);
+                    padding: 0 $INDEX_L2_HMARGIN;
+                    margin-top: ($INDEX_L1_WEDGE - $INDEX_L2_VSPACE);
                     
                     > li {
-                        padding-top: $TOC_L2_VSPACING;
+                        padding-top: $INDEX_L2_VSPACE;
                         
                         > a, > span {
-                            font-size: $TOC_L2_SIZE;
+                            font-size: $INDEX_L2_SIZE;
                         }
 
                         > ul {
-                            padding-top: $TOC_L2_WEDGE;
+                            padding-top: $INDEX_L2_WEDGE;
 
                             a, span {
-                                font-size: $TOC_L3_SIZE;
+                                font-size: $INDEX_L3_SIZE;
                             }
                             li, ul {
                                 display: inline;
