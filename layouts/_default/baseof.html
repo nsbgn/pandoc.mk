@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html {{- with .Lang }} lang="{{ . }}"{{ end }}>
+<head>
+<meta charset="utf-8">
+{{ with .Params.author }}<meta name="author" content="{{ . }}">{{ end -}} 
+<title>{{ block "title" . }}{{ .Site.Title }}{{ end }}</title>
+<link rel="shortcut icon" href="{{ "/" | relURL }}favicon.ico">
+<link rel="stylesheet" href="{{ "/" | relURL }}style.css">
+</head>
+<body><!--
+<nav id="$idprefix$toc">
+<a href="$root$/index.html">Table of Contents &nbsp;&#x21A9;</a>
+$toc$
+</nav>-->
+{{- block "main" . }}
+{{ .Content }}
+{{ end }}
+</body>
+</html>

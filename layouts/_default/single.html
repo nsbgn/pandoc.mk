@@ -1,0 +1,11 @@
+{{ define "main" }}
+<main>
+<h1>{{ with .Title }}{{ . }}{{ else }}Untitled{{ end }}</h1>
+{{ .Content -}}
+<footer>&mdash;&nbsp; 
+    {{- with $.Page.Params.author }}{{ . }}{{ else }}Anonymous{{ end }}, {{ .Date.Format "2006-01-02" }}
+</footer>
+
+<a href="{{ "/" | relURL }}index.html" style="display:block;text-align:center">index</a>
+</main>
+{{- end -}}

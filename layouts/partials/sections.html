@@ -1,0 +1,15 @@
+<ul>
+    {{ range .Sections }}
+    <li>
+        <span>{{ with .Title }}{{ . }}{{else}}Untitled{{end}}</span>
+        {{ partial "sections.html" . }}
+    </li>
+    {{ end }}
+    {{ if not .IsHome }}
+    {{ range .Pages }}
+    <li>
+        <a href="{{ .RelPermalink }}">{{ with .Title }}{{ . }}{{else}}Untitled{{end}}</a>
+    </li>
+    {{ end }}
+    {{ end }}
+</ul>
