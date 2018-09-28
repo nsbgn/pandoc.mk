@@ -1,0 +1,9 @@
+name = "snel"
+license = "Unlicense"
+licenselink = "https://github.com/slakkenhuis/snel/blob/master/LICENSE"
+description = "An rigidly minimalist theme."
+homepage = "https://github.com/slakkenhuis/snel"
+tags = []
+features = []
+min_version = "0.41"
+

@@ -27,7 +27,7 @@ endif
 ##########################################################################$$$$
 # Phony targets
 
-all: website resources
+all: | resources website
 
 resources: \
 		$(DEST)/style.css \
@@ -39,7 +39,9 @@ resources: \
 
 
 website: $(patsubst $(SRC)/%.md,$(DEST)/%.html,$(SOURCES)) 
-	hugo --minify --source $(BASE) --contentDir $(SRC) --destination $(DEST)
+	hugo --minify --gc \
+	    --contentDir $(SRC) \
+	    --destination $(DEST)
 
 
 upload:

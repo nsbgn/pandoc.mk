@@ -9,26 +9,30 @@ table of contents extends horizontally, and that all its entries are visible
 without further tapping, hovering or sliding, since it is supposed to act as a 
 vantage point. 
 
-The accompanying makefile generates some files via software outside the Hugo 
-ecosystem. As of now, the recipe calls for [hugo](http://gohugo.io/),
+The accompanying makefile generates some additional files via software outside 
+the Hugo ecosystem. As of now, the recipe calls for [hugo](http://gohugo.io/),
 [sass](http://sass-lang.com/),
 [svgo](https://github.com/svg/svgo),
 [ImageMagick](http://www.imagemagick.org/) and
-[lftp](http://lftp.yar.ru/) — but you could easily substitute or add any 
-ingredient.
+[lftp](http://lftp.yar.ru/).
 
-Executing `make` will generate a `build/` directory. To use with your own 
-project, simply create a `makefile` with the following lines:
+To include the theme into your git-managed website, [add it as a 
+submodule](https://git-scm.com/book/en/v2/Git-Tools-Submodules):
+    
+    git submodule add https://github.com/slakkenhuis/snel.git themes/snel
 
-    SRC=/path/to/sources
-    DEST=/path/to/build
+To also make use of the makefile recipes, simply include the makefile into 
+your own:
+
+    SRC=/path/to/hugo/content
+    DEST=/path/to/hugo/destination
     USER=ftp_username
     HOST=ftp_host
     REMOTE=ftp_directory
-    include /path/to/snel/makefile
+    include themes/snel/makefile
 
-Note that other branches of the `snel` repository achieve the same thing fully 
-outside the Hugo ecosystem.
+(Note that other branches of the `snel` repository achieve a similar thing 
+using [Pandoc](http://pandoc.org/).)
 
 
 
