@@ -1,4 +1,4 @@
-# Location of makefile itself
+# Location of snel.mk makefile
 BASE := $(patsubst %/,%,$(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
 
 # Source and destination directories, and FTP credentials. These are
@@ -7,7 +7,7 @@ ifndef ASSETS
     ASSETS := $(BASE)/assets
 endif
 ifndef SRC
-    SRC := $(BASE)/example
+    SRC := $(abspath .)
 endif
 ifndef DEST
     DEST := build
@@ -27,12 +27,17 @@ endif
 ifndef REMOTE
     REMOTE := /home/user/public_html
 endif
+ifndef IGNORE
+    IGNORE=.git $(CACHE) $(DEST) $(shell cat .gitignore)
+endif
 
 # Find source files
 SOURCES = $(shell find $(SRC) -mindepth 1 -iname '*.md' -print)
 
+METADATA_DIR=$(CACHE)/metadata
+
 # Metadata is collected for each source in a corresponding file
-METADATA = $(patsubst $(SRC)/%,$(CACHE)/%.meta.json,$(SOURCES))
+METADATA = $(patsubst $(SRC)/%,$(METADATA_DIR)/%.meta.json,$(SOURCES))
 
 # Files referenced in the source documents are targets themselves
 REFERENCED = $(shell \
@@ -113,21 +118,17 @@ $(CACHE)/logo.txt: $(DEST)/logo.svg
 	rm $@.jpg
 
 
+# Overview of directories
+$(CACHE)/index.json: $(ASSETS)/index.py $(METADATA)
+	$< $(SRC) --metadata $(METADATA_DIR) --ignore $(IGNORE) > $@
+
+
 # Generate static index page 
-$(DEST)/index.html: $(ASSETS)/index.py $(CACHE)/dummy.html $(METADATA) $(DEST)/logo.png $(DEST)/logo.svg
+$(DEST)/index.html: $(ASSETS)/pandoc-template.html $(CACHE)/index.json
 	@-mkdir -p $(@D)
-	python3 $< --template $(CACHE)/dummy.html --directory $(CACHE) > $@
-
-
-# Dummy page for use in static index generation
-$(CACHE)/dummy.html: $(ASSETS)/pandoc-template.html
-	@-mkdir -p $(@D)
-	echo "dummy" | pandoc \
-		--template $< \
-		--variable root='.' \
-		--to html5 \
-		--standalone \
-		--output=$@
+	jq -r 'def list: "<a href=\"" + .path + "\">" + (.meta.title // "untitled") + "</a>" + if .contents then .contents | map(list | "<li>"+.+"</li>") | join("") | "<ul>"+.+"</ul>" else "" end; . | list | "<nav id=\"index\"><div><header><div></div></header><div>" + . + "</div><footer></footer></nav>"' \
+	    < $(CACHE)/index.json \
+	    | pandoc --template=$(ASSETS)/pandoc-template.html -o $@
 
 
 # Dummy page for metadata export
@@ -183,15 +184,13 @@ $(DEST)/%.html: \
 
 
 # Record metadata for each document
-$(CACHE)/%.md.meta.json: $(SRC)/%.md $(CACHE)/metadata-template.txt $(ASSETS)/pandoc-target-images.py
+$(METADATA_DIR)/%.md.meta.json: $(SRC)/%.md $(CACHE)/metadata-template.txt $(ASSETS)/pandoc-target-images.py
 	@-mkdir -p "$(@D)"
-	@echo $@
 	pandoc \
-		--metadata link='$(patsubst $(CACHE)/%.md.meta.json,%.html,$@)' \
-		--metadata original='$(patsubst $(CACHE)/%.md.meta.json,$(SRC)/%.md,$@)' \
+		--metadata link='$(patsubst $(METADATA_DIR)/%.md.meta.json,%.html,$@)' \
+		--metadata original='$(patsubst $(METADATA_DIR)/%.md.meta.json,$(SRC)/%.md,$@)' \
 		--metadata builddir='$(DEST)/$(shell realpath $(@D) --relative-to $(CACHE) --canonicalize-missing)' \
 		--template='$(CACHE)/metadata-template.txt' \
-		--filter $(ASSETS)/pandoc-target-images.py \
 		--to=plain \
 		--output=$@ \
 		$<

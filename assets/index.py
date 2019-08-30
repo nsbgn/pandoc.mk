@@ -1,118 +1,81 @@
-#!/bin/env python3
+#!/usr/bin/env python3
 
-import os
 import sys
-import bs4 
 import json
 import argparse
-from os.path import join, isdir, isfile, basename
+from datetime import datetime
+from os import curdir, listdir
+from os.path import join, isdir, getsize, getmtime
 
-
-def index(path, ignore=[]):
+def index(path, metadata_dir, ignore):
     """
-    Return a "table of contents" for a set of documents in a (possibly nested) 
-    directory structure on the filesystem. 
-    
+    Return a "table of contents" for a set of documents in a (possibly nested)
+    directory structure on the filesystem. `tree -J` is similar but does not
+    give the flexibility I want.
+
     :param path: Path to the top-level entry.
     :param ignore: Files or directories to ignore.
-    :return: BeautifulSoup object that represents table of contents.
+    :return: Object representing a table of contents.
     """
 
-    # Get metadata
-    meta = {}
-    if isdir(path):
+    data = \
+        { "path" : path
+        , "modified": datetime.fromtimestamp(getmtime(path)).strftime("%Y-%m-%d")
+        , "size": getsize(path)
+        }
+
+    # Add metadata
+    if metadata_dir:
+        if isdir(path):
+            metadata_path = join(metadata_dir, path, "meta.json")
+        else:
+            metadata_path = join(metadata_dir, path + ".meta.json")
+
         try:
-            with open(join(path, "index.md.meta.json"), "r") as f:
-                meta = json.load(f)
+            with open(metadata_path, "r") as f:
+                data["meta"] = json.load(f)
         except FileNotFoundError:
-            meta = {"title": basename(path)}
-    elif isfile(path):
-        with open(path, "r") as f:
-            meta = json.load(f)
+            pass
 
-    # Menu entry
-    title = meta.get("title", "untitled")
-    if meta.get("link"):
-        entry = soup.new_tag("a", href=meta.get("link"))
-    else:
-        entry = soup.new_tag("span")
-    entry.append(title)
-
-    # Children
+    # Directories have a "contents" child
     if isdir(path):
-        ul = soup.new_tag("ul")
-        for child in sorted(os.listdir(path)):
-            subpath = join(path, child)
-            if not child.startswith(".") \
-            and not child in ignore \
-            and child != "index.md.meta.json" \
-            and (isdir(subpath) or subpath.endswith(".meta.json")):
+        data["contents"] = [ 
+            index(path=join(path,child), 
+                ignore=ignore,
+                metadata_dir=metadata_dir)
+            for child in sorted(listdir(path)) 
+            if 
+                not child in ignore 
+                and child != "meta.json" 
+                and not child.endswith(".meta.json")
+            ]
 
-                li = soup.new_tag("li")
-                
-                (entry_, sub) = index(subpath, ignore)
-                li.append(entry_)
-                if sub:
-                    li.append(sub)
-                ul.append(li)
-
-        return (entry, ul)
-    else:
-        return (entry, None)
-
+    return data
 
 
 
 if __name__ == "__main__":
-
-    # Get command line arguments
-    parser = argparse.ArgumentParser(description="Make an index.html file.")
-    parser.add_argument("--template", metavar="PATH", help="Path to template file. Default: Standard input.")
-    parser.add_argument("--directory", metavar="PATH", default=os.curdir, help="Target directory.")
-    parser.add_argument("--ignore", metavar="PATH", default=[], nargs="*", help="Directories to ignore.")
+    parser = argparse.ArgumentParser(
+        description="Make a JSON file tree, including ."
+        )
+    parser.add_argument(
+        "--metadata", 
+        metavar="PATH", 
+        help="Directory in which to look for metadata. (Same path structures and filenames .meta.json appended)")
+    parser.add_argument(
+        "--ignore", 
+        metavar="PATH", 
+        nargs="*", 
+        help="Directories to ignore.")
+    parser.add_argument(
+        "directory", 
+        metavar="PATH", 
+        help="Target directory.")
     args = parser.parse_args()
+    sitemap = index(
+        path=args.directory, 
+        metadata_dir=args.metadata or curdir, 
+        ignore=args.ignore or [])
 
-    # Read soup
-    if args.template:
-        template = open(args.template, "r")
-    else:
-        template = sys.stdin
-    with template:
-        data = template.read()
-    soup = bs4.BeautifulSoup(data, "lxml")
-    
-    # Populate soup
-    title = soup.find("title")
-    title.clear()
-    title.append("Slakkenhuis")
-    body = soup.find("body")
-    body.clear()
-    nav = soup.new_tag("nav")
-    nav["id"]="index"
-    div = soup.new_tag("div")
-    header = soup.new_tag("header")
-
-    div2 = soup.new_tag("div")
-    
-    img = soup.new_tag("img")
-    img["src"] = "logo.svg"
-    img["onerror"] = "this.onerror=null; this.src='logo.png'"
-    div2.append(img)
-
-    footer = soup.new_tag("footer")
-    div3 = soup.new_tag("div")
-    span = soup.new_tag("span")
-    div3.append(span)
-    footer.append(div3)
-
-
-    (title, sub) = index(path=args.directory, ignore=args.ignore)
-    div.append(sub)
-    header.append(div2)
-    nav.append(header)
-    nav.append(div)
-    nav.append(footer)
-    body.append(nav)
-
-    # Output
-    print(str(soup))
+    json.dump(sitemap, separators=(',',':'), fp=sys.stdout)
+    sys.stdout.write('\n')
