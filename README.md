@@ -14,22 +14,22 @@ consists of three parts, each of which, I hope, may prove useful to someone:
 3.  A logo and a minimalist style to present the above.
 
 
-Executing `make` will generate a `build/` directory containing scripts, 
-stylesheets and the example website. To use with your own project, simply 
-create a `makefile` with the following lines:
+To install `snel`, do `make install`. To then use it with your own project, 
+simply create a `Makefile` with the following lines:
 
     SRC=/path/to/sources
     DEST=/path/to/build
     USER=ftp_username
     HOST=ftp_host
     REMOTE=ftp_directory
-    include /path/to/snel/makefile
+    include snel.mk
 
-Should this be a bit primitive for your tastes, try other static website 
-generators such as [hugo](http://gohugo.io/), 
+Executing `make` will then generate a `build/` directory containing scripts, 
+stylesheets and the example website. Should this be a bit primitive for your 
+tastes, try other static website generators such as [hugo](http://gohugo.io/), 
 [hakyll](https://jaspervdj.be/hakyll/about.html),
 [jekyll](http://jekyllrb.com/), [nanoc](https://nanoc.ws/), 
-[yst](https://github.com/jgm/yst) or [middleman](https://middlemanapp.com/)!
+[yst](https://github.com/jgm/yst) or [middleman](https://middlemanapp.com/).
 
 
 
