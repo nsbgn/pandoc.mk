@@ -38,9 +38,10 @@ Makefile
 
 Plain text formats like [Markdown](http://commonmark.org/help/) and 
 [YAML](http://www.yaml.org/spec/) are lightweight, understandable, and 
-modifiable. I glued a couple of 
-[standard](https://en.wikipedia.org/wiki/Unix_philosophy) tools into a 
-[make](https://www.gnu.org/software/make)-recipe for website generation.
+modifiable. In the spirit of the [UNIX 
+philosophy](https://en.wikipedia.org/wiki/Unix_philosophy), I glued a couple 
+of standard tools into a [make](https://www.gnu.org/software/make)-recipe for 
+website generation.
 
 Using `pandoc`, it creates an HTML file for every Markdown document it can 
 `find` in the source directory. Upon running `make` a second time, any 
@@ -63,19 +64,19 @@ substitute or add any ingredient.
 Index
 ------------------------------------------------------------------------------
 
-The directory hierarchy is useful for much the same reason that plain text is 
-useful. The `index.py` script generates a site-wide table of contents directly 
-from the folder structure.
+The directory hierarchy is useful for much the same reason that plain text is: 
+it is a simple and generic interface for organizing things. The `index.py` 
+script generates a site-wide table of contents directly from the folder 
+structure. Metadata for each file is collected by `pandoc`.
 
 
 Style
 ------------------------------------------------------------------------------
 
-The theme is kept simple and monochrome. Its most distinguishing quality is 
-that the table of contents extends horizontally and that all its entries are 
+The theme is minimal and monochrome. Its most distinguishing quality is that 
+the table of contents extends horizontally and that all its entries are 
 visible without further tapping, hovering or sliding; it is supposed to act as 
-a vantage point. The CSS is written using `lessc` and minified with 
-`clean-css`. The filters are made with `panflute`.
+a vantage point. The CSS is written using SASS.
 
 
 
