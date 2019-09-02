@@ -8,3 +8,7 @@ find ../example -mindepth 1 -printf '{"path":"%P","type":"%y","size":%s,"modifie
         ;   ( $i.path | split("/") ) as $p | setpath($p; getpath($p) + $i)
         )
 '
+
+find build/.cache/metadata -iname '*.meta.json' \
+    | xargs jq '{(input_filename | rtrimstr(".meta.json")):.}' \
+    | jq --slurp 'reduce .[] as $i ({}; . + $i)'
