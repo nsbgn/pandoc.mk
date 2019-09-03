@@ -6,14 +6,20 @@ BASE := $(patsubst %/,%,$(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
 ifndef ASSETS
     ASSETS := $(BASE)/assets
 endif
+ifndef TEMPLATES
+    TEMPLATES := $(BASE)/templates
+endif
 ifndef SRC
-    SRC := $(abspath .)
+    SRC := .
 endif
 ifndef DEST
     DEST := build
 endif
 ifndef CACHE
-    CACHE := $(DEST)/.cache
+    CACHE := $(DEST)/cache
+endif
+ifndef META
+    META := $(CACHE)/metadata
 endif
 ifndef GPG_ID
     GPG_ID := user@domain.com
@@ -24,27 +30,19 @@ endif
 ifndef HOST
     HOST := host
 endif
-ifndef REMOTE
-    REMOTE := /home/user/public_html
+ifndef REMOTE_DIR
+    REMOTE_DIR := /home/user/public_html
 endif
-ifndef EXCLUDE
-    EXCLUDE=Makefile wip
+ifndef IGNORE
+    # .git and files from .gitignore are automatically ignored by fd
+    IGNORE=Makefile
 endif
 
 # Find source files
-SOURCES = $(addprefix $(SRC)/,$(shell fdfind --exclude wip --extension md . "$(SRC)"))
-
-METADATA_DIR=$(CACHE)/metadata
+SOURCE_FILES = $(addprefix $(SRC)/,$(shell fdfind --exclude wip --extension md . "$(SRC)"))
 
 # Metadata is collected for each source in a corresponding file
-METADATA = $(patsubst $(SRC)/%,$(METADATA_DIR)/%.meta.json,$(SOURCES))
-
-# Files referenced in the source documents are targets themselves
-REFERENCED = $(shell \
-	cat /dev/null $(METADATA) 2> /dev/null \
-	| jq --raw-output '.builddir + "/" + .targets[]?' \
-	| uniq )
-
+METADATA_FILES = $(patsubst $(SRC)/%,$(META)/%.meta.json,$(SOURCE_FILES))
 
 
 ##########################################################################$$$$
@@ -52,7 +50,7 @@ REFERENCED = $(shell \
 
 all: html resources
 
-html: $(patsubst $(SRC)/%.md,$(DEST)/%.html,$(SOURCES)) 
+html: $(patsubst $(SRC)/%.md,$(DEST)/%.html,$(SOURCE_FILES)) 
 
 resources: \
 		$(DEST)/index.html \
@@ -113,63 +111,53 @@ $(DEST)/apple-touch-icon.png: $(DEST)/logo.svg
 # ASCII art logo, centred for 79-column text files
 $(CACHE)/logo.txt: $(DEST)/logo.svg
 	@-mkdir -p $(@D)
-	convert -density 1200 -resize 128x128 $< $@.jpg
-	jp2a --width=23 --chars=\ -~o0@ -i $@.jpg | sed 's/^/$(shell printf '%-28s')/' > $@
-	rm $@.jpg
+	convert -density 1200 -resize 128x128 $< JPG:- \
+	    | jp2a --width=40 --chars=\ -~o0@\  - \
+	    | sed 's/^/$(shell printf '%-28s')/' > $@
 
 
+# Overview of files & directories
 $(CACHE)/filetree.json:
-	fdfind . "$(SRC)" $(patsubst %,--exclude '%',$(EXCLUDE)) --exec stat --printf='{"path":"%n","size":%s,"modified":%Y,"type":"%F"}\n' \
+	fdfind . "$(SRC)" $(patsubst %,--exclude '%',$(IGNORE)) --exec stat --printf='{"path":"%n","size":%s,"modified":%Y,"type":"%F"}\n' \
 	    | jq --null-input 'reduce inputs as $$i ({}; ($$i.path | split("/") ) as $$p | setpath($$p; getpath($$p) + ($$i | .name |= $$p[-1:][0])))' \
 	    > $@
 
 
 # Overview of files & directories including metadata
-$(CACHE)/metadata.json: $(CACHE)/filetree.json $(METADATA)
-	jq --arg prefix "$(METADATA_DIR)/" \
+$(CACHE)/metadata.json: $(CACHE)/filetree.json $(METADATA_FILES)
+	jq --arg prefix "$(META)/" \
 	    'if (input_filename | endswith(".meta.json")) then . as $$i | (input_filename | ltrimstr($$prefix) | rtrimstr(".meta.json") | split("/")) as $$p | {} | setpath($$p + ["meta"]; $$i) else . end' $^ \
 	    > $@
 
 
 # In format that can be used for generating the index
 $(CACHE)/index.json: $(CACHE)/metadata.json
-	jq --slurp 'def pred: .key != "meta" and (.value | type == "object"); def arr: if type == "object" then (to_entries | map(select(pred) | .value | arr)) as $$sub | with_entries(select(pred | not)) | .contents = $$sub else . end; reduce .[] as $$i ({}; $$i * .) | arr | .contents' $< \
+	jq --slurp 'def pred: .key != "meta" and (.value | type == "object"); def arr: if type == "object" then (to_entries | map(select(pred) | .value | arr)) as $$sub | with_entries(select(pred | not)) | .contents = $$sub else . end; reduce .[] as $$i ({}; $$i * .) | arr' $< \
 	> $@
 
 
-# Overview of directories
-#$(CACHE)/index.json: $(ASSETS)/index.py $(METADATA)
-#	$< $(SRC) --metadata $(METADATA_DIR) --ignore $(IGNORE) > $@
-
-
 # Generate static index page 
-#$(DEST)/index.html: $(ASSETS)/pandoc-template.html $(CACHE)/index.json
-#	@-mkdir -p $(@D)
-#	jq -r 'def list: "<a href=\"" + .path + "\">" + (.meta.title // "untitled") + "</a>" + if .contents then .contents | map(list | "<li>"+.+"</li>") | join("") | "<ul>"+.+"</ul>" else "" end; . | list | "<nav id=\"index\"><div><header><div></div></header><div>" + . + "</div><footer></footer></nav>"' \
-#	    < $(CACHE)/index.json \
-#	    | pandoc --template=$(ASSETS)/pandoc-template.html -o $@
-
-
-# Dummy page for metadata export
-$(CACHE)/metadata-template.txt:
+$(DEST)/index.html: $(TEMPLATES)/index.html $(TEMPLATES)/nav.html $(CACHE)/index.json
 	@-mkdir -p $(@D)
-	echo '$$meta-json$$' > $@
-
+	( echo "---"; cat $(CACHE)/index.json; echo "...") \
+	    | pandoc --template=$(TEMPLATES)/index.html -o $@
 
 
 ##########################################################################$$$$
 # Documents
 
+# --filter $(ASSETS)/pandoc-extract-references.py \
+
 # Create HTML documents
 $(DEST)/%.html: \
 		$(SRC)/%.md \
-		$(CACHE)/%.md.meta.json \
-		$(ASSETS)/pandoc-template.html \
+		$(META)/%.md.meta.json \
+		$(TEMPLATES)/page.html \
 		$(ASSETS)/pandoc-extract-references.py \
 		$(wildcard $(SRC)/*.bib) 
 	@echo "Generating $@..."
 	@-mkdir -p "$(@D)"
-	@-mkdir -p "$(patsubst $(DEST)/%,$(CACHE)/%,$(@D))"
+	@-mkdir -p "$(patsubst $(DEST)/%,$(META)/%,$(@D))"
 	pandoc  \
 		--metadata source='$(SRC)' \
 		--metadata destination='$(DEST)' \
@@ -177,13 +165,12 @@ $(DEST)/%.html: \
 		--metadata path='$(shell realpath $(@D) --relative-to $(DEST) --canonicalize-missing)' \
 		--metadata file='$(@F)' \
 		--metadata root='$(shell realpath $(DEST) --relative-to $(@D) --canonicalize-missing)' \
-		--filter $(ASSETS)/pandoc-extract-references.py \
 		--from markdown+smart+fenced_divs+inline_notes+table_captions \
 		--to html5 \
 		--standalone \
 		--table-of-contents \
 		--toc-depth=3 \
-		--template $(ASSETS)/pandoc-template.html \
+		--template $(TEMPLATES)/page.html \
 		$(foreach F,\
 			$(filter %.css, $^),\
 			--css=$(F) \
@@ -203,13 +190,9 @@ $(DEST)/%.html: \
 
 
 # Record metadata for each document
-$(METADATA_DIR)/%.md.meta.json: $(SRC)/%.md $(CACHE)/metadata-template.txt $(ASSETS)/pandoc-target-images.py
+$(META)/%.md.meta.json: $(SRC)/%.md $(TEMPLATES)/metadata.json
 	@-mkdir -p "$(@D)"
-	pandoc \
-		--metadata link='$(patsubst $(METADATA_DIR)/%.md.meta.json,%.html,$@)' \
-		--metadata original='$(patsubst $(METADATA_DIR)/%.md.meta.json,$(SRC)/%.md,$@)' \
-		--metadata builddir='$(DEST)/$(shell realpath $(@D) --relative-to $(CACHE) --canonicalize-missing)' \
-		--template='$(CACHE)/metadata-template.txt' \
+	pandoc --template='$(TEMPLATES)/metadata.json' \
 		--to=plain \
 		--output=$@ \
 		$<

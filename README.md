@@ -4,14 +4,11 @@ snel
 `snel` is the [lightweight](http://idlewords.com/talks/website_obesity.htm) 
 template and a static website generator that I use for my personal website. It 
 is currently a work-in-progress, but it is mostly functional. It roughly 
-consists of three parts, each of which, I hope, may prove useful to someone:
+consists of two parts, each of which, I hope, may prove useful to someone:
 
 1.  A simple makefile, to create documents and other resources.
 
-2.  A Python script to generate a table of contents directly from the 
-    directory structure.
-
-3.  A logo and a minimalist style to present the above.
+2.  A logo and a minimalist style to present the above.
 
 
 To install `snel`, do `make install`. To then use it with your own project, 
@@ -43,31 +40,22 @@ philosophy](https://en.wikipedia.org/wiki/Unix_philosophy), I glued a couple
 of standard tools into a [make](https://www.gnu.org/software/make)-recipe for 
 website generation.
 
-Using `pandoc`, it creates an HTML file for every Markdown document it can 
-`find` in the source directory. Upon running `make` a second time, any 
-resource referenced in the source file metadata will also be generated. Given 
-an appropriate configuration, the results are uploaded with `lftp` by calling 
-`make upload`.
+Using `fd` and `pandoc`, the `Makefile` creates an HTML file for every 
+Markdown document it can find in the source directory. With `jq`, an index is 
+generated directly from the folder structure and `pandoc` metadata. After all, 
+the directory hierarchy is a simple and generic interface for organizing 
+things. just like plain text. Given an appropriate configuration, the results 
+are uploaded with `lftp` by calling `make upload`.
 
-As of now, the recipe calls for [Pandoc](http://pandoc.org/) 2.x with 
-[pandoc-citeproc](https://github.com/jgm/pandoc-citeproc),
-[Panflute](https://github.com/sergiocorreia/panflute),
-[Python](https://www.python.org/) 3.x,
+As of now, the recipe calls for [Pandoc](http://pandoc.org/) 2.x, 
 [sass](http://sass-lang.com/),
 [svgo](https://github.com/svg/svgo),
 [ImageMagick](http://www.imagemagick.org/),
 [jp2a](https://csl.name/jp2a/),
 [lftp](http://lftp.yar.ru/) and
-[find](https://www.gnu.org/software/findutils/) — but you could easily 
-substitute or add any ingredient.
+[fd](https://github.com/sharkdp/fd) — but you could easily substitute or add 
+any ingredient.
 
-Index
-------------------------------------------------------------------------------
-
-The directory hierarchy is useful for much the same reason that plain text is: 
-it is a simple and generic interface for organizing things. The `index.py` 
-script generates a site-wide table of contents directly from the folder 
-structure. Metadata for each file is collected by `pandoc`.
 
 
 Style
