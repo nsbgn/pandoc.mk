@@ -27,12 +27,12 @@ endif
 ifndef REMOTE
     REMOTE := /home/user/public_html
 endif
-ifndef IGNORE
-    IGNORE=.git wip $(CACHE) $(DEST)
+ifndef EXCLUDE
+    EXCLUDE=Makefile wip
 endif
 
 # Find source files
-SOURCES = $(shell find $(SRC) -mindepth 1 -iname '*.md' -print)
+SOURCES = $(addprefix $(SRC)/,$(shell fdfind --exclude wip --extension md . "$(SRC)"))
 
 METADATA_DIR=$(CACHE)/metadata
 
@@ -118,31 +118,36 @@ $(CACHE)/logo.txt: $(DEST)/logo.svg
 	rm $@.jpg
 
 
-# Overview of files & directories, without metadata
 $(CACHE)/filetree.json:
-	find "$(SRC)" -mindepth 1 -printf '{"path":"%P","type":"%y","size":%s,"modified":"%TY-%Tm-%Td"}\n' \
-	    | jq --null-input 'reduce inputs as $$i ({}; ($$i.path | split("/") ) as $$p | setpath($$p; getpath($$p) + ($$i | .name |= $$p[-1:][0])))' > $@
+	fdfind . "$(SRC)" $(patsubst %,--exclude '%',$(EXCLUDE)) --exec stat --printf='{"path":"%n","size":%s,"modified":%Y,"type":"%F"}\n' \
+	    | jq --null-input 'reduce inputs as $$i ({}; ($$i.path | split("/") ) as $$p | setpath($$p; getpath($$p) + ($$i | .name |= $$p[-1:][0])))' \
+	    > $@
 
 
 # Overview of files & directories including metadata
 $(CACHE)/metadata.json: $(CACHE)/filetree.json $(METADATA)
-	jq --arg basedir "$(SRC)" \
-	    'if (input_filename | endswith(".meta.json")) then . as $$orig | (input_filename | ltrimstr($$basedir) | rtrimstr(".meta.json") | split("/")) as $$p | {} | setpath($$p + ["meta"]; $$orig) else . end' $^ \
-	    | jq --slurp 'def pred: .key != "meta" and (.value | type == "object"); def to_array: if . and type == "object" then (to_entries | [.[] | select(pred | not)] | from_entries) + {"contents": to_entries | [.[] | select(pred) | .value | to_array ]} else . end; reduce .[] as $$i ({}; $$i*.) | to_array' \
+	jq --arg prefix "$(METADATA_DIR)/" \
+	    'if (input_filename | endswith(".meta.json")) then . as $$i | (input_filename | ltrimstr($$prefix) | rtrimstr(".meta.json") | split("/")) as $$p | {} | setpath($$p + ["meta"]; $$i) else . end' $^ \
 	    > $@
 
 
+# In format that can be used for generating the index
+$(CACHE)/index.json: $(CACHE)/metadata.json
+	jq --slurp 'def pred: .key != "meta" and (.value | type == "object"); def arr: if type == "object" then (to_entries | map(select(pred) | .value | arr)) as $$sub | with_entries(select(pred | not)) | .contents = $$sub else . end; reduce .[] as $$i ({}; $$i * .) | arr | .contents' $< \
+	> $@
+
+
 # Overview of directories
-$(CACHE)/index.json: $(ASSETS)/index.py $(METADATA)
-	$< $(SRC) --metadata $(METADATA_DIR) --ignore $(IGNORE) > $@
+#$(CACHE)/index.json: $(ASSETS)/index.py $(METADATA)
+#	$< $(SRC) --metadata $(METADATA_DIR) --ignore $(IGNORE) > $@
 
 
 # Generate static index page 
-$(DEST)/index.html: $(ASSETS)/pandoc-template.html $(CACHE)/index.json
-	@-mkdir -p $(@D)
-	jq -r 'def list: "<a href=\"" + .path + "\">" + (.meta.title // "untitled") + "</a>" + if .contents then .contents | map(list | "<li>"+.+"</li>") | join("") | "<ul>"+.+"</ul>" else "" end; . | list | "<nav id=\"index\"><div><header><div></div></header><div>" + . + "</div><footer></footer></nav>"' \
-	    < $(CACHE)/index.json \
-	    | pandoc --template=$(ASSETS)/pandoc-template.html -o $@
+#$(DEST)/index.html: $(ASSETS)/pandoc-template.html $(CACHE)/index.json
+#	@-mkdir -p $(@D)
+#	jq -r 'def list: "<a href=\"" + .path + "\">" + (.meta.title // "untitled") + "</a>" + if .contents then .contents | map(list | "<li>"+.+"</li>") | join("") | "<ul>"+.+"</ul>" else "" end; . | list | "<nav id=\"index\"><div><header><div></div></header><div>" + . + "</div><footer></footer></nav>"' \
+#	    < $(CACHE)/index.json \
+#	    | pandoc --template=$(ASSETS)/pandoc-template.html -o $@
 
 
 # Dummy page for metadata export
