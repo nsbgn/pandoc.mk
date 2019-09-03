@@ -28,7 +28,7 @@ ifndef REMOTE
     REMOTE := /home/user/public_html
 endif
 ifndef IGNORE
-    IGNORE=.git $(CACHE) $(DEST) $(shell cat .gitignore)
+    IGNORE=.git wip $(CACHE) $(DEST)
 endif
 
 # Find source files
@@ -116,6 +116,20 @@ $(CACHE)/logo.txt: $(DEST)/logo.svg
 	convert -density 1200 -resize 128x128 $< $@.jpg
 	jp2a --width=23 --chars=\ -~o0@ -i $@.jpg | sed 's/^/$(shell printf '%-28s')/' > $@
 	rm $@.jpg
+
+
+# Overview of files & directories, without metadata
+$(CACHE)/filetree.json:
+	find "$(SRC)" -mindepth 1 -printf '{"path":"%P","type":"%y","size":%s,"modified":"%TY-%Tm-%Td"}\n' \
+	    | jq --null-input 'reduce inputs as $$i ({}; ($$i.path | split("/") ) as $$p | setpath($$p; getpath($$p) + ($$i | .name |= $$p[-1:][0])))' > $@
+
+
+# Overview of files & directories including metadata
+$(CACHE)/metadata.json: $(CACHE)/filetree.json $(METADATA)
+	jq --arg basedir "$(SRC)" \
+	    'if (input_filename | endswith(".meta.json")) then . as $$orig | (input_filename | ltrimstr($$basedir) | rtrimstr(".meta.json") | split("/")) as $$p | {} | setpath($$p + ["meta"]; $$orig) else . end' $^ \
+	    | jq --slurp 'def pred: .key != "meta" and (.value | type == "object"); def to_array: if . and type == "object" then (to_entries | [.[] | select(pred | not)] | from_entries) + {"contents": to_entries | [.[] | select(pred) | .value | to_array ]} else . end; reduce .[] as $$i ({}; $$i*.) | to_array' \
+	    > $@
 
 
 # Overview of directories
