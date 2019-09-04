@@ -39,7 +39,9 @@ ifndef IGNORE
 endif
 
 # Find source files
-SOURCE_FILES = $(addprefix $(SRC)/,$(shell fdfind --exclude wip --extension md . "$(SRC)"))
+SOURCE_FILES = $(addprefix $(SRC)/,\
+			$(shell fdfind $(patsubst %,--exclude '%',$(IGNORE)) --extension md . "$(SRC)")\
+	       )
 
 # Metadata is collected for each source in a corresponding file
 METADATA_FILES = $(patsubst $(SRC)/%,$(META)/%.meta.json,$(SOURCE_FILES))
