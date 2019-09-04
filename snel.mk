@@ -117,15 +117,24 @@ $(CACHE)/logo.txt: $(DEST)/logo.svg
 	    | sed 's/^/$(shell printf '%-28s')/' > $@
 
 
+
+##############################################################################
+# Indexing
+
+# Record metadata for each document
+$(META)/%.md.meta.json: $(SRC)/%.md $(TEMPLATES)/metadata.json
+	@-mkdir -p "$(@D)"
+	pandoc --template='$(TEMPLATES)/metadata.json' \
+		--to=plain \
+		--output=$@ \
+		$<
+
 # Overview of files & directories
 $(CACHE)/filetree.json: $(ASSETS)/indexer.jq
 	@-mkdir -p $(@D)
-	fdfind . "$(SRC)" \
-	        $(patsubst %,--exclude '%',$(IGNORE)) \
+	fdfind . "$(SRC)" $(patsubst %,--exclude '%',$(IGNORE)) \
 	        --exec stat --printf='{"path":"%n","size":%s,"modified":%Y,"type":"%F"}\n' \
-	    | jq -L$(ASSETS) \
-		 --null-input \
-		 'include "indexer"; filetree' \
+	    | jq -L$(ASSETS) --null-input 'include "indexer"; filetree' \
 	    > $@
 
 # Overview of files & directories, including metadata, transformed into format
@@ -142,13 +151,15 @@ $(CACHE)/index.json: $(CACHE)/filetree.json $(METADATA_FILES) $(ASSETS)/indexer.
 # Generate static index page 
 $(DEST)/index.html: $(TEMPLATES)/index.html $(TEMPLATES)/nav.html $(CACHE)/index.json
 	@-mkdir -p $(@D)
-	( echo "---"; cat $(CACHE)/index.json; echo "...") \
-	    | pandoc \
-	    	--template=$(TEMPLATES)/index.html \
-		--metadata title="Table of contents" \
-		-o $@
+	echo | pandoc \
+	    --template=$(TEMPLATES)/index.html \
+	    --metadata-file $(CACHE)/index.json \
+	    --metadata title="Table of contents" \
+	    -o $@
 
-##########################################################################$$$$
+
+
+##############################################################################
 # Documents
 
 # --filter $(ASSETS)/pandoc-extract-references.py \
@@ -189,15 +200,6 @@ $(DEST)/%.html: \
 		--output=$@ \
 		$< \
 		$(filter %/metadata.yaml, $^)
-
-
-# Record metadata for each document
-$(META)/%.md.meta.json: $(SRC)/%.md $(TEMPLATES)/metadata.json
-	@-mkdir -p "$(@D)"
-	pandoc --template='$(TEMPLATES)/metadata.json' \
-		--to=plain \
-		--output=$@ \
-		$<
 
 
 ##########################################################################$$$$

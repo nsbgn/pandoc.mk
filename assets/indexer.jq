@@ -35,11 +35,6 @@ def filetree:
 ;
 
 
-# jq --slurp 'reduce .[] as $i ([]; [$i | input_filename]+.)'
-# bookmarks/bookmarks.md.meta.json pictures/pictures.md.meta.json ->  this
-# works
-
-
 # Given .meta.json files, this uses the filename to place them into a format
 # similar to the one produced by the `filetree` function.
 def metadata($filename):
@@ -69,7 +64,7 @@ def combine_filetree_metadata:
 ;
 
 # Make an object out of a stream of files, associating the each filename with
-# its contents.
+# its contents. Use with the `--null-input` switch.
 def file_entries:
     reduce inputs as $input
         ( {}

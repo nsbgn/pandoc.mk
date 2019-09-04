@@ -53,14 +53,15 @@ the directory hierarchy is a simple and generic interface for organizing
 things. just like plain text. Given an appropriate configuration, the results 
 are uploaded with `lftp` by calling `make upload`.
 
-As of now, the recipe calls for [Pandoc](http://pandoc.org/) 2.8 or higher, 
+As of now, the recipe calls for [pandoc](http://pandoc.org/) 2.8 or higher, 
+[jq](https://stedolan.github.io/jq/) 1.5 or higher,
+[fd](https://github.com/sharkdp/fd),
 [sass](http://sass-lang.com/),
 [svgo](https://github.com/svg/svgo),
 [ImageMagick](http://www.imagemagick.org/),
-[jp2a](https://csl.name/jp2a/),
-[lftp](http://lftp.yar.ru/) and
-[fd](https://github.com/sharkdp/fd) — but you could easily substitute or add 
-any ingredient.
+[jp2a](https://csl.name/jp2a/) and
+[lftp](http://lftp.yar.ru/) — but you could easily substitute or add any 
+ingredient.
 
 Note that we use the partials of `pandoc`'s built-in templating system, which 
 appeared in `doctemplates 0.3`. The version of `pandoc` in your distribution's 
