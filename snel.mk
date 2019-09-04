@@ -140,8 +140,10 @@ $(CACHE)/index.json: $(CACHE)/metadata.json
 $(DEST)/index.html: $(TEMPLATES)/index.html $(TEMPLATES)/nav.html $(CACHE)/index.json
 	@-mkdir -p $(@D)
 	( echo "---"; cat $(CACHE)/index.json; echo "...") \
-	    | pandoc --template=$(TEMPLATES)/index.html -o $@
-
+	    | pandoc \
+	    	--template=$(TEMPLATES)/index.html \
+		--metadata title="Table of contents" \
+		-o $@
 
 ##########################################################################$$$$
 # Documents
@@ -159,9 +161,6 @@ $(DEST)/%.html: \
 	@-mkdir -p "$(@D)"
 	@-mkdir -p "$(patsubst $(DEST)/%,$(META)/%,$(@D))"
 	pandoc  \
-		--metadata source='$(SRC)' \
-		--metadata destination='$(DEST)' \
-		--metadata cache='$(CACHE)' \
 		--metadata path='$(shell realpath $(@D) --relative-to $(DEST) --canonicalize-missing)' \
 		--metadata file='$(@F)' \
 		--metadata root='$(shell realpath $(DEST) --relative-to $(@D) --canonicalize-missing)' \

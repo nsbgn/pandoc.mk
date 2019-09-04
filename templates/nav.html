@@ -1,6 +1,6 @@
 <ul>
-<a href="$it.path$">$it.meta.title$</a>
-$for(it.contents)$
-<li>${ it:nav() }</li>
+$for(contents)$
+<a href="$it.path$">$if(it.meta.title)$$it.meta.title$$else$$it.name$$endif$</a>
+<li>${it.contents:nav()}</li>
 $endfor$
 </ul>

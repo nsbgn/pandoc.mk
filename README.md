@@ -53,7 +53,7 @@ the directory hierarchy is a simple and generic interface for organizing
 things. just like plain text. Given an appropriate configuration, the results 
 are uploaded with `lftp` by calling `make upload`.
 
-As of now, the recipe calls for [Pandoc](http://pandoc.org/) 2.x, 
+As of now, the recipe calls for [Pandoc](http://pandoc.org/) 2.8 or higher, 
 [sass](http://sass-lang.com/),
 [svgo](https://github.com/svg/svgo),
 [ImageMagick](http://www.imagemagick.org/),
@@ -62,6 +62,15 @@ As of now, the recipe calls for [Pandoc](http://pandoc.org/) 2.x,
 [fd](https://github.com/sharkdp/fd) — but you could easily substitute or add 
 any ingredient.
 
+Note that we use the partials of `pandoc`'s built-in templating system, which 
+appeared in `doctemplates 0.3`. The version of `pandoc` in your distribution's 
+repositories is probably not sufficient - in fact, neither is the latest 
+upstream release, `pandoc 0.7.3` at the time of writing. You'll need the 
+development version for now.
+
+    git clone https://github.com/jgm/pandoc && \
+    cd pandoc && \
+    cabal install
 
 
 Style

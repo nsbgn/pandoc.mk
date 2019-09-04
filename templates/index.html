@@ -2,22 +2,17 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>Table of contents</title>
+<title>$title$</title>
 <link rel="shortcut icon" href="favicon.ico">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <nav id="index">
-    <header><div></div></header>
-    <div>
-<ul>
-$for(contents)$
-<a href="$contents.path$">$if(contents.meta.title)$$contents.meta.title$$else$Untitled$endif$</a>
-<li>$it$</li>
-$endfor$
-</ul>
-    </div>
-    <footer><div></div></footer>
+<header><div></div></header>
+<div>
+${nav()}
+</div>
+<footer><div></div></footer>
 </nav>
 </body>
 </html>
