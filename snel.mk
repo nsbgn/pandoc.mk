@@ -18,9 +18,6 @@ endif
 ifndef CACHE
     CACHE := $(DEST)/cache
 endif
-ifndef META
-    META := $(CACHE)/metadata
-endif
 ifndef GPG_ID
     GPG_ID := user@domain.com
 endif
@@ -44,7 +41,7 @@ SOURCE_FILES = $(addprefix $(SRC)/,\
 	       )
 
 # Metadata is collected for each source in a corresponding file
-METADATA_FILES = $(patsubst $(SRC)/%,$(META)/%.meta.json,$(SOURCE_FILES))
+METADATA_FILES = $(patsubst $(SRC)/%,$(CACHE)/%.meta.json,$(SOURCE_FILES))
 
 
 ##########################################################################$$$$
@@ -122,7 +119,7 @@ $(CACHE)/logo.txt: $(DEST)/logo.svg
 # Indexing
 
 # Record metadata for each document
-$(META)/%.md.meta.json: $(SRC)/%.md $(TEMPLATES)/metadata.json
+$(CACHE)/%.md.meta.json: $(SRC)/%.md $(TEMPLATES)/metadata.json
 	@-mkdir -p "$(@D)"
 	pandoc --template='$(TEMPLATES)/metadata.json' \
 		--to=plain \
@@ -143,7 +140,7 @@ $(CACHE)/index.json: $(CACHE)/filetree.json $(METADATA_FILES) $(ASSETS)/indexer.
 	@-mkdir -p $(@D)
 	jq  -L$(ASSETS) \
 	    --null-input \
-	    --arg prefix "$(META)/" \
+	    --arg prefix "$(CACHE)/" \
 	    'include "indexer"; index' \
 	     $(filter %.json, $^) \
 	    > $@
@@ -167,13 +164,13 @@ $(DEST)/index.html: $(TEMPLATES)/index.html $(TEMPLATES)/nav.html $(CACHE)/index
 # Create HTML documents
 $(DEST)/%.html: \
 		$(SRC)/%.md \
-		$(META)/%.md.meta.json \
+		$(CACHE)/%.md.meta.json \
 		$(TEMPLATES)/page.html \
 		$(ASSETS)/pandoc-extract-references.py \
 		$(wildcard $(SRC)/*.bib) 
 	@echo "Generating $@..."
 	@-mkdir -p "$(@D)"
-	@-mkdir -p "$(patsubst $(DEST)/%,$(META)/%,$(@D))"
+	@-mkdir -p "$(patsubst $(DEST)/%,$(CACHE)/%,$(@D))"
 	pandoc  \
 		--metadata path='$(shell realpath $(@D) --relative-to $(DEST) --canonicalize-missing)' \
 		--metadata file='$(@F)' \
