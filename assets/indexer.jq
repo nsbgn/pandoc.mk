@@ -18,7 +18,7 @@ def move_children_to_array:
     then 
         ( to_entries | map(select(pred) | .value | move_children_to_array)) as $sub
         | with_entries(select(pred | not)) 
-        | .contents = $sub
+        | .contents = ($sub | sort_by(.modified) | reverse)
     else
         .
     end
