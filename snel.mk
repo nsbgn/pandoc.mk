@@ -122,17 +122,15 @@ $(CACHE)/filetree.json: $(ASSETS)/indexer.jq
 	fdfind . "$(SRC)" \
 	        $(patsubst %,--exclude '%',$(IGNORE)) \
 	        --exec stat --printf='{"path":"%n","size":%s,"modified":%Y,"type":"%F"}\n' \
-	    | jq \
-	    	-L$(ASSETS) \
-		--null-input \
-		'include "indexer"; filetree' \
+	    | jq -L$(ASSETS) \
+		 --null-input \
+		 'include "indexer"; filetree' \
 	    > $@
 
 # Overview of files & directories including metadata
 $(CACHE)/filetree-meta.json: $(CACHE)/filetree.json $(ASSETS)/indexer.jq $(METADATA_FILES)
 	@-mkdir -p $(@D)
-	jq \
-	    -L$(ASSETS) \
+	jq  -L$(ASSETS) \
 	    --arg prefix "$(META)/" \
 	    'include "indexer"; filetree_meta' $(filter %.json,$^) \
 	    > $@
@@ -140,8 +138,7 @@ $(CACHE)/filetree-meta.json: $(CACHE)/filetree.json $(ASSETS)/indexer.jq $(METAD
 # Transform to format readable for the index template
 $(CACHE)/index.json: $(CACHE)/filetree-meta.json $(ASSETS)/indexer.jq
 	@-mkdir -p $(@D)
-	jq \
-	    -L$(ASSETS) \
+	jq  -L$(ASSETS) \
 	    --slurp \
 	    'include "indexer"; index' $< \
 	    > $@
