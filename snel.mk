@@ -128,20 +128,15 @@ $(CACHE)/filetree.json: $(ASSETS)/indexer.jq
 		 'include "indexer"; filetree' \
 	    > $@
 
-# Overview of files & directories including metadata
-$(CACHE)/filetree-meta.json: $(CACHE)/filetree.json $(ASSETS)/indexer.jq $(METADATA_FILES)
+# Overview of files & directories, including metadata, transformed into format
+# readable for the index template
+$(CACHE)/index.json: $(CACHE)/filetree.json $(METADATA_FILES) $(ASSETS)/indexer.jq
 	@-mkdir -p $(@D)
 	jq  -L$(ASSETS) \
+	    --null-input \
 	    --arg prefix "$(META)/" \
-	    'include "indexer"; filetree_meta' $(filter %.json,$^) \
-	    > $@
-
-# Transform to format readable for the index template
-$(CACHE)/index.json: $(CACHE)/filetree-meta.json $(ASSETS)/indexer.jq
-	@-mkdir -p $(@D)
-	jq  -L$(ASSETS) \
-	    --slurp \
-	    'include "indexer"; index' $< \
+	    'include "indexer"; index' \
+	     $(filter %.json, $^) \
 	    > $@
 
 # Generate static index page 

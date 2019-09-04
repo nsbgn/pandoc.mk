@@ -15,8 +15,10 @@ def pred:
 # child files to a separate array at the "contents" key.
 def move_children_to_array:
     if type == "object" 
-    then (to_entries | map(select(pred) | .value | move_children_to_array)) as $sub
-         | with_entries(select(pred | not)) | .contents = $sub
+    then 
+        ( to_entries | map(select(pred) | .value | move_children_to_array)) as $sub
+        | with_entries(select(pred | not)) 
+        | .contents = $sub
     else
         .
     end
@@ -32,18 +34,47 @@ def filetree:
         )
 ;
 
-# Given a set of JSON object files, this uses the filename to add them into a
-# format similar to the one produced by the `filetree` function.
-def filetree_meta:
-    if (input_filename | endswith(".meta.json")) 
-    then 
-        . as $i 
-        | (input_filename | ltrimstr($prefix) | rtrimstr(".meta.json") | split("/")) as $p
-        | {} 
-        | setpath($p + ["meta"]; $i) 
-    else 
-        .
-    end
+
+# jq --slurp 'reduce .[] as $i ([]; [$i | input_filename]+.)'
+# bookmarks/bookmarks.md.meta.json pictures/pictures.md.meta.json ->  this
+# works
+
+
+# Given .meta.json files, this uses the filename to place them into a format
+# similar to the one produced by the `filetree` function.
+def metadata($filename):
+    . as $input
+    |   ( $filename 
+        | ltrimstr($prefix)
+        | rtrimstr(".meta.json") 
+        | split("/")
+        ) as $path
+    |   {} 
+    |   setpath($path + ["meta"]; $input)
+;
+
+# Merge together `filetree.json` and `*.meta.json` files in the format produced
+# by `file_entries`.
+def combine_filetree_metadata:
+    reduce (to_entries | .[]) as $entry
+        ( {}
+        ;   . * (
+            $entry | .key as $k | .value as $v |
+            if ($k | endswith(".meta.json"))
+                then $v | metadata($k)
+                else $v
+            end
+            )
+        )
+;
+
+# Make an object out of a stream of files, associating the each filename with
+# its contents.
+def file_entries:
+    reduce inputs as $input
+        ( {}
+        ; . + { ($input | input_filename) : $input }
+        )
 ;
 
 # Adds links to each page object. The link should be the same as the path,
@@ -57,4 +88,7 @@ def add_links:
 # Combines the given stream of JSON objects by merging them, and performs the
 # given operations to turn it into a proper index.
 def index:
-    reduce .[] as $i ({}; $i * .) | move_children_to_array;
+    file_entries
+    | combine_filetree_metadata 
+    | move_children_to_array
+;
