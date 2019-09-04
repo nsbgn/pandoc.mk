@@ -57,13 +57,12 @@ resources: \
 		$(DEST)/style.css \
 		$(DEST)/crimson.woff2 \
 		$(DEST)/favicon.ico \
-		$(DEST)/apple-touch-icon.png \
-		$(REFERENCED)
+		$(DEST)/apple-touch-icon.png
 
-upload:
+upload: all
 	read -s -p 'FTP password: ' password && \
 	lftp -u $(USER),$$password -e \
-	"mirror --reverse --only-newer --verbose --dry-run --exclude .cache/ $(DEST) $(REMOTE)" \
+	"mirror --reverse --only-newer --verbose --dry-run --exclude $(CACHE) $(DEST) $(REMOTE)" \
 	$(HOST)
 
 .PHONY: all html resources upload
