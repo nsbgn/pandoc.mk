@@ -22,11 +22,17 @@ simply create a `Makefile` with the following lines:
     include snel.mk
 
 Executing `make` will then generate a `build/` directory containing scripts, 
-stylesheets and the example website. Should this be a bit primitive for your 
-tastes, try other static website generators such as [hugo](http://gohugo.io/), 
-[hakyll](https://jaspervdj.be/hakyll/about.html),
+stylesheets and the example website. 
+
+Site generators that take a similar approach are 
+[simple-template](https://github.com/simple-template/pandoc), 
+[jqt](https://fadado.github.io/jqt/) and 
+[pansite](https://github.com/wcaleb/website). Should this be a bit primitive 
+for your tastes, try other static website generators such as 
+[hugo](http://gohugo.io/), [hakyll](https://jaspervdj.be/hakyll/about.html),
 [jekyll](http://jekyllrb.com/), [nanoc](https://nanoc.ws/), 
-[yst](https://github.com/jgm/yst) or [middleman](https://middlemanapp.com/).
+[yst](https://github.com/jgm/yst) or [middleman](https://middlemanapp.com/). 
+
 
 
 
