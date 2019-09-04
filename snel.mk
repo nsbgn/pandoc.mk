@@ -117,24 +117,34 @@ $(CACHE)/logo.txt: $(DEST)/logo.svg
 
 
 # Overview of files & directories
-$(CACHE)/filetree.json:
-	fdfind . "$(SRC)" $(patsubst %,--exclude '%',$(IGNORE)) --exec stat --printf='{"path":"%n","size":%s,"modified":%Y,"type":"%F"}\n' \
-	    | jq --null-input 'reduce inputs as $$i ({}; ($$i.path | split("/") ) as $$p | setpath($$p; getpath($$p) + ($$i | .name |= $$p[-1:][0])))' \
+$(CACHE)/filetree.json: $(ASSETS)/indexer.jq
+	@-mkdir -p $(@D)
+	fdfind . "$(SRC)" \
+	        $(patsubst %,--exclude '%',$(IGNORE)) \
+	        --exec stat --printf='{"path":"%n","size":%s,"modified":%Y,"type":"%F"}\n' \
+	    | jq \
+	    	-L$(ASSETS) \
+		--null-input \
+		'include "indexer"; filetree' \
 	    > $@
-
 
 # Overview of files & directories including metadata
-$(CACHE)/metadata.json: $(CACHE)/filetree.json $(METADATA_FILES)
-	jq --arg prefix "$(META)/" \
-	    'if (input_filename | endswith(".meta.json")) then . as $$i | (input_filename | ltrimstr($$prefix) | rtrimstr(".meta.json") | split("/")) as $$p | {} | setpath($$p + ["meta"]; $$i) else . end' $^ \
+$(CACHE)/filetree-meta.json: $(CACHE)/filetree.json $(ASSETS)/indexer.jq $(METADATA_FILES)
+	@-mkdir -p $(@D)
+	jq \
+	    -L$(ASSETS) \
+	    --arg prefix "$(META)/" \
+	    'include "indexer"; filetree_meta' $(filter %.json,$^) \
 	    > $@
 
-
-# In format that can be used for generating the index
-$(CACHE)/index.json: $(CACHE)/metadata.json
-	jq --slurp 'def pred: .key != "meta" and (.value | type == "object"); def arr: if type == "object" then (to_entries | map(select(pred) | .value | arr)) as $$sub | with_entries(select(pred | not)) | .contents = $$sub else . end; reduce .[] as $$i ({}; $$i * .) | arr' $< \
-	> $@
-
+# Transform to format readable for the index template
+$(CACHE)/index.json: $(CACHE)/filetree-meta.json $(ASSETS)/indexer.jq
+	@-mkdir -p $(@D)
+	jq \
+	    -L$(ASSETS) \
+	    --slurp \
+	    'include "indexer"; index' $< \
+	    > $@
 
 # Generate static index page 
 $(DEST)/index.html: $(TEMPLATES)/index.html $(TEMPLATES)/nav.html $(CACHE)/index.json
