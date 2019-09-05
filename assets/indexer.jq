@@ -35,29 +35,23 @@ def filetree:
 ;
 
 
-# Given .meta.json files, this uses the filename to place them into a format
-# similar to the one produced by the `filetree` function.
-def metadata($filename):
-    . as $input
-    |   ( $filename 
-        | ltrimstr($prefix)
-        | rtrimstr(".meta.json") 
-        | split("/")
-        ) as $path
-    |   {} 
-    |   setpath($path + ["meta"]; $input)
-;
-
-# Merge together `filetree.json` and `*.meta.json` files in the format produced
-# by `file_entries`.
+# Merge together `filetree.json` and `*.meta.json` files, as given in the
+# format produced by `file_entries`.
 def combine_filetree_metadata:
     reduce (to_entries | .[]) as $entry
-        ( {}
+        (   {}
         ;   . * (
-            $entry | .key as $k | .value as $v |
-            if ($k | endswith(".meta.json"))
-                then $v | metadata($k)
-                else $v
+            if ($entry.key | endswith(".meta.json"))
+            then 
+                ( $entry.key 
+                    | ltrimstr($prefix)
+                    | rtrimstr(".meta.json")
+                    | split("/")
+                ) as $path
+                | {}
+                | setpath($path + ["meta"]; $entry.value)
+            else 
+                $entry.value
             end
             )
         )
