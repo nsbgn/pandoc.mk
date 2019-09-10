@@ -2,62 +2,6 @@
 # This is a collection of filters for `jq`, intended to manipulate JSON objects
 # into JSON representing a website index, for further processing in a template.
 
-
-# This is a predicate that returns true if an entry produced by `to_entries` is
-# to be considered a child file, and false if it is to be considered a property
-# of the file or directory.
-def pred: 
-    .key != "meta" and (.value | type == "object")
-;
-
-# Given a JSON object that contains keys representing both child files and file
-# properties, this function leaves the file properties intact and moves the
-# child files to a separate array at the "contents" key.
-def move_children_to_array:
-    if type == "object" 
-    then 
-        ( to_entries | map(select(pred) | .value | move_children_to_array)) as $sub
-        | with_entries(select(pred | not)) 
-        | .contents = ($sub | sort_by(.modified) | reverse)
-    else
-        .
-    end
-; 
-
-# Given a stream of JSON objects of the form {"path":"a/b",…}, this function creates
-# a single JSON object of the form {"path":"a", "a":{"path": "a/b"}}
-def filetree:
-    reduce inputs as $i 
-        ( {}
-        ; ($i.path | split("/")) as $p 
-        | setpath($p; getpath($p) + ($i | .name |= $p[-1:][0]))
-        )
-;
-
-
-# Merge together `filetree.json` and `*.meta.json` files, as given in the
-# format produced by `file_entries`.
-def combine_filetree_metadata:
-    reduce (to_entries | .[]) as $entry
-        (   {}
-        ;   . * (
-            if ($entry.key | endswith(".meta.json"))
-            then 
-                ( $entry.key 
-                    | ltrimstr($prefix)
-                    | rtrimstr(".meta.json")
-                    | split("/")
-                ) as $path
-                | {}
-                | setpath($path + ["meta"]; $entry.value)
-            else 
-                $entry.value
-            end
-            )
-        )
-;
-
-
 # Select the descendant described by the array of names in `$path`.
 def descend($path):
     if ($path | length) > 0
@@ -77,7 +21,7 @@ def descend($path):
 def insert($path; $child):
     if ($path | length) > 0
     then
-        if ([.contents[]? | select(.path == $path[0])] | length) > 0
+        if ([.contents[]? | select(.name == $path[0])] | length) > 0
         then
             (.contents[] | select(.name == $path[0])) |= (. | insert($path[1:]; $child))
         else
@@ -86,8 +30,42 @@ def insert($path; $child):
     else
         . * $child
     end
-;    
+;
 
+
+# Given a stream of JSON objects of the form {"path":"a/b",…}, this function creates
+# a single JSON object of the form {"path":"a", "a":{"path": "a/b"}}
+def filetree:
+    reduce inputs as $i 
+        ( []
+        ; . + [$i]
+        )
+;
+
+
+# Merge together `filetree.json` and `*.meta.json` files, as given in the
+# format produced by `file_entries`.
+def combine_files:
+    reduce (to_entries | .[]) as $entry
+        (   {}
+        ;   . * (
+            if ($entry.key | endswith(".meta.json"))
+            then 
+                ( $entry.key 
+                    | ltrimstr($prefix)
+                    | rtrimstr(".meta.json")
+                    | split("/")
+                ) as $path
+                | insert($path; {"meta": $entry.value})
+            else 
+                reduce $entry.value[] as $f
+                ( .
+                ; insert($f.path | split("/"); $f)
+                )
+            end
+            )
+        )
+;
 
 # Make an object out of a stream of files, associating the each filename with
 # its contents. Use with the `--null-input` switch.
@@ -110,6 +88,5 @@ def add_links:
 # given operations to turn it into a proper index.
 def index:
     file_entries
-    | combine_filetree_metadata 
-    | move_children_to_array
+    | combine_files
 ;
