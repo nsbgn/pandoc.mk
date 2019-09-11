@@ -33,38 +33,27 @@ def insert($path; $child):
 ;
 
 
-# Merge together `filetree.json` and `*.meta.json` files, as given in the
-# format produced by `file_entries`.
-def combine_files:
-    reduce (to_entries | .[]) as $entry
+# Merge together `filetree.json` and `*.meta.json` files, with behaviour
+# depending on the filename of the object. Use with the `--null-input` switch.
+def process_files:
+    reduce inputs as $input
         (   {}
-        ;   . * (
-            if ($entry.key | endswith(".meta.json"))
-            then 
-                ( $entry.key 
-                    | ltrimstr($prefix)
-                    | rtrimstr(".meta.json")
-                    | split("/")
-                ) as $path
-                | insert($path; {"meta": $entry.value})
+        ;   ($input | input_filename) as $f |
+            if ($f | endswith(".meta.json")) then 
+                insert
+                ( $f | ltrimstr($prefix) | rtrimstr(".meta.json") | split("/")
+                ; {"meta": $input} )
             else 
-                reduce $entry.value[] as $f
+                reduce $input[] as $entry
                 ( .
-                ; insert($f.path | split("/"); $f)
+                ;   insert
+                    ( $entry.path | split("/")
+                    ; $entry )
                 )
-            end
-            )
+            end * .
         )
 ;
 
-# Make an object out of a stream of files, associating the each filename with
-# its contents. Use with the `--null-input` switch.
-def file_entries:
-    reduce inputs as $input
-        ( {}
-        ; . + { ($input | input_filename) : $input }
-        )
-;
 
 # Adds links to each page object. The link should be the same as the path,
 # except in the case of directories, which may either link to its index.md or
@@ -94,7 +83,6 @@ def add_links:
 # Combines the given stream of JSON objects by merging them, and performs the
 # given operations to turn it into a proper index.
 def index:
-    file_entries
-    | combine_files
+    process_files
     | add_links
 ;
