@@ -33,16 +33,6 @@ def insert($path; $child):
 ;
 
 
-# Given a stream of JSON objects of the form {"path":"a/b",…}, this function creates
-# a single JSON object of the form {"path":"a", "a":{"path": "a/b"}}
-def filetree:
-    reduce inputs as $i 
-        ( []
-        ; . + [$i]
-        )
-;
-
-
 # Merge together `filetree.json` and `*.meta.json` files, as given in the
 # format produced by `file_entries`.
 def combine_files:

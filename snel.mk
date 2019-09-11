@@ -127,11 +127,11 @@ $(CACHE)/%.md.meta.json: $(SRC)/%.md $(TEMPLATES)/metadata.json
 		$<
 
 # Overview of files & directories
-$(CACHE)/filetree.json: $(ASSETS)/indexer.jq
+$(CACHE)/filetree.json: $(SOURCE_FILES) $(METADATA_FILES)
 	@-mkdir -p $(@D)
 	fdfind . "$(SRC)" $(patsubst %,--exclude '%',$(IGNORE)) \
 	        --exec stat --printf='{"path":"%n","size":%s,"modified":%Y,"type":"%F"}\n' \
-	    | jq -L$(ASSETS) --null-input 'include "indexer"; filetree' \
+	    | jq --slurp '.' \
 	    > $@
 
 # Overview of files & directories, including metadata, transformed into format
