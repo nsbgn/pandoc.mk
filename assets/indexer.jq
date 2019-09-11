@@ -80,8 +80,25 @@ def file_entries:
 # except in the case of directories, which may either link to its index.md or
 # have no link at all. If there is only one child to a page, perhaps it should
 # collapse onto its parent.
+# Also not great.
 def add_links:
-    "work in progress"
+    if (.path and (.path | endswith(".md")))
+    then
+        .link = (.path | rtrimstr(".md") | . + ".html")
+    else
+        [.contents[]? | add_links] as $newcontents 
+        |   [ $newcontents[] | select(.name=="index.md") ] as $indexfiles
+        |   [ $newcontents[] | select(.name!="index.md") ] as $otherfiles
+        |   if ($newcontents | length) == 0 then 
+                .
+            elif ($indexfiles | length) == 0 then
+                .contents = $newcontents
+            else
+                $indexfiles[0] as $index
+                | .contents = $otherfiles + $indexfiles[1:]
+                | .link = $index.link
+            end
+    end
 ;
 
 # Combines the given stream of JSON objects by merging them, and performs the
@@ -89,4 +106,5 @@ def add_links:
 def index:
     file_entries
     | combine_files
+    | add_links
 ;
