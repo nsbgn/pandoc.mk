@@ -50,7 +50,7 @@ def process_files:
                     ( $entry.path | split("/")
                     ; $entry )
                 )
-            end * .
+            end
         )
 ;
 
