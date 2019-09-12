@@ -56,28 +56,39 @@ def process_files:
 
 
 # Adds links to each page object. The link should be the same as the path,
-# except in the case of directories, which may either link to its index.md or
-# have no link at all. If there is only one child to a page, perhaps it should
-# collapse onto its parent.
+# except in the case of directories, which may either link to its index.md, to
+# a page with meta.frontmatter==true, or have no link at all. If there is only
+# one child to a page, perhaps it should collapse onto its parent.
 # Also not great.
 def add_links:
     if (.path and (.path | endswith(".md")))
     then
         .link = (.path | rtrimstr(".md") | . + ".html")
     else
-        [.contents[]? | add_links] as $newcontents 
-        |   [ $newcontents[] | select(.name=="index.md") ] as $indexfiles
-        |   [ $newcontents[] | select(.name!="index.md") ] as $otherfiles
-        |   if ($newcontents | length) == 0 then 
+        ([ .contents[]? | add_links ] | group_by(.name=="index.md")) as $partition 
+        |   ($partition[0] // []) as $contentfiles
+        |   ($partition[1] // []) as $indexfiles
+        |   if ($indexfiles + $contentfiles | length) == 0 then 
                 .
             elif ($indexfiles | length) == 0 then
-                .contents = $newcontents
+                .contents = $contentfiles
             else
                 $indexfiles[0] as $index
-                | .contents = $otherfiles + $indexfiles[1:]
+                | .contents = $contentfiles + $indexfiles[1:]
                 | .link = $index.link
             end
     end
+;
+
+# A draft should not show up in the table of contents.
+def take_drafts:
+    "wip"
+;
+
+# Resources are images and other things that should not be part of the table of
+# contents - anything that is neither a directory nor has metadata.
+def take_resources:
+    "wip"
 ;
 
 # Combines the given stream of JSON objects by merging them, and performs the
