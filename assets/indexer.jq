@@ -2,6 +2,11 @@
 # This is a collection of filters for `jq`, intended to manipulate JSON objects
 # into JSON representing a website index, for further processing in a template.
 
+# Convert "truthy" value to actual boolean.
+def bool:
+    (. == {} or . == [] or . == false or . == null or . == 0) | not
+;
+
 # Select the descendant described by the array of names in `$path`.
 def descend($path):
     if ($path | length) > 0
@@ -80,14 +85,28 @@ def add_links:
     end
 ;
 
-# TODO: ISSUE if the partition is only true, then [0] will have true, not false
+# Partition an array of the form [[true, 1],[false, 2],[true, 3]] into one
+# where all second elements of each tuple are grouped at index 0 if the first
+# element was false, and at index 1 if the first element was true.
+def partition:
+    reduce (. | group_by(.[0]) | .[]) as $partition
+        (   [[],[]] ;
+            if $partition[0][0] == false then
+                .[0] += [ $partition[] | .[1] ]
+            elif $partition[0][0] == true then
+                .[1] += [ $partition[] | .[1] ]
+            else
+                error("First element of tuple must be boolean.")
+            end
+        )
+;
 
 # A draft should not show up in the table of contents.
 def take_drafts:
-    if .contents then
-        (   [ .contents[]? | take_drafts ] | group_by(.meta.draft or false)) as $partition 
-        |   .contents = ($partition[0] // [])
-        |   .drafts = ($partition[1] // [])
+    if .contents | bool then
+        ([ .contents[] | take_drafts | [(.meta.draft | bool), .] ] | partition) as $p
+        |   .contents = $p[0]
+        |   .drafts = $p[1]
     else
         .
     end
