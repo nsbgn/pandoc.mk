@@ -80,9 +80,17 @@ def add_links:
     end
 ;
 
+# TODO: ISSUE if the partition is only true, then [0] will have true, not false
+
 # A draft should not show up in the table of contents.
 def take_drafts:
-    "wip"
+    if .contents then
+        (   [ .contents[]? | take_drafts ] | group_by(.meta.draft or false)) as $partition 
+        |   .contents = ($partition[0] // [])
+        |   .drafts = ($partition[1] // [])
+    else
+        .
+    end
 ;
 
 # Resources are images and other things that should not be part of the table of
@@ -96,4 +104,5 @@ def take_resources:
 def index:
     process_files
     | add_links
+    | take_drafts
 ;
