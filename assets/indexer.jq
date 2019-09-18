@@ -85,28 +85,23 @@ def add_links:
     end
 ;
 
-# Partition an array of the form [[true, 1],[false, 2],[true, 3]] into one
-# where all second elements of each tuple are grouped at index 0 if the first
-# element was false, and at index 1 if the first element was true.
-def partition:
-    reduce (. | group_by(.[0]) | .[]) as $partition
-        (   [[],[]] ;
-            if $partition[0][0] == false then
-                .[0] += [ $partition[] | .[1] ]
-            elif $partition[0][0] == true then
-                .[1] += [ $partition[] | .[1] ]
-            else
-                error("First element of tuple must be boolean.")
-            end
-        )
+# Group the values of properties of an array of objects. For example, [{"a":1,
+# "b":2}, {"a":3}] turns into {"a":[1, 3], "b":[3]}. This can be used to
+# partition an array; try, for example:
+# [1,2,3,4] | map({(if .%2==0 then "even" else "odd" end):.}) | group
+def group:
+    reduce ([.[] | to_entries[]] | group_by(.key))[] as $group
+    ( {} 
+    ; .[ $group[0].key ] |= (. // []) + [ $group[].value ] 
+    )
 ;
 
 # A draft should not show up in the table of contents.
 def take_drafts:
     if .contents | bool then
-        ([ .contents[] | take_drafts | [(.meta.draft | bool), .] ] | partition) as $p
-        |   .contents = $p[0]
-        |   .drafts = $p[1]
+        . 
+        + {"contents":[],"drafts":[]} 
+        + ([ .contents[] | take_drafts | {(if .meta.draft then "drafts" else "contents" end): .} ] | group)
     else
         .
     end
