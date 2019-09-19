@@ -18,30 +18,15 @@ def group:
     )
 ;
 
-# Select the descendant described by the array of names in `$path`.
-def descend($path):
-    if ($path | length) > 0
-    then
-        .contents[]? | select(.name == $path[0]) | descend($path[1:])
-    else
-        .
-    end
-;
-
 # Insert a child element at a particular path.
 # Like `setpath/2`, but instead of making objects like `{"a":{"b":{…}}}`, this
 # makes objects like `{"contents":[{"name":"a", "contents":[{"name":"b",…}]}]}`
-# I don't really like this function, because it's so verbose. Making a path
-# expression for updating with the |= operator (see `descend/1`) doesn't seem
-# to work when it is recursive?
 def insert($path; $child):
-    if ($path | length) > 0
-    then
-        if ([.contents[]? | select(.name == $path[0])] | length) > 0
-        then
+    if ($path | length) > 0 then
+        if ([.contents[]? | select(.name == $path[0])] | length) > 0 then
             (.contents[] | select(.name == $path[0])) |= (. | insert($path[1:]; $child))
         else
-            (.contents = [.contents[]?] + [{"name":$path[0]} | insert($path[1:];$child)])
+            (.contents |= (. // []) + [ {} | .name = $path[0] | insert($path[1:]; $child)])
         end
     else
         . * $child
