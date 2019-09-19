@@ -87,7 +87,9 @@ def add_links:
 
 def add_frontmatter:
     if .contents | bool then
-        . + (.contents | classify_frontmatter | (.contents[]? |= add_frontmatter) )
+        (.contents | classify_frontmatter | (.contents[]? |= add_frontmatter) ) as $p
+        | .frontmatter = ($p["frontmatter"][0] // {})
+        | .contents = ($p["frontmatter"][1:] + $p["contents"])
     else
         .
     end
