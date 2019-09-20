@@ -7,6 +7,7 @@ def bool:
     (. == {} or . == [] or . == false or . == null or . == 0) | not
 ;
 
+
 # Group the values of properties of an array of objects. For example, [{"a":1,
 # "b":2}, {"a":3}] turns into {"a":[1, 3], "b":[3]}. This can be used to
 # partition an array; try, for example:
@@ -17,6 +18,7 @@ def group:
     ; .[ $group[0].key ] |= (. // []) + [ $group[].value ] 
     )
 ;
+
 
 # Insert a child element at a particular path.
 # Like `setpath/2`, but instead of making objects like `{"a":{"b":{…}}}`, this
@@ -55,62 +57,80 @@ def process_files:
         )
 ;
 
-def classify_frontmatter:
-    [ .[] | { ( if .name == "index.md" or .meta.frontmatter then "frontmatter" else "contents" end ) : . }] 
-    | group
-    | .contents |= (. // [])
-    | .frontmatter |= (. // [])
-;
 
-def classify_draft:
-    [.[] | { (if .meta.draft then "drafts" else "contents" end ) : . }]
-    | group
-    | .contents |= (. // [])
-    | .drafts |= (. // [])
-;
-
-def classify_resource:
-    [ .[] | { ( if (.meta | bool) or (.contents | bool) then "contents" else "resources" end ) : . }] 
-    | group
-    | .contents |= (. // [])
-    | .resources |= (. // [])
-;
-
+# Any page gets a link to its HTML.
 def add_links:
-    if (.path and (.path | endswith(".md")))
-    then
+    if (has("path") and (.path | endswith(".md"))) then
         .link = (.path | rtrimstr(".md") | . + ".html")
     else
         .contents[]? |= add_links
     end
 ;
 
+
+# Front matter is the page to be associated with the enclosing directory rather
+# than itself.
+def class_frontmatter:
+    if .name == "index.md" or .meta.frontmatter then 
+        "frontmatter"
+    else 
+        "contents" 
+    end
+;
+
 def add_frontmatter:
-    if .contents | bool then
-        (.contents | classify_frontmatter | (.contents[]? |= add_frontmatter) ) as $p
-        | .frontmatter = ($p["frontmatter"][0] // {})
-        | .contents = ($p["frontmatter"][1:] + $p["contents"])
+    if has("contents") then
+        ( .contents | map({ (class_frontmatter) : . }) | group) as $partition
+        | .frontmatter = $partition["frontmatter"][0]
+        | .contents = ($partition["contents"] + $partition["frontmatter"][1:])
+        | (.contents[]? |= add_frontmatter)
     else
         .
+    end
+;
+
+
+# If marked as such, drafts can be excluded from being uploaded and included
+# in the table of contents.
+def class_draft:
+    if .meta.draft then 
+        "drafts" 
+    else 
+        "contents"
     end
 ;
 
 def add_drafts:
-    if .contents | bool then
-        . + (.contents | classify_draft | (.contents[]? |= add_drafts))
+    if has("contents") then
+        ( .contents | map({(class_draft):.}) | group) as $partition
+        | .contents = ($partition["contents"] // [])
+        | .drafts = ($partition["drafts"] // [])
+        | (.contents[]? |= add_drafts)
     else
         .
     end
 ;
 
-# Resources are images and other things that should not be part of the table of
-# contents - anything that is neither a directory nor has metadata.
+
+# A resource is anything that is neither a directory nor a page with metadata.
+def class_resource:
+    if has("meta") or has("contents") then
+        "contents"
+    else
+        "resources"
+    end
+;
+
 def add_resources:
-    if .contents | bool then
-        . + (.contents | classify_resource | (.contents[]? |= add_resources))
+    if has("contents") then
+        ( .contents | map({(class_resource):.}) | group) as $partition
+        | .contents = ($partition["contents"] // [])
+        | .resources = ($partition["resources"] // [])
+        | (.contents[]? |= add_resources)
     else
         .
     end;
+
 
 # Combines the given stream of JSON objects by merging them, and performs the
 # given operations to turn it into a proper index.
