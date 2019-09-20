@@ -1,8 +1,16 @@
 $if(contents)$
 <ul>
 $for(contents)$
-<a href="$it.path$">$if(it.meta.title)$$it.meta.title$$else$$it.name$$endif$</a>
-<li>${it.contents:nav()}</li>
+<li>
+$if(it.link)$
+<a href="$it.link$">$if(it.meta.title)$$it.meta.title$$else$$it.name$$endif$</a>
+$elseif(it.frontmatter.link)$
+<a href="$it.frontmatter.link$">$if(it.frontmatter.meta.title)$$it.frontmatter.meta.title$$else$$it.frontmatter.name$$endif$</a>
+$else$
+<span>$if(it.meta.title)$$it.meta.title$$else$$it.name$$endif$</span>
+$endif$
+${it.contents:nav()}
+</li>
 $endfor$
 </ul>
 $endif$
