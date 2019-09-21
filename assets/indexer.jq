@@ -10,8 +10,7 @@ def bool:
 
 # Group the values of properties of an array of objects. For example, [{"a":1,
 # "b":2}, {"a":3}] turns into {"a":[1, 3], "b":[3]}. This can be used to
-# partition an array; try, for example:
-# [1,2,3,4] | map({(if .%2==0 then "even" else "odd" end):.}) | group
+# partition an array; example: [1,2,3] | map({(.%2|tostring):.}) | group
 def group:
     reduce ([.[] | to_entries[]] | group_by(.key))[] as $group
     ( {} 
@@ -70,19 +69,11 @@ def add_links:
 
 # Front matter is the page to be associated with the enclosing directory rather
 # than itself.
-def class_frontmatter:
-    if .name == "index.md" or .meta.frontmatter then 
-        "frontmatter"
-    else 
-        "contents" 
-    end
-;
-
 def add_frontmatter:
     if has("contents") then
-        ( .contents | map({ (class_frontmatter) : . }) | group) as {$frontmatter, $contents}
-        | .frontmatter = $frontmatter[0]
-        | .contents = ($contents + $frontmatter[1:])
+        ( .contents | map({(.name=="index.md" or .meta.frontmatter|tostring):.}) | group) as {$true, $false}
+        | .frontmatter = $true[0]
+        | .contents = ($false + $true[1:])
         | (.contents[]? |= add_frontmatter)
     else
         .
@@ -92,19 +83,11 @@ def add_frontmatter:
 
 # If marked as such, drafts can be excluded from being uploaded and included
 # in the table of contents.
-def class_draft:
-    if .meta.draft then 
-        "drafts" 
-    else 
-        "contents"
-    end
-;
-
 def add_drafts:
     if has("contents") then
-        ( .contents | map({(class_draft):.}) | group) as {$contents, $drafts}
-        | .contents = ($contents // [])
-        | .drafts = ($drafts // [])
+        ( .contents | map({(.meta.draft|bool|tostring):.}) | group) as {$true, $false}
+        | .contents = ($false // [])
+        | .drafts = ($true // [])
         | (.contents[]? |= add_drafts)
     else
         .
@@ -113,19 +96,11 @@ def add_drafts:
 
 
 # A resource is anything that is neither a directory nor a page with metadata.
-def class_resource:
-    if has("meta") or has("contents") then
-        "contents"
-    else
-        "resources"
-    end
-;
-
 def add_resources:
     if has("contents") then
-        ( .contents | map({(class_resource):.}) | group) as {$contents, $resources}
-        | .contents = ($contents // [])
-        | .resources = ($resources // [])
+        ( .contents | map({(has("meta") or has("contents")|tostring):.}) | group) as {$true, $false}
+        | .contents = ($true // [])
+        | .resources = ($false // [])
         | (.contents[]? |= add_resources)
     else
         .
