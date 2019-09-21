@@ -80,9 +80,9 @@ def class_frontmatter:
 
 def add_frontmatter:
     if has("contents") then
-        ( .contents | map({ (class_frontmatter) : . }) | group) as $partition
-        | .frontmatter = $partition["frontmatter"][0]
-        | .contents = ($partition["contents"] + $partition["frontmatter"][1:])
+        ( .contents | map({ (class_frontmatter) : . }) | group) as {$frontmatter, $contents}
+        | .frontmatter = $frontmatter[0]
+        | .contents = ($contents + $frontmatter[1:])
         | (.contents[]? |= add_frontmatter)
     else
         .
@@ -102,9 +102,9 @@ def class_draft:
 
 def add_drafts:
     if has("contents") then
-        ( .contents | map({(class_draft):.}) | group) as $partition
-        | .contents = ($partition["contents"] // [])
-        | .drafts = ($partition["drafts"] // [])
+        ( .contents | map({(class_draft):.}) | group) as {$contents, $drafts}
+        | .contents = ($contents // [])
+        | .drafts = ($drafts // [])
         | (.contents[]? |= add_drafts)
     else
         .
@@ -123,9 +123,9 @@ def class_resource:
 
 def add_resources:
     if has("contents") then
-        ( .contents | map({(class_resource):.}) | group) as $partition
-        | .contents = ($partition["contents"] // [])
-        | .resources = ($partition["resources"] // [])
+        ( .contents | map({(class_resource):.}) | group) as {$contents, $resources}
+        | .contents = ($contents // [])
+        | .resources = ($resources // [])
         | (.contents[]? |= add_resources)
     else
         .
