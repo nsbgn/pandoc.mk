@@ -3,11 +3,14 @@ BASE := $(patsubst %/,%,$(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
 
 # Source and destination directories, and FTP credentials. These are
 # expected to be changed in the `make` call or before the `include` statement.
-ifndef ASSETS
-    ASSETS := $(BASE)/assets
+ifndef FILTERS
+    FILTERS := $(BASE)/filters
 endif
 ifndef TEMPLATES
     TEMPLATES := $(BASE)/templates
+endif
+ifndef ASSETS
+    ASSETS := $(BASE)/assets
 endif
 ifndef SRC
     SRC := .
@@ -131,12 +134,11 @@ $(CACHE)/filetree.json: $(SOURCE_FILES) $(METADATA_FILES)
 
 # Overview of files & directories, including metadata, transformed into format
 # readable for the index template
-$(CACHE)/index.json: $(CACHE)/filetree.json $(METADATA_FILES) $(ASSETS)/indexer.jq
+$(CACHE)/index.json: $(CACHE)/filetree.json $(METADATA_FILES) $(BASE)/index.jq
 	@-mkdir -p $(@D)
-	jq  -L$(ASSETS) \
-	    --null-input \
+	jq  -L$(BASE) --null-input \
 	    --arg prefix "$(CACHE)/" \
-	    'include "indexer"; index' \
+	    'include "index"; index' \
 	     $(filter %.json, $^) \
 	    > $@
 
@@ -154,14 +156,13 @@ $(DEST)/index.html: $(TEMPLATES)/index.html $(TEMPLATES)/nav.html $(CACHE)/index
 ##############################################################################
 # Documents
 
-# --filter $(ASSETS)/pandoc-extract-references.py \
+# --filter $(FILTERS)/pandoc-extract-references.py \
 
 # Create HTML documents
 $(DEST)/%.html: \
 		$(SRC)/%.md \
 		$(CACHE)/%.md.meta.json \
 		$(TEMPLATES)/page.html \
-		$(ASSETS)/pandoc-extract-references.py \
 		$(wildcard $(SRC)/*.bib) 
 	@echo "Generating $@..."
 	@-mkdir -p "$(@D)"
