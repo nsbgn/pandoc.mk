@@ -447,7 +447,9 @@ nav#index {
     height: 100%;
     top: 0;
     left: 0;
-    display: table;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 
     a {
         text-decoration: none;
@@ -474,50 +476,44 @@ nav#index {
         list-style: none;
     }
 
-    > div {
-        display: table-cell;
-        vertical-align: middle;
-        text-align: center;
+    > ul {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+        align-items: flex-start;
         padding: ($INDEX_VMARGIN) ($INDEX_HMARGIN - ($INDEX_L1_HSPACE/2));
-        
-        > ul {
-            display: inline-table;
 
-            > li {
-                display: table-cell;
-                width: 1px; // Forces wrapping
-                vertical-align: top;
-                padding: 0 ($INDEX_L1_HSPACE/2);
+        > li {
+            padding: 0 ($INDEX_L1_HSPACE/2);
+            
+            > a, > span {
+                white-space: nowrap;
+                font-size: $INDEX_L1_SIZE;
+            }
+            
+            > ul {
+                text-align: left;
+                padding: 0 $INDEX_L2_HMARGIN;
+                margin-top: ($INDEX_L1_WEDGE - $INDEX_L2_VSPACE);
                 
-                > a, > span {
-                    white-space: nowrap;
-                    font-size: $INDEX_L1_SIZE;
-                }
-                
-                > ul {
-                    text-align: left;
-                    padding: 0 $INDEX_L2_HMARGIN;
-                    margin-top: ($INDEX_L1_WEDGE - $INDEX_L2_VSPACE);
+                > li {
+                    padding-top: $INDEX_L2_VSPACE;
                     
-                    > li {
-                        padding-top: $INDEX_L2_VSPACE;
-                        
-                        > a, > span {
-                            font-size: $INDEX_L2_SIZE;
-                        }
-
-                        > ul {
-                            padding-top: $INDEX_L2_WEDGE;
-
-                            a, span {
-                                font-size: $INDEX_L3_SIZE;
-                            }
-                            li, ul {
-                                display: inline;
-                            }
-                        }
-
+                    > a, > span {
+                        font-size: $INDEX_L2_SIZE;
                     }
+
+                    > ul {
+                        padding-top: $INDEX_L2_WEDGE;
+
+                        a, span {
+                            font-size: $INDEX_L3_SIZE;
+                        }
+                        li, ul {
+                            display: inline;
+                        }
+                    }
+
                 }
             }
         }
@@ -532,13 +528,10 @@ nav#index {
 
 
     header, footer {
-        display: table-row;
     }
 
     header div, footer div {
-        display: table-cell;
         text-align: center;
-        vertical-align: bottom;
     }
 
     header img, footer span {
