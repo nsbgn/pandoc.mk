@@ -87,11 +87,7 @@ a vantage point. The CSS is written using SASS.
 License
 ------------------------------------------------------------------------------
 
-The font referenced in the stylesheet is [Crimson
-Text](https://github.com/skosch/Crimson), which is available under the
-[Open Font License](http://scripts.sil.org/cms/scripts/page.php?id=OFL).
-
-To the greatest possible extent, I dedicate all other content in this
+To the greatest possible extent, I dedicate all content in this
 repository to the [public domain](https://unlicense.org/) (see the
 `UNLICENSE` file).
 

@@ -1,4 +1,4 @@
-$FONT: 'Crimson Text', 'Georgia', serif;
+$FONT: "Palatino Linotype", "Book Antiqua", "Palatino", serif;
 
 $COLOR_BG:      #fff;    // Background color
 $COLOR_FG:      #000;    // Color for normal text
@@ -11,7 +11,7 @@ $PAGE_MAXWIDTH: 40em;    // Maximum width before margin scales up
 $PAGE_VMARGIN: 5em;      // Vertical margin on the page
 $PAGE_HMARGIN: 3em;      // Horizontal margin on the page
 
-$PAGE_SIZE: 14pt;        // Base font size
+$PAGE_SIZE: 13pt;        // Base font size
 $LINE_HEIGHT: 1.8em;     // Vertical spacing for lines
 $L1_SIZE: 1.8em;         // Font size for title
 $L2_SIZE: 1.2em;         // Font size for section header
@@ -41,7 +41,7 @@ $TOC_WEDGE: 1.5em;       // Horizontal space between ToC and content
 
 $INDEX_HMARGIN: 3em;     // Horizontal margin around table of contents
 $INDEX_VMARGIN: 2em;     // Vertical margin around table of contents
-$INDEX_L1_SIZE: 3.1em;   // Font size in column header font size
+$INDEX_L1_SIZE: 2.9em;   // Font size in column header font size
 $INDEX_L1_WEDGE: .6em;   // Vertical space under column header
 $INDEX_L1_HSPACE: 4.0em; // Horizontal spacing between columns
 $INDEX_L2_SIZE: 1.5em;   // Font size in subheader font size
@@ -49,14 +49,6 @@ $INDEX_L2_WEDGE: .15em;  // Vertical space under subheader
 $INDEX_L2_VSPACE: 1.5em; // Vertical spacing between subheaded sections
 $INDEX_L2_HMARGIN:0.2em; // Horizontal margin arount level 2, below header
 $INDEX_L3_SIZE: 0.8em;   // Font size in menu items
-
-@font-face {
-  font-family: 'Crimson Text';
-  font-style: normal;
-  font-weight: 400;
-  src: local('Crimson Text Regular'), local('CrimsonText-Regular'), local('Crimson Text'), local('CrimsonText-Roman'), url(crimson.woff2) format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2212, U+2215, U+E0FF, U+EFFD, U+F000;
-}
 
 * {
     margin: 0;
@@ -80,6 +72,7 @@ body {
     font-size: $PAGE_SIZE;
     text-align: justify;
     word-wrap: break-word;
+    letter-spacing: 0.01em;
 }
 
 main {
