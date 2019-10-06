@@ -76,7 +76,7 @@ $(DEST)/style.css: $(ASSETS)/style.scss
 	sassc --style compressed $< $@
 
 # Optimised SVG logo
-$(DEST)/logo.svg: $(ASSETS)/logo-snail.svg
+$(DEST)/logo.svg: $(ASSETS)/logo.svg
 	@-mkdir -p $(@D)
 	svgo --input=$< --output=$@
 
