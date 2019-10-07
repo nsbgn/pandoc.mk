@@ -39,12 +39,12 @@ $include-before$
 $endfor$
 $if(toc)$
 <nav id="$idprefix$toc">
-<a href="$root$/index.html">Table of Contents &nbsp;&#x21A9;</a>
+<span>Table of Contents</span>
 $toc$
 </nav>
 $endif$
 <main>
-<h1>$if(title)$$title$$else$Untitled$endif$</h1>
+<h1>$if(title)$$title$$else$Untitled$endif$ <a href="$root$/index.html">&#8801;</a></h1>
 $body$
 <footer>&mdash; $if(author)$$author$$else$Anonymous$endif$$if(date)$, $date$$endif$</footer>
 </main>

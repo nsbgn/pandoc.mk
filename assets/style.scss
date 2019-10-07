@@ -92,6 +92,10 @@ main h1 {
     font-weight: 300;
     text-transform: uppercase;
 }
+h1 a {
+    text-decoration: none;
+    float: right;
+}
 h1:first-child, hr + h1, hr + h2, hr + h3, hr + h4 {
     margin-top: $HR_VSPACE_RESET;
 }
@@ -179,7 +183,7 @@ nav#toc {
         text-transform: uppercase;
     }
 
-    > a {
+    > span {
         font-weight: bold;
     }
 }
