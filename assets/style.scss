@@ -6,7 +6,7 @@ $COLOR_FG_1:    #901;    // Color for links
 $COLOR_FG_2:    #f02;    // Color for focused links
 $COLOR_FRILLS:  #777;    // Color for quote symbols and other embellishments
 
-$PAGE_MINWIDTH: 25em;    // Minimum width before margin scales down
+$PAGE_MINWIDTH: 35em;    // Minimum width before margin scales down
 $PAGE_MAXWIDTH: 40em;    // Maximum width before margin scales up
 $PAGE_VMARGIN: 5em;      // Vertical margin on the page
 $PAGE_HMARGIN: 3em;      // Horizontal margin on the page
@@ -50,22 +50,37 @@ $INDEX_L2_VSPACE: 1.5em; // Vertical spacing between subheaded sections
 $INDEX_L2_HMARGIN:0.2em; // Horizontal margin arount level 2, below header
 $INDEX_L3_SIZE: 0.8em;   // Font size in menu items
 
+
 * {
     margin: 0;
     padding: 0;
 }
 
-@media print {
-    .noprint {
-        display: none;
+body {
+    margin: $PAGE_VMARGIN $PAGE_HMARGIN;
+}
+
+main, section {
+}
+
+// Once the width reaches a lower limit, margins start shrinking proportionally
+@media screen and (max-width: ($PAGE_MINWIDTH + 2*$PAGE_HMARGIN)) {
+    body {
+        margin: $PAGE_VMARGIN percentage($PAGE_HMARGIN/($PAGE_MINWIDTH + 2*$PAGE_HMARGIN));
+    }
+}
+
+// Once the width reaches an upper limit, the additional space is taken by margins
+@media screen and (min-width: ($PAGE_MAXWIDTH + 4*( $PAGE_HMARGIN ) )) {
+    main, section {
+        width: $PAGE_MAXWIDTH;
     }
 }
 
 
-/* Basic page elements & dimensions *****************************************/
+/* Basic page elements *******************************************************/
 
 body {
-    margin: $PAGE_VMARGIN $PAGE_HMARGIN;
     color: $COLOR_FG;
     background-color: $COLOR_BG;
     font-family: $FONT;
@@ -84,7 +99,7 @@ main {
     }
 }
 
-main h1 {
+h1 {
     margin: $L1_VSPACE 0 $L1_WEDGE;
     font-size: $L1_SIZE;
     letter-spacing: 0.08em;
@@ -125,6 +140,24 @@ h1 + h4, h2 + h4, h3 + h4 {
     margin-top: $PAR_VSPACE;
 }
 */
+   
+
+// div#refs should really be a section too, but pandoc doesn't do that
+section, div#refs {
+    margin: 0.5em auto 0;
+
+    h1 {
+        margin: 0 0 0.2em;
+        font-size: $L2_SIZE;
+        font-weight: normal;
+    }
+}
+
+main + section, div#refs {
+    border-top: 1px solid $COLOR_FG;
+    padding-top: 1.5em;
+    margin: 3em auto 0;
+}
 
 a {
     text-decoration: underline;
@@ -147,73 +180,10 @@ main > footer {
 }
 
 
-
-/* Additional sections ******************************************************/
-
-// div#refs should really be a section too, but pandoc doesn't do that
-
-section, div#refs {
-    margin: 0.5em auto 0;
-    
-    h1 {
-        margin: 0 0 0.2em;
-        font-size: $L2_SIZE;
-        font-weight: normal;
-    }
-}
-
-main + section, div#refs {
-    border-top: 1px solid $COLOR_FG;
-    padding-top: 1.5em;
-    margin: 3em auto 0;
-}
-
-
-
-/* Table of contents ********************************************************/
-
-nav#toc {
-    margin: 0 auto;
-    text-align: left;
-
-    a {
-        font-size: 0.6em;
-        text-decoration: none;
-        color: $COLOR_FG;
-        text-transform: uppercase;
-    }
-
-    > span {
-        font-weight: bold;
-    }
-}
-
-
-
 /* Lists ********************************************************************/
-
-ol, nav#toc ul {
-    list-style: none; // to override unorderedness of ToC
-    counter-reset: item;
-    >li {
-        display: block;
-    }
-    >li:before {
-        content: counters(item, ".") ") ";
-        counter-increment: item;
-        padding-right: 0.4em;
-    }
-}
-
-nav#toc ul>li:before {
-    font-size: 0.6em;
-}
 
 main li {
     margin-left: $ITEM_INDENT;
-}
-nav#toc li li {
-    margin-left: 1em;
 }
 section li {
     margin-left: 0;
@@ -266,7 +236,6 @@ table.no-row-header {
 }
 
 
-
 /* Images *******************************************************************/
 
 figure {
@@ -291,7 +260,6 @@ figure {
 }
 
 
-
 /* Separating lines *********************************************************/
 
 hr {
@@ -314,7 +282,6 @@ hr:after {
     width: 1em;
     background: $COLOR_BG;
 }
-
 
 
 /* Quotes and line blocks ***************************************************/
@@ -353,7 +320,6 @@ blockquote, .line-block {
 }
 
 
-
 /* Source code **************************************************************/
 
 code {
@@ -365,8 +331,7 @@ code pre {
 }
 
 
-
-/* Miscellaneous classes ****************************************************/
+/* Miscellaneous classes & overrides ****************************************/
 
 .hide {
     display: none;
@@ -390,10 +355,6 @@ code pre {
     transform: matrix(-1, 0, 0, 1, 0, 0);
 }
 
-
-
-/* Overrides ****************************************************************/
-
 // Make sure MathJax elements are not too large
 .MathJax {
     font-size: 2em !important;
@@ -410,33 +371,65 @@ section.footnotes hr {
     text-decoration: none;
 }
 
-// Once the width reaches a lower limit, margins start shrinking proportionally
-@media screen and (max-width: $PAGE_MINWIDTH) {
-    body {
-        margin: $PAGE_VMARGIN percentage($PAGE_HMARGIN/$PAGE_MINWIDTH);
+@media print {
+    .noprint {
+        display: none;
     }
 }
 
-// Once the width reaches an upper limit, the additional space is taken by margins
-@media screen and (min-width: ($PAGE_MAXWIDTH + ( $PAGE_HMARGIN ) )) {
-    main, section, nav {
-        width: $PAGE_MAXWIDTH;
+
+/* Table of contents ********************************************************/
+
+nav#toc {
+    text-align: left;
+    float: right;
+
+    ul {
+        line-height: 1em;
+        margin: 0;
+        list-style: none; // to override unorderedness of ToC
+        counter-reset: item;
+        >li {
+            display: block;
+        }
+        >li:before {
+            content: counters(item, ".") ". ";
+            counter-increment: item;
+            padding-right: 0.4em;
+            font-size: 0.5em;
+        }
+    }
+
+    li li {
+        margin-left: 1em;
+    }
+
+    a {
+        font-size: 0.6em;
+        text-decoration: none;
+        text-transform: lowercase;
+        color: $COLOR_FG;
     }
 }
 
-// If the width gets even larger, move the table of contents to the side
+// If the width gets large enough to fit the ToC on the side, move it there
 @media screen and (min-width: ($PAGE_MAXWIDTH + 2*($PAGE_HMARGIN*2 + $TOC_WEDGE + $TOC_WIDTH) )) {
     nav#toc {
         display: inline-block;
         margin: 0 0 0 ($PAGE_MAXWIDTH / 2 + $TOC_WEDGE);
-        position: absolute; // alternative: fixed
+        position: absolute; // alternative: fixed, sticky?
         top: $PAGE_VMARGIN;
         left: 50%;
         width: $TOC_WIDTH;
+
+        >ul {
+            position: fixed;
+        }
     }
 }
 
-/****************************************************************************/
+
+/* Site-wide table of contents ***********************************************/
 
 nav#index {
     position: absolute;
@@ -522,20 +515,4 @@ nav#index {
         font-size: 0.6em;
         color: mix($COLOR_FG, $COLOR_BG, 60%);
     }
-
-
-    header, footer {
-    }
-
-    header div, footer div {
-        text-align: center;
-    }
-
-    header img, footer span {
-        display: inline-block;
-        margin-top: 3em;
-        width: 64px;
-        height: 64px;
-    }
-
 }
