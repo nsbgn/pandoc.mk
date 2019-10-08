@@ -20,7 +20,8 @@ $L4_SIZE: 1em;           // Font size for paragraph header
 
 $PAR_VSPACE: 1em;        // Vertical spacing around paragraphs and lists
 $FIG_VSPACE: 2.5em;      // Vertical spacing around figures, tables, listings…
-$ITEM_INDENT: 2.5em;     // Indent for lists and blockquotes
+$ITEM_VSPACE: 0.4em;     // Vertical spacing around list items
+$ITEM_INDENT: 2.5em;     // Indent for lists items and blockquotes
 $CAPTION_WEDGE: 0.8em;   // Vertical space between fig/table caption and item
 $CAPTION_EXTRA: 0.5em;   // Additional space under captions
 $L1_VSPACE: 6em;         // Vertical space between previous content and title
@@ -186,7 +187,7 @@ section li {
     margin-left: 0;
 }
 li p {
-    margin: 0;
+    margin: 0 0 $ITEM_VSPACE 0;
     display: inline-block;
     vertical-align: top;
 }
