@@ -70,7 +70,11 @@ main, section {
     }
 }
 
-// Once the width reaches an upper limit, the additional space is taken by margins
+// Once the width reaches an upper limit, the additional space is taken by
+// margins. I confess I don't entirely understand why the coefficient on
+// $PAGE_HMARGIN is set to 4 rather than 2, but the result looks better. It's
+// still not an *entirely* smooth transition, though, so this needs looking
+// into.
 @media screen and (min-width: ($PAGE_MAXWIDTH + 4*( $PAGE_HMARGIN ) )) {
     main, section {
         width: $PAGE_MAXWIDTH;
