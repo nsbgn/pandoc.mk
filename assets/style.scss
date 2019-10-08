@@ -59,8 +59,20 @@ $INDEX_L3_SIZE: 0.8em;   // Font size in menu items
 body {
     margin: $PAGE_VMARGIN $PAGE_HMARGIN;
 }
-
-main, section {
+main {
+    margin: 0 auto;
+}
+section, div#refs { // div#refs should really be a section too, but pandoc doesn't do that
+    margin: 0.5em auto 0;
+}
+main + section, div#refs {
+    border-top: 1px solid $COLOR_FG;
+    padding-top: 1.5em;
+    margin: 3em auto 0;
+}
+main > footer {
+    margin: 2em 0 0;
+    text-align: right;
 }
 
 // Once the width reaches a lower limit, margins start shrinking proportionally
@@ -94,13 +106,9 @@ body {
     letter-spacing: 0.01em;
 }
 
-main {
-    margin: 0 auto;
-
-    p, ul, ol {
-        margin: $PAR_VSPACE 0;
-        line-height: $LINE_HEIGHT;
-    }
+p, ul, ol {
+    margin: $PAR_VSPACE 0;
+    line-height: $LINE_HEIGHT;
 }
 
 h1 {
@@ -117,6 +125,11 @@ h1 a {
 }
 h1:first-child, hr + h1, hr + h2, hr + h3, hr + h4 {
     margin-top: $HR_VSPACE_RESET;
+}
+section h1, div#refs h1 {
+    margin: 0 0 0.2em;
+    font-size: $L2_SIZE;
+    font-weight: normal;
 }
 h2 {
     margin: $L2_VSPACE 0 $L2_WEDGE;
@@ -145,24 +158,6 @@ h1 + h4, h2 + h4, h3 + h4 {
 }
 */
    
-
-// div#refs should really be a section too, but pandoc doesn't do that
-section, div#refs {
-    margin: 0.5em auto 0;
-
-    h1 {
-        margin: 0 0 0.2em;
-        font-size: $L2_SIZE;
-        font-weight: normal;
-    }
-}
-
-main + section, div#refs {
-    border-top: 1px solid $COLOR_FG;
-    padding-top: 1.5em;
-    margin: 3em auto 0;
-}
-
 a {
     text-decoration: underline;
     color: $COLOR_FG_1;
@@ -173,21 +168,19 @@ a:hover {
 a.footnote-ref {
     text-decoration: none;
 }
-
 sup {
     line-height: 1em;
-}
-
-main > footer {
-    margin: 2em 0 0;
-    text-align: right;
 }
 
 
 /* Lists ********************************************************************/
 
+ul, ol {
+    list-style-type: square;
+}
 main li {
     margin-left: $ITEM_INDENT;
+    padding-left: 0.5em;
 }
 section li {
     margin-left: 0;
@@ -195,6 +188,7 @@ section li {
 li p {
     margin: 0;
     display: inline-block;
+    vertical-align: top;
 }
 
 
@@ -475,6 +469,7 @@ nav#index {
     }
     
     ul {
+        margin: 0;
         list-style: none;
     }
 
