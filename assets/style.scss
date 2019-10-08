@@ -64,7 +64,7 @@ main, section {
 }
 
 // Once the width reaches a lower limit, margins start shrinking proportionally
-@media screen and (max-width: ($PAGE_MINWIDTH + 2*$PAGE_HMARGIN)) {
+@media screen and (max-width: ($PAGE_MINWIDTH)) {
     body {
         margin: $PAGE_VMARGIN percentage($PAGE_HMARGIN/($PAGE_MINWIDTH + 2*$PAGE_HMARGIN));
     }
@@ -409,6 +409,14 @@ nav#toc {
         text-decoration: none;
         text-transform: lowercase;
         color: $COLOR_FG;
+    }
+}
+
+// If the width gets so small that it doesn't make sense to float the ToC, just
+// put it normally
+@media screen and (max-width: (2*($TOC_WIDTH+$TOC_WEDGE) + $PAGE_HMARGIN)) {
+    nav#toc {
+        float: none;
     }
 }
 
