@@ -88,12 +88,10 @@ $(DEST)/logo.png: $(DEST)/logo.svg
 	@-mkdir -p $(@D)
 	convert $< $@
 
-
 # Favicon as bitmap
 $(DEST)/favicon.ico: $(DEST)/logo.svg
 	@-mkdir -p $(@D)
 	convert $< -transparent white -resize 16x16 -level '0%,100%,0.6' $@
-
 
 # Icon for bookmark on Apple devices
 $(DEST)/apple-touch-icon.png: $(DEST)/logo.svg
@@ -102,15 +100,6 @@ $(DEST)/apple-touch-icon.png: $(DEST)/logo.svg
 	    	+level-colors '#fff,#711' -colors 16 \
 		-compress Zip -define 'png:format=png8' -define 'png:compression-level=9' \
 		$< $@
-
-
-# ASCII art logo, centred for 79-column text files
-$(CACHE)/logo.txt: $(DEST)/logo.svg
-	@-mkdir -p $(@D)
-	convert -density 1200 -resize 128x128 $< JPG:- \
-	    | jp2a --width=40 --chars=\ -~o0@\  - \
-	    | sed 's/^/$(shell printf '%-28s')/' > $@
-
 
 
 ##############################################################################
@@ -169,7 +158,6 @@ $(DEST)/%.html: \
 	@-mkdir -p "$(patsubst $(DEST)/%,$(CACHE)/%,$(@D))"
 	pandoc  \
 		--metadata path='$(shell realpath $(@D) --relative-to $(DEST) --canonicalize-missing)' \
-		--metadata file='$(@F)' \
 		--metadata root='$(shell realpath $(DEST) --relative-to $(@D) --canonicalize-missing)' \
 		--from markdown+smart+fenced_divs+inline_notes+table_captions \
 		--to html5 \
@@ -209,23 +197,3 @@ $(DEST)/%: $(SRC)/%
 	@-mkdir -p $(@D)
 	-ln -s --relative $< $@
 
-
-# Public GPG key
-$(DEST)/public.gpg:
-	gpg --export $(GPG_ID) > $@
-
-
-# Create a zipped archive
-$(DEST)/%.zip: $(SRC)/%
-	@-mkdir -p $(@D)
-	zip -r9 $@ $^
-
-
-# Create a zipped archive
-$(DEST)/%.tar.gz: $(SRC)/%
-	@-mkdir -p $(@D)
-	tar -zcvf $@ $^
-
-# Create gzipped archive
-$(DEST)/%: $(DEST)/%.gz
-	gzip --best --to-stdout < $< > $@

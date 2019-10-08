@@ -58,8 +58,7 @@ As of now, the recipe calls for [pandoc](http://pandoc.org/) 2.8 or higher,
 [fd](https://github.com/sharkdp/fd),
 [sass](http://sass-lang.com/),
 [svgo](https://github.com/svg/svgo),
-[ImageMagick](http://www.imagemagick.org/),
-[jp2a](https://csl.name/jp2a/) and
+[ImageMagick](http://www.imagemagick.org/) and
 [lftp](http://lftp.yar.ru/) — but you could easily substitute or add any 
 ingredient.
 
