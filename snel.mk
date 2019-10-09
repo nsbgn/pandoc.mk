@@ -121,6 +121,14 @@ $(CACHE)/filetree.json: $(SOURCE_FILES) $(METADATA_FILES)
 	    | jq --slurp '.' \
 	    > $@
 
+# An alternative way to create the filetree 'immediately'
+$(CACHE)/filetree.alt.json: $(SOURCE_FILES)
+	@-mkdir -p $(@D)
+	tree -JDpi --du --timefmt '%s' --dirsfirst \
+	    -I '$(subst $() $(),|,$(IGNORE))' \
+	    | jq '.[0]' \
+	    > $@
+
 # Overview of files & directories, including metadata, transformed into format
 # readable for the index template
 $(CACHE)/index.json: $(CACHE)/filetree.json $(METADATA_FILES) $(BASE)/index.jq
