@@ -18,6 +18,7 @@ $L2_SIZE: 1.2em;         // Font size for section header
 $L3_SIZE: 1.1em;         // Font size for subsection header
 $L4_SIZE: 1em;           // Font size for paragraph header
 
+$H1_VMARGIN: 0.5em;      // Vertical spacing to avoid hugging the index link
 $PAR_VSPACE: 1em;        // Vertical spacing around paragraphs and lists
 $FIG_VSPACE: 2.5em;      // Vertical spacing around figures, tables, listings…
 $ITEM_VSPACE: 0.4em;     // Vertical spacing around list items
@@ -123,6 +124,7 @@ h1 {
 h1 a {
     text-decoration: none;
     float: right;
+    margin-left: $H1_VMARGIN;
 }
 h1:first-child, hr + h1, hr + h2, hr + h3, hr + h4 {
     margin-top: $HR_VSPACE_RESET;
