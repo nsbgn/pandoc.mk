@@ -10,7 +10,7 @@ $endif$
 $if(keywords)$
 <meta name="keywords" content="$for(keywords)$$keywords$$sep$, $endfor$">
 $endif$
-<title>$if(title-prefix)$$title-prefix$ – $endif$$pagetitle$</title>
+<title>$if(title-prefix)$$title-prefix$: $endif$$pagetitle$</title>
 $if(quotes)$
 <style type="text/css">q { quotes: "“" "”" "‘" "’"; }</style>
 $endif$
@@ -38,7 +38,7 @@ $for(include-before)$
 $include-before$
 $endfor$
 <main>
-<h1><a href="$root$/index.html">&#8801;</a> $if(title)$$title$$else$Untitled$endif$</h1>
+<header><h1>$if(title-prefix)$<span class="prefix">$title-prefix$</span><br>$endif$$if(title)$$title$$else$Untitled$endif$</h1><a href="$root$/index.html">&#8801;</a></header>
 $if(toc)$
 <nav id="$idprefix$toc">
 $toc$

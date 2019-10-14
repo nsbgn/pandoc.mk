@@ -39,7 +39,7 @@ $HR_SIZE: 1.2em;         // Size of the § in <hr>s
 $HR_WIDTH: 40%;          // Width of horizontal rule
 
 $TOC_WIDTH: 9em;         // Width of table of contents when moved to the side
-$TOC_WEDGE: 1.5em;       // Horizontal space between ToC and content
+$TOC_WEDGE: 1.5em;         // Horizontal space between ToC and content
 
 $INDEX_HMARGIN: 3em;     // Horizontal margin around table of contents
 $INDEX_VMARGIN: 2em;     // Vertical margin around table of contents
@@ -113,20 +113,34 @@ p, ul, ol {
     line-height: $LINE_HEIGHT;
 }
 
-h1 {
-    margin: $L1_VSPACE 0 $L1_WEDGE;
+header {
+    display: flex;
+    align-items: center;
     font-size: $L1_SIZE;
+    margin: $HR_VSPACE_RESET 0 $L1_WEDGE;
+}
+h1 {
+    flex: 1 0 auto;
+    font-size: 1em;
     letter-spacing: 0.08em;
     text-align: center;
     font-weight: 300;
     text-transform: uppercase;
+    padding: 0 $H1_VMARGIN;
 }
-h1 a {
+h1 span.prefix {
+    font-size: 0.3em;
+    padding: 0 0.4em 0.5em;
+    border-bottom: 1px solid black;
+    margin-bottom: 0.9em;
+    display: inline-block;
+}
+header a {
+    flex: 0 1 auto;
     text-decoration: none;
-    float: right;
-    margin-left: $H1_VMARGIN;
+    //float: right;
 }
-h1:first-child, hr + h1, hr + h2, hr + h3, hr + h4 {
+hr + h2, hr + h3, hr + h4 {
     margin-top: $HR_VSPACE_RESET;
 }
 section h1, div#refs h1 {
@@ -134,6 +148,7 @@ section h1, div#refs h1 {
     font-size: $L2_SIZE;
     font-weight: normal;
 }
+
 h2 {
     margin: $L2_VSPACE 0 $L2_WEDGE;
     font-size: $L2_SIZE;
@@ -385,6 +400,7 @@ nav#toc {
     text-align: left;
     float: right;
     background: $COLOR_BG;
+    padding: 0.3em 0 0.3em $TOC_WEDGE;
 
     ul {
         line-height: 1em;
@@ -393,6 +409,7 @@ nav#toc {
         counter-reset: item;
         >li {
             display: block;
+            margin-left: 0;
         }
         >li:before {
             content: counters(item, ".") ". ";
@@ -416,19 +433,20 @@ nav#toc {
 
 // If the width gets so small that it doesn't make sense to float the ToC, just
 // put it normally
-@media screen and (max-width: (2*($TOC_WIDTH+$TOC_WEDGE) + $PAGE_HMARGIN)) {
+@media screen and (max-width: (2*($TOC_WIDTH + $TOC_WEDGE + 2*$PAGE_HMARGIN))) {
     nav#toc {
         float: none;
     }
 }
 
 // If the width gets large enough to fit the ToC on the side, move it there
-@media screen and (min-width: ($PAGE_MAXWIDTH + 2*($PAGE_HMARGIN*2 + $TOC_WEDGE + $TOC_WIDTH) )) {
+@media screen and (min-width: ($PAGE_MAXWIDTH + 2*($PAGE_HMARGIN*2 + $TOC_WEDGE + $TOC_WIDTH))) {
     nav#toc {
         display: inline-block;
         margin: 0 0 0 ($PAGE_MAXWIDTH / 2 + $TOC_WEDGE);
         position: absolute; // alternative: fixed, sticky?
-        top: $PAGE_VMARGIN;
+        //top: $PAGE_VMARGIN;  // this would place it at the top of the page
+        //rather than at the same length as the first line
         left: 50%;
         width: $TOC_WIDTH;
 
