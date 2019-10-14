@@ -113,32 +113,35 @@ p, ul, ol {
     line-height: $LINE_HEIGHT;
 }
 
-header {
-    display: flex;
-    align-items: center;
-    font-size: $L1_SIZE;
-    margin: $HR_VSPACE_RESET 0 $L1_WEDGE;
-}
 h1 {
-    flex: 1 0 auto;
-    font-size: 1em;
+    margin: $HR_VSPACE_RESET 0 $L1_WEDGE;
+    font-size: $L1_SIZE;
     letter-spacing: 0.08em;
     text-align: center;
     font-weight: 300;
     text-transform: uppercase;
-    padding: 0 $H1_VMARGIN;
 }
-h1 span.prefix {
+h1 span {
     font-size: 0.3em;
-    padding: 0 0.4em 0.5em;
-    border-bottom: 1px solid black;
-    margin-bottom: 0.9em;
+    padding: 0 0.4em 0.4em;
+    margin-bottom: 0.6em;
+    border-bottom: 1px solid $COLOR_FG;
+    display: inline-block; 
+}
+h1 a {
+    text-decoration: none;
+    float: right;
+    margin-left: $H1_VMARGIN;
     display: inline-block;
 }
-header a {
-    flex: 0 1 auto;
-    text-decoration: none;
-    //float: right;
+h1 a.placeholder { 
+    // even though we really only need one, this is a (temporary?) solution to
+    // fix the centering of the lines; if we didn't have this, the title prefix
+    // wouldn't be centered the same since there is no floating object to
+    // affect the calculation
+    height: 1px;
+    overflow: hidden;
+    visibility: hidden;
 }
 hr + h2, hr + h3, hr + h4 {
     margin-top: $HR_VSPACE_RESET;
