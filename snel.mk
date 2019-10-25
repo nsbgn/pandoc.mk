@@ -40,7 +40,7 @@ endif
 
 # Find source files
 SOURCE_FILES = $(addprefix $(SRC)/,\
-			$(shell fdfind $(patsubst %,--exclude '%',$(IGNORE)) --extension md . "$(SRC)")\
+			$(shell fdfind --follow $(patsubst %,--exclude '%',$(IGNORE)) --extension md . "$(SRC)")\
 	       )
 
 # Metadata is collected for each source in a corresponding file
@@ -116,7 +116,7 @@ $(CACHE)/%.md.meta.json: $(SRC)/%.md $(TEMPLATES)/metadata.json
 # Overview of files & directories
 $(CACHE)/filetree.json: $(SOURCE_FILES) $(METADATA_FILES)
 	@-mkdir -p $(@D)
-	fdfind . "$(SRC)" $(patsubst %,--exclude '%',$(IGNORE)) \
+	fdfind . "$(SRC)" $(patsubst %,--exclude '%',$(IGNORE)) --follow \
 	        --exec stat --printf='{"path":"%n","size":%s,"modified":%Y,"type":"%F"}\n' \
 	    | jq --slurp '.' \
 	    > $@
