@@ -186,9 +186,10 @@ $(DEST)/%.html: \
 		--ascii \
 		--email-obfuscation=references \
 		--highlight-style=kate \
-		--output=$@ \
 		$< \
-		$(filter %/metadata.yaml, $^)
+		$(filter %/metadata.yaml, $^) \
+		| sed ':a;N;$$!ba;s|>\s*<|><|g' \
+		> $@
 
 
 ##########################################################################$$$$
