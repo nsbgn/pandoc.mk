@@ -15,7 +15,6 @@ $SIZE_HEAD4: 1em;           // Font size for paragraph header
 $SIZE_INDEX_BODY1: 2.9em;   // Font size in column header font size
 $SIZE_INDEX_BODY2: 1.5em;   // Font size in subheader font size
 $SIZE_INDEX_BODY3: 0.8em;   // Font size in menu items
-$SIZE_HR: 1.2em;            // Size of the § in <hr>s
 
 $WIDTH_PAGE_MIN: 35em;      // Minimum width before margin scales down
 $WIDTH_PAGE_MAX: 40em;      // Maximum width before margin scales up
@@ -287,15 +286,17 @@ hr {
     position: relative;
 }
 hr:after {
-    content: "\00a7";
+    $SIZE_HR: 0.5em;
+    $WIDTH_HR_INNER: 3em;
+    content: "\2022";
     font-size: $SIZE_HR;
     line-height: $SIZE_HR;
     color: $COLOR_TEXT;
     position: absolute;
     top: (-$SIZE_HR/2);
     left: 50%;
-    margin-left: -0.5em;
-    width: 1em;
+    margin-left: (-($WIDTH_HR_INNER+$SIZE_HR)/2);
+    width: 3em;
     background: $COLOR_PAGE;
 }
 
