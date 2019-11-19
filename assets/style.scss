@@ -168,13 +168,13 @@ h4 {
     float: left;
     font-weight: 600;
 }
-/* I originally put this in to fix an issue with the floating header messing
-   up the margins, but for reasons unknown to me, it is no longer necessary
-h1 + h4, h2 + h4, h3 + h4 {
-    margin-top: $VSPACE_PARAGRAPH;
+h4 + * { // Anything that follows a paragraph header should come underneath...
+    clear: left;
 }
-*/
-   
+h4 + p { // ... except pargraphs, which come inline.
+    clear: none;
+}
+
 a {
     text-decoration: underline;
     color: $COLOR_LINK;
