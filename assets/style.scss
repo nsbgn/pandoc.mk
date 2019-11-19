@@ -44,6 +44,7 @@ $VSPACE_HR: 2.5em;          // Vertical space around horizontal rules
 $HSPACE_TOC: 1.5em;         // Horizontal space between ToC and page
 $VSPACE_INDEX_HEAD1: .6em;  // Vertical space under column header
 $HSPACE_INDEX_BODY1: 4.0em; // Horizontal spacing between columns
+$VSPACE_INDEX_BODY1: 2em;   // Vertical space between wrapped columns
 $VSPACE_INDEX_HEAD2: .15em; // Vertical space under subheader
 $HSPACE_INDEX_HEAD2: 0.2em; // Horizontal margin around level 2, below header
 $VSPACE_INDEX_BODY2: 1.5em; // Vertical spacing between subheaded sections
@@ -505,7 +506,7 @@ nav#index {
         padding: ($VSPACE_INDEX) ($HSPACE_INDEX - ($HSPACE_INDEX_BODY1/2));
 
         > li {
-            padding: 0 ($HSPACE_INDEX_BODY1/2);
+            padding: ($VSPACE_INDEX_BODY1/2) ($HSPACE_INDEX_BODY1/2);
             
             > a, > span {
                 white-space: nowrap;
