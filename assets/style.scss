@@ -33,10 +33,10 @@ $VSPACE_CAPTION_BODY: .8em; // Vertical space between caption and its body
 $VSPACE_CAPTION_EXTRA: .5em;// Additional space under captions
 $VSPACE_ENTRY: 0.4em;       // Vertical spacing around list items
 $VSPACE_HEAD1: 1em;         // Vertical space under title
-$VSPACE_HEAD2: -0.5em;      // Vertical space under section header
+$VSPACE_HEAD2: 0.5em;      // Vertical space under section header
 $VSPACE_HEAD3: 1em;         // Vertical space under subsection header
 $HSPACE_HEAD4: 1em;         // Horizontal space next to paragraph header
-//$VSPACE_BODY1: 6em;         // Vertical space between previous content and new title
+$VSPACE_BODY1: 6em;         // Vertical space between previous content and new title
 $VSPACE_BODY2: 3em;         // Vertical space between sections
 $VSPACE_BODY3: 3em;         // Vertical space between subsections
 $VSPACE_HR_RESET: 2em;      // Space between <hr> or document start and a header
@@ -143,7 +143,7 @@ hr + h2, hr + h3, hr + h4 {
     margin-top: $VSPACE_HR_RESET;
 }
 section h1, div#refs h1 {
-    margin: 0 0 0.2em;
+    margin: $VSPACE_BODY1 0 $VSPACE_HEAD1; //#0.2em;
     font-size: $SIZE_HEAD2;
     font-weight: normal;
 }
