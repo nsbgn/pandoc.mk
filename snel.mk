@@ -156,6 +156,8 @@ $(DEST)/index.html: $(TEMPLATES)/index.html $(TEMPLATES)/nav.html $(CACHE)/index
 # --filter $(FILTERS)/pandoc-extract-references.py \
 
 # Create HTML documents
+# The following targets are required once but do not influence the build of this
+# target: $(DEST)/index.html $(DEST)/style.css $(DEST)/favicon.ico
 $(DEST)/%.html: \
 		$(SRC)/%.md \
 		$(CACHE)/%.md.meta.json \
@@ -167,6 +169,9 @@ $(DEST)/%.html: \
 	pandoc  \
 		--metadata path='$(shell realpath $(@D) --relative-to $(DEST) --canonicalize-missing)' \
 		--metadata root='$(shell realpath $(DEST) --relative-to $(@D) --canonicalize-missing)' \
+		--metadata index='$(shell realpath $(DEST)/index.html --relative-to $(@D) --canonicalize-missing)' \
+		--metadata favicon='$(shell realpath $(DEST)/favicon.ico --relative-to $(@D) --canonicalize-missing)' \
+		--metadata stylesheet='$(shell realpath $(DEST)/style.css --relative-to $(@D) --canonicalize-missing)' \
 		--from markdown+smart+fenced_divs+inline_notes+table_captions \
 		--to html5 \
 		--standalone \

@@ -19,13 +19,15 @@ $if(highlighting-css)$
 $highlighting-css$
 </style>
 $endif$
+$if(stylesheet)$
+<link rel="stylesheet" href="$stylesheet$">
+$endif$
+$if(favicon)$
+<link rel="shortcut icon" href="$favicon$">
+$endif$
 $for(css)$
 <link rel="stylesheet" href="$css$">
 $endfor$
-$if(root)$
-<link rel="shortcut icon" href="$root$/favicon.ico">
-<link rel="stylesheet" href="$root$/style.css">
-$endif$
 $if(math)$
 $math$
 $endif$
@@ -38,7 +40,7 @@ $for(include-before)$
 $include-before$
 $endfor$
 <main>
-<h1>$if(title-prefix)$<a class="placeholder">&#8801;</a><span>$title-prefix$</span><br>$endif$<a href="$root$/index.html">&#8801;</a>$if(title)$$title$$else$Untitled$endif$</h1>
+<h1>$if(title-prefix)$$if(index)$<a class="placeholder">&#8801;</a>$endif$<span>$title-prefix$</span><br>$endif$$if(index)$<a href="$index$">&#8801;</a>$endif$$if(title)$$title$$else$Untitled$endif$</h1>
 $if(toc)$
 <nav id="$idprefix$toc">
 $toc$
