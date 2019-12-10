@@ -29,7 +29,8 @@ Site generators that take a similar approach are
 [jqt](https://fadado.github.io/jqt/) and 
 [pansite](https://github.com/wcaleb/website). Should this be a bit primitive 
 for your tastes, try other static website generators such as 
-[hugo](http://gohugo.io/), [hakyll](https://jaspervdj.be/hakyll/about.html),
+[zola](https://www.getzola.org/), [hugo](http://gohugo.io/), 
+[hakyll](https://jaspervdj.be/hakyll/about.html),
 [jekyll](http://jekyllrb.com/), [nanoc](https://nanoc.ws/), 
 [yst](https://github.com/jgm/yst) or [middleman](https://middlemanapp.com/). 
 
