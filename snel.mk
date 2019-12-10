@@ -189,6 +189,7 @@ $(DEST)/%.html: \
 		)\
 		--base-header-level=2 \
 		--ascii \
+		--strip-comments \
 		--email-obfuscation=references \
 		--highlight-style=kate \
 		$< \
