@@ -8,6 +8,17 @@ def bool:
 ;
 
 
+# Determine whether a page should be uploaded and included in the table of
+# contents: it should either be marked as `publish`, or be *not* marked as
+# `draft` and have children that *are* marked as `publish`.
+def is_publication:
+    (.meta.publish|bool)
+    or
+    ((.meta.draft|bool|not) and ((.contents // [])|any(is_publication))
+    )
+;
+
+
 # Group the values of properties of an array of objects. For example, [{"a":1,
 # "b":2}, {"a":3}] turns into {"a":[1, 3], "b":[3]}. This can be used to
 # partition an array; example: [1,2,3] | map({(.%2|tostring):.}) | group
@@ -81,13 +92,14 @@ def add_frontmatter:
 ;
 
 
+
 # If marked as such, drafts can be excluded from being uploaded and included
 # in the table of contents.
 def add_drafts:
     if has("contents") then
-        ( .contents | map({(.meta.draft|bool|tostring):.}) | group) as {$true, $false}
-        | .contents = ($false // [])
-        | .drafts = ($true // [])
+        ( .contents | map({(is_publication|tostring):.}) | group) as {$true, $false}
+        | .contents = ($true // [])
+        | .drafts = ($false // [])
         | (.contents[]? |= add_drafts)
     else
         .
@@ -98,7 +110,7 @@ def add_drafts:
 # A resource is anything that is neither a directory nor a page with metadata.
 def add_resources:
     if has("contents") then
-        ( .contents | map({(has("meta") or has("contents")|tostring):.}) | group) as {$true, $false}
+        ( .contents | map({(has("contents") or has("meta")|tostring):.}) | group) as {$true, $false}
         | .contents = ($true // [])
         | .resources = ($false // [])
         | (.contents[]? |= add_resources)
