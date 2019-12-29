@@ -8,13 +8,20 @@ def bool:
 ;
 
 
+# Determine whether an index entry was manually entered into the table of
+# contents "base".
+def is_manual:
+    .type == "hyperlink"
+;
+
+
 # Determine whether a page should be uploaded and included in the table of
 # contents: it should either be marked as `publish`, or be *not* marked as
 # `draft` and have children that *are* marked as `publish`.
 def is_publication:
     (.meta.publish|bool)
     or
-    ((.meta.draft|bool|not) and ((.contents // [])|any(is_publication))
+    ((.meta.draft|bool|not) and ((.contents // [])|any(is_publication or is_manual))
     )
 ;
 
@@ -97,7 +104,7 @@ def add_frontmatter:
 # in the table of contents.
 def add_drafts:
     if has("contents") then
-        ( .contents | map({(is_publication|tostring):.}) | group) as {$true, $false}
+        ( .contents | map({(is_publication or is_manual|tostring):.}) | group) as {$true, $false}
         | .contents = ($true // [])
         | .drafts = ($false // [])
         | (.contents[]? |= add_drafts)
@@ -110,7 +117,7 @@ def add_drafts:
 # A resource is anything that is neither a directory nor a page with metadata.
 def add_resources:
     if has("contents") then
-        ( .contents | map({(has("contents") or has("meta")|tostring):.}) | group) as {$true, $false}
+        ( .contents | map({(has("contents") or has("meta") or is_manual|tostring):.}) | group) as {$true, $false}
         | .contents = ($true // [])
         | .resources = ($false // [])
         | (.contents[]? |= add_resources)

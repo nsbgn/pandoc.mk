@@ -116,12 +116,14 @@ $(CACHE)/%.md.meta.json: $(SRC)/%.md $(TEMPLATES)/metadata.json
 		$<
 
 # Overview of files & directories
-$(CACHE)/filetree.json: $(SOURCE_FILES) $(METADATA_FILES)
+$(CACHE)/filetree.json: $(SOURCE_FILES) $(METADATA_FILES) $(wildcard $(SRC)/filetree-base.json)
 	@-mkdir -p $(@D)
-	fdfind . "$(SRC)" $(patsubst %,--exclude '%',$(IGNORE)) --follow \
+	( \
+	    cat "$(SRC)/filetree-base.json" 2>/dev/null ; \
+	    fdfind . "$(SRC)" $(patsubst %,--exclude '%',$(IGNORE)) --follow \
 	        --exec stat --printf='{"path":"%n","size":%s,"modified":%Y,"type":"%F"}\n' \
-	    | jq --slurp '.' \
-	    > $@
+	) | jq --slurp '.' \
+	> $@
 
 # An alternative way to create the filetree 'immediately'
 $(CACHE)/filetree.alt.json: $(SOURCE_FILES)
