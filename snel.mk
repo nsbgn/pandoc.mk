@@ -1,3 +1,5 @@
+# TODO: Perhaps follow https://tech.davis-hansson.com/p/make/
+
 # Location of snel.mk makefile
 BASE := $(patsubst %/,%,$(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
 
@@ -146,7 +148,8 @@ $(DEST)/index.html: $(TEMPLATES)/index.html $(TEMPLATES)/nav.html $(CACHE)/index
 	    --template=$(TEMPLATES)/index.html \
 	    --metadata-file $(CACHE)/index.json \
 	    --metadata title="Table of contents" \
-	    -o $@
+	| sed ':a;N;$$!ba;s|>\s*<|><|g' \
+	> $@
 
 
 
