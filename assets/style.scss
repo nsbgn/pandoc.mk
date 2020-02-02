@@ -390,6 +390,12 @@ section.footnotes hr {
     text-decoration: none;
 }
 
+
+@page {
+    size: "A5";
+    margin: 1.5cm 2cm;
+}
+
 @media print {
     .noprint {
         display: none;
@@ -407,7 +413,7 @@ section.footnotes hr {
 
     body {
         margin: 0;
-        font-size: ($SIZE_TEXT*1.3);
+        font-size: ($SIZE_TEXT*1.35);
     }
     main, section {
         margin: 0;
