@@ -407,13 +407,17 @@ section.footnotes hr {
     h1, h2 { 
         page-break-before: always;
     }
+    header + h2, h1 + h2 {
+        page-break-before: auto; /* override page break if h2 comes immediately
+                                  after bigger header */
+    }
     h1, h2, h3, h4 {
         page-break-after: avoid;
     }
 
     body {
         margin: 0;
-        font-size: ($SIZE_TEXT*1.35);
+        font-size: ($SIZE_TEXT);
     }
     main, section {
         margin: 0;
