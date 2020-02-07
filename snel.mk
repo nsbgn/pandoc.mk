@@ -42,12 +42,12 @@ endif
 
 # Find source files
 SOURCE_FILES = $(addprefix $(SRC)/,\
-			$(shell fdfind --follow $(patsubst %,--exclude '%',$(IGNORE)) --extension md . "$(SRC)")\
-	       )
+    $(shell fdfind --follow $(patsubst %,--exclude '%',$(IGNORE)) --extension md . "$(SRC)")\
+)
 
-# Metadata is collected for each source in a corresponding file
+# Metadata and assets are collected for each source in a corresponding file
 METADATA_FILES = $(patsubst $(SRC)/%,$(CACHE)/%.meta.json,$(SOURCE_FILES))
-
+ASSET_FILES = $(patsubst $(SRC)/%,$(CACHE)/%.assets.txt,$(SOURCE_FILES))
 
 ##########################################################################$$$$
 # Phony targets
@@ -62,13 +62,16 @@ resources: \
 		$(DEST)/favicon.ico \
 		$(DEST)/apple-touch-icon.png
 
+
+assets: $(ASSET_FILES) | $(shell cat $(ASSET_FILES) 2>/dev/null)
+
 upload: all
 	read -s -p 'FTP password: ' password && \
 	lftp -u $(USER),$$password -e \
 	"mirror --reverse --only-newer --verbose --dry-run --exclude $(CACHE) $(DEST) $(REMOTE)" \
 	$(HOST)
 
-.PHONY: all html resources upload
+.PHONY: all html resources upload assets
 
 
 
@@ -106,6 +109,14 @@ $(DEST)/apple-touch-icon.png: $(DEST)/logo.svg
 
 ##############################################################################
 # Indexing
+
+# Record assets for each document
+$(CACHE)/%.md.assets.txt: $(SRC)/%.md 
+	@-mkdir -p "$(@D)"
+	pandoc -f markdown -t json -i $< \
+	    | jq -r ' .blocks[] | recurse(.c?[]?) | select(.t? == "Image") | .c[2][0] | select(test("^[a-z]+://") | not)' \
+	    | sed 's|^|$(patsubst $(CACHE)/%,$(DEST)/%,$(@D))/|' \
+	    > $@
 
 # Record metadata for each document
 $(CACHE)/%.md.meta.json: $(SRC)/%.md $(TEMPLATES)/metadata.json
@@ -157,8 +168,6 @@ $(DEST)/index.html: $(TEMPLATES)/index.html $(TEMPLATES)/nav.html $(CACHE)/index
 
 ##############################################################################
 # Documents
-
-# --filter $(FILTERS)/pandoc-extract-references.py \
 
 # Create HTML documents
 # The following targets are required once but do not influence the build of this
