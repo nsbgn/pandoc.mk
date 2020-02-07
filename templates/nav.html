@@ -1,6 +1,3 @@
-$if(contents)$
-<ul>
-$for(contents)$
 <li>
 $if(it.link)$
 <a href="$it.link$">$if(it.meta.title)$$it.meta.title$$else$$it.name$$endif$</a>
@@ -9,8 +6,9 @@ $elseif(it.frontmatter.link)$
 $else$
 <span>$if(it.meta.title)$$it.meta.title$$else$$it.name$$endif$</span>
 $endif$
-${it.contents:nav()}
-</li>
-$endfor$
+$if(it.contents)$
+<ul>
+${ it.contents:nav() }
 </ul>
 $endif$
+</li>

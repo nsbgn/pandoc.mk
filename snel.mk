@@ -161,7 +161,6 @@ $(DEST)/index.html: $(TEMPLATES)/index.html $(TEMPLATES)/nav.html $(CACHE)/index
 	    --template=$(TEMPLATES)/index.html \
 	    --metadata-file $(CACHE)/index.json \
 	    --metadata title="Table of contents" \
-	| sed ':a;N;$$!ba;s|>\s*<|><|g' \
 	> $@
 
 
@@ -201,7 +200,7 @@ $(DEST)/%.html: \
 			$(filter %.bib, $^),\
 			--bibliography=$(F) \
 		)\
-		--base-header-level=2 \
+		--shift-heading-level-by=1 \
 		--ascii \
 		--strip-comments \
 		--email-obfuscation=references \
