@@ -172,7 +172,7 @@ h4 {
 h4 + * { // Anything that follows a paragraph header should come underneath...
     clear: left;
 }
-h4 + p { // ... except pargraphs, which come inline.
+h4 + p { // ... except paragraphs, which come inline.
     clear: none;
 }
 
@@ -272,7 +272,6 @@ figure {
             margin: 0;
         } 
     }
-
 }
 
 
@@ -350,84 +349,7 @@ code pre {
 }
 
 
-/* Miscellaneous classes & overrides ****************************************/
-
-.hide {
-    display: none;
-}
-
-.right {
-    clear: right;
-    float: right;
-}
-
-.left {
-    clear: left;
-    float: left;
-}
-
-.invert {
-    display: inline-block;
-    -webkit-transform: matrix(-1, 0, 0, 1, 0, 0);
-    -moz-transform: matrix(-1, 0, 0, 1, 0, 0);
-    -o-transform: matrix(-1, 0, 0, 1, 0, 0);
-    transform: matrix(-1, 0, 0, 1, 0, 0);
-}
-
-// Make sure MathJax elements are not too large
-.MathJax {
-    font-size: 2em !important;
-}
-
-// Annoying that pandoc puts a rule before the footnotes
-section.footnotes hr {
-    display: none;
-}
-
-// Do not underline the back link in footnotes
-.footnotes a:last-child {
-    padding: 0 0 0 0.5em;
-    text-decoration: none;
-}
-
-
-@page {
-    size: "A5";
-    margin: 1.5cm 2cm;
-}
-
-@media print {
-    .noprint {
-        display: none;
-    }
-    .pgbrk {
-        page-break-after: always;
-    }
-
-    h1, h2 { 
-        page-break-before: always;
-    }
-    header + h2, h1 + h2 {
-        page-break-before: auto; /* override page break if h2 comes immediately
-                                  after bigger header */
-    }
-    h1, h2, h3, h4 {
-        page-break-after: avoid;
-    }
-
-    body {
-        margin: 0;
-        font-size: ($SIZE_TEXT);
-    }
-    main, section {
-        margin: 0;
-        width: auto;
-        max-width: auto;
-    }
-}
-
-
-/* Table of contents ********************************************************/
+/* Table of contents (page) *************************************************/
 
 nav#toc {
     text-align: left;
@@ -479,7 +401,7 @@ nav#toc {
         margin: 0 0 0 ($WIDTH_PAGE_MAX / 2 + $HSPACE_TOC);
         position: absolute; // alternative: fixed, sticky?
         //top: $VSPACE_PAGE;  // this would place it at the top of the page
-        //rather than at the same length as the first line
+        //rather than at the same height as the first line
         left: 50%;
         width: $WIDTH_TOC;
 
@@ -490,7 +412,7 @@ nav#toc {
 }
 
 
-/* Site-wide table of contents ***********************************************/
+/* Table of contents (site-wide) *********************************************/
 
 nav#index {
     position: absolute;
@@ -576,5 +498,84 @@ nav#index {
         content: "\ \2022\00a0\ ";
         font-size: 0.6em;
         color: mix($COLOR_TEXT, $COLOR_PAGE, 60%);
+    }
+}
+
+
+/* Miscellaneous classes & overrides ****************************************/
+
+.hide {
+    display: none;
+}
+
+.right {
+    clear: right;
+    float: right;
+}
+
+.left {
+    clear: left;
+    float: left;
+}
+
+.invert {
+    display: inline-block;
+    -webkit-transform: matrix(-1, 0, 0, 1, 0, 0);
+    -moz-transform: matrix(-1, 0, 0, 1, 0, 0);
+    -o-transform: matrix(-1, 0, 0, 1, 0, 0);
+    transform: matrix(-1, 0, 0, 1, 0, 0);
+}
+
+// Make sure MathJax elements are not too large
+.MathJax {
+    font-size: 2em !important;
+}
+
+// Annoying that pandoc puts a rule before the footnotes
+section.footnotes hr {
+    display: none;
+}
+
+// Do not underline the back link in footnotes
+.footnotes a:last-child {
+    padding: 0 0 0 0.5em;
+    text-decoration: none;
+}
+
+
+/* Printing *****************************************************************/
+
+@page {
+    size: "A5";
+    margin: 1.5cm 2cm;
+}
+
+@media print {
+    .noprint {
+        display: none;
+    }
+    .pgbrk {
+        page-break-after: always;
+    }
+
+    h1, h2 { 
+        page-break-before: always;
+    }
+    header + h2, h1 + h2 {
+        page-break-before: auto; /* override page break if h2 comes immediately
+                                  after bigger header */
+    }
+    h1, h2, h3, h4 {
+        page-break-after: avoid;
+    }
+
+    body {
+        margin: 0;
+        font-size: ($SIZE_TEXT);
+    }
+    main, section {
+        margin: 0;
+        width: auto;
+        max-width: auto;
     }
 }
