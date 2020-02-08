@@ -81,43 +81,34 @@ upload: all
 
 
 ##############################################################################
-# Theme
+# Resources
 
-
-# Stylesheet. If `snel` is installed globally, the stylesheet should be already
-# available in `$PREFIX/share/snel`; otherwise it should be compiled.
+# If `snel` is installed globally, the stylesheet and favicon should be already
+# available in `$PREFIX/share/snel`; otherwise they should be compiled.
 ifeq ($(BASE_DIR),$(INCLUDE_DIR))
-$(DEST)/style.css: $(RESOURCE_DIR)/style.css
+$(DEST)/%: $(RESOURCE_DIR)/%
 	@-mkdir -p $(@D)
 	cp $< $@
+
 else
+# Stylesheet
 $(DEST)/style.css: $(RESOURCE_DIR)/style.scss
 	@-mkdir -p $(@D)
 	sassc --style compressed $< $@
-endif
-
-# Optimised SVG logo
-$(DEST)/logo.svg: $(RESOURCE_DIR)/logo.svg
-	@-mkdir -p $(@D)
-	svgo --input=$< --output=$@
-
-# Fallback logo
-$(DEST)/logo.png: $(DEST)/logo.svg
-	@-mkdir -p $(@D)
-	convert $< $@
 
 # Favicon as bitmap
-$(DEST)/favicon.ico: $(DEST)/logo.svg
+$(DEST)/favicon.ico: $(RESOURCE_DIR)/favicon.svg
 	@-mkdir -p $(@D)
 	convert $< -transparent white -resize 16x16 -level '0%,100%,0.6' $@
 
 # Icon for bookmark on Apple devices
-$(DEST)/apple-touch-icon.png: $(DEST)/logo.svg
+$(DEST)/apple-touch-icon.png: $(RESOURCE_DIR)/favicon.svg
 	@-mkdir -p $(@D)
 	convert -density 1200 -resize 140x140 -gravity center -extent 180x180 \
 	    	+level-colors '#fff,#711' -colors 16 \
 		-compress Zip -define 'png:format=png8' -define 'png:compression-level=9' \
 		$< $@
+endif
 
 
 ##############################################################################
@@ -229,11 +220,15 @@ $(DEST)/%.html: \
 ##########################################################################$$$$
 # Generic recipes
 
+# Optimised SVG
+$(DEST)/%.svg: $(SRC)/%.svg
+	@-mkdir -p $(@D)
+	svgo --input=$< --output=$@
+
 # Any image file
 $(DEST)/%.jpg: $(SRC)/%.jpg
 	@-mkdir -p $(@D)
 	convert -resize '600x' -quality '60%' $< $@
-
 
 # Any file in the source is also available at the destination
 $(DEST)/%: $(SRC)/%
