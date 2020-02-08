@@ -4,12 +4,11 @@ snel
 `snel` is the [lightweight](http://idlewords.com/talks/website_obesity.htm) 
 template and a static website generator that I use for my personal website. It 
 is currently a work-in-progress, but it is mostly functional. It roughly 
-consists of two parts, each of which, I hope, may prove useful to someone:
+consists of two parts, either of which, I hope, may prove useful to someone:
 
-1.  A simple makefile, to create documents and other resources.
+1.  A `Makefile`, to create the pages and an index file.
 
-2.  A logo and a minimalist style to present the above.
-
+2.  A minimalist stylesheet and a logo.
 
 To install `snel`, do `make install`. To then use it with your own project, 
 simply create a `Makefile` with the following lines:
@@ -21,8 +20,8 @@ simply create a `Makefile` with the following lines:
     REMOTE=ftp_directory
     include snel.mk
 
-Executing `make` will then generate a `build/` directory containing scripts, 
-stylesheets and the example website. 
+Executing `make` from there will then generate a `build/` directory containing 
+a website made from Markdown files found in the `$(SRC)` directory. 
 
 Site generators that take a similar approach are 
 [simple-template](https://github.com/simple-template/pandoc), 
@@ -33,7 +32,6 @@ for your tastes, try other static website generators such as
 [hakyll](https://jaspervdj.be/hakyll/about.html),
 [jekyll](http://jekyllrb.com/), [nanoc](https://nanoc.ws/), 
 [yst](https://github.com/jgm/yst) or [middleman](https://middlemanapp.com/). 
-
 
 
 
@@ -63,15 +61,6 @@ As of now, the recipe calls for [pandoc](http://pandoc.org/) 2.8 or higher,
 [lftp](http://lftp.yar.ru/) — but you could easily substitute or add any 
 ingredient.
 
-Note that we use the partials of `pandoc`'s built-in templating system, which 
-appeared in `doctemplates 0.3`. The version of `pandoc` in your distribution's 
-repositories is probably not sufficient - in fact, neither is the latest 
-upstream release, `pandoc 0.7.3` at the time of writing. You'll need the 
-development version for now.
-
-    git clone https://github.com/jgm/pandoc && \
-    cd pandoc && \
-    cabal install
 
 
 Style
@@ -81,6 +70,9 @@ The theme is minimal and monochrome. Its most distinguishing quality is that
 the table of contents extends horizontally and that all its entries are 
 visible without further tapping, hovering or sliding; it is supposed to act as 
 a vantage point. The CSS is written using SASS.
+
+It is also very suitable for use in PDF writing, as demonstrated in this 
+[printer](https://github.com/slakkenhuis/scripts/printer) script.
 
 
 

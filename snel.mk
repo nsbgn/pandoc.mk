@@ -1,5 +1,6 @@
 # TODO: Perhaps follow https://tech.davis-hansson.com/p/make/
 
+# Installation directories
 PREFIX := /usr/local
 INCLUDE_DIR := $(PREFIX)/include
 SHARE_DIR := $(PREFIX)/share/snel
@@ -126,7 +127,9 @@ $(DEST)/apple-touch-icon.png: $(DEST)/logo.svg
 $(CACHE)/%.md.assets.txt: $(SRC)/%.md 
 	@-mkdir -p "$(@D)"
 	pandoc -f markdown -t json -i $< \
-	    | jq -r ' .blocks[] | recurse(.c?[]?) | select(.t? == "Image") | .c[2][0] | select(test("^[a-z]+://") | not)' \
+	    | jq -r ' .blocks[] | recurse(.c?[]?) \
+		    | select(.t? == "Image") | .c[2][0] \
+		    | select(test("^[a-z]+://") | not)' \
 	    | sed 's|^|$(patsubst $(CACHE)/%,$(DEST)/%,$(@D))/|' \
 	    > $@
 

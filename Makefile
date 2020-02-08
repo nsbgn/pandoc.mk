@@ -7,15 +7,14 @@ install: default
 	install --mode=644 -D --target-directory $(SHARE_DIR)/ \
 	    build/style.css
 	install --mode=644 -D --target-directory $(SHARE_DIR)/ \
-	    $(addprefix share/,index.jq logo.svg style.scss)
+	    $(addprefix $(RESOURCE_DIR)/,index.jq logo.svg)
 	install --mode=644 -D --target-directory $(SHARE_DIR)/pandoc/ \
-	    $(addprefix share/pandoc/,nav.html index.html page.html metadata.json)
+	    $(addprefix $(PANDOC_DIR)/,nav.html index.html page.html metadata.json)
 	install --mode=755 -D --target-directory $(SHARE_DIR)/pandoc/ \
-	    share/pandoc/extract-references.py
-
+	    $(PANDOC_DIR)/extract-references.py
 
 uninstall:
 	rm $(INCLUDE_DIR)/snel.mk
-	rm -rf $(SHARE_DIR)
+	rm -r $(SHARE_DIR)
 
-.PHONY: install
+.PHONY: install uninstall default
