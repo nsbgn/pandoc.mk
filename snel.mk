@@ -1,19 +1,28 @@
 # TODO: Perhaps follow https://tech.davis-hansson.com/p/make/
 
+PREFIX:=/usr/local
+INCLUDE_DIR := $(PREFIX)/include
+SHARE_DIR := $(PREFIX)/share/snel
+
 # Location of snel.mk makefile
-BASE := $(patsubst %/,%,$(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
+BASE_DIR := $(patsubst %/,%,$(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
+
+# If installed in $PREFIX/include, we find other assets in $PREFIX/share/snel.
+# Otherwise, we find them relative to the current makefile
+ifeq ($(BASE_DIR),$(INCLUDE_DIR))
+    FILTERS := $(SHARE_DIR)
+    TEMPLATES := $(SHARE_DIR)
+    RESOURCES := $(SHARE_DIR)
+    JQ_DIR := $(SHARE_DIR)
+else
+    FILTERS := $(BASE_DIR)/filters
+    TEMPLATES := $(BASE_DIR)/templates
+    RESOURCES := $(BASE_DIR)/assets
+    JQ_DIR := $(BASE_DIR)
+endif
 
 # Source and destination directories, and FTP credentials. These are
 # expected to be changed in the `make` call or before the `include` statement.
-ifndef FILTERS
-    FILTERS := $(BASE)/filters
-endif
-ifndef TEMPLATES
-    TEMPLATES := $(BASE)/templates
-endif
-ifndef ASSETS
-    ASSETS := $(BASE)/assets
-endif
 ifndef SRC
     SRC := .
 endif
@@ -22,9 +31,6 @@ ifndef DEST
 endif
 ifndef CACHE
     CACHE := $(DEST)/cache
-endif
-ifndef GPG_ID
-    GPG_ID := user@domain.com
 endif
 ifndef USER
     USER := user
@@ -79,12 +85,12 @@ upload: all
 # Theme
 
 # Stylesheet
-$(DEST)/style.css: $(ASSETS)/style.scss
+$(DEST)/style.css: $(RESOURCES)/style.scss
 	@-mkdir -p $(@D)
 	sassc --style compressed $< $@
 
 # Optimised SVG logo
-$(DEST)/logo.svg: $(ASSETS)/logo.svg
+$(DEST)/logo.svg: $(RESOURCES)/logo.svg
 	@-mkdir -p $(@D)
 	svgo --input=$< --output=$@
 
@@ -146,9 +152,9 @@ $(CACHE)/filetree.alt.json: $(SOURCE_FILES)
 
 # Overview of files & directories, including metadata, transformed into format
 # readable for the index template
-$(CACHE)/index.json: $(CACHE)/filetree.json $(METADATA_FILES) $(BASE)/index.jq
+$(CACHE)/index.json: $(CACHE)/filetree.json $(METADATA_FILES) $(JQ_DIR)/index.jq
 	@-mkdir -p $(@D)
-	jq  -L$(BASE) --null-input \
+	jq  -L$(JQ_DIR) --null-input \
 	    --arg prefix "$(CACHE)/" \
 	    'include "index"; index' \
 	     $(filter %.json, $^) \
