@@ -1,14 +1,27 @@
 snel
 ==============================================================================
 
-`snel` is the [lightweight](http://idlewords.com/talks/website_obesity.htm) 
-template and a static website generator that I use for my personal website. It 
-is currently a work-in-progress, but it is mostly functional. It roughly 
-consists of two parts, either of which, I hope, may prove useful to someone:
+`snel` can be used for static website generation and for document typesetting. 
+It roughly consists of two parts, either of which, I hope, may prove useful to 
+someone:
 
-1.  A `Makefile`, to create the pages and an index file.
+1.  A `Makefile`-recipe, to create HTML pages and an index file.
 
-2.  A minimalist stylesheet and a logo.
+2.  A minimalist stylesheet.
+
+It is currently a work-in-progress, but it is mostly functional. Website 
+generators that take a similar approach are 
+[simple-template](https://github.com/simple-template/pandoc), 
+[jqt](https://fadado.github.io/jqt/) and 
+[pansite](https://github.com/wcaleb/website). Should this be a bit primitive 
+for your tastes, try others such as [zola](https://www.getzola.org/), 
+[hugo](http://gohugo.io/), [hakyll](https://jaspervdj.be/hakyll/about.html),
+[jekyll](http://jekyllrb.com/), [nanoc](https://nanoc.ws/), 
+[yst](https://github.com/jgm/yst) or [middleman](https://middlemanapp.com/). 
+
+
+Usage
+-------------------------------------------------------------------------------
 
 To install `snel`, do `make install`. To then use it with your own project, 
 simply create a `Makefile` with the following lines:
@@ -20,23 +33,13 @@ simply create a `Makefile` with the following lines:
     REMOTE=ftp_directory
     include snel.mk
 
-Executing `make` from there will then generate a `build/` directory containing 
-a website made from Markdown files found in the `$(SRC)` directory. 
-
-Site generators that take a similar approach are 
-[simple-template](https://github.com/simple-template/pandoc), 
-[jqt](https://fadado.github.io/jqt/) and 
-[pansite](https://github.com/wcaleb/website). Should this be a bit primitive 
-for your tastes, try other static website generators such as 
-[zola](https://www.getzola.org/), [hugo](http://gohugo.io/), 
-[hakyll](https://jaspervdj.be/hakyll/about.html),
-[jekyll](http://jekyllrb.com/), [nanoc](https://nanoc.ws/), 
-[yst](https://github.com/jgm/yst) or [middleman](https://middlemanapp.com/). 
+Executing `make` from there will then generate the `$(DEST)` directory 
+containing a [lightweight](http://idlewords.com/talks/website_obesity.htm) 
+website made from Markdown files found in the `$(SRC)` directory. 
 
 
-
-Makefile
-------------------------------------------------------------------------------
+Rationale
+-------------------------------------------------------------------------------
 
 Plain text formats like [Markdown](http://commonmark.org/help/) and 
 [YAML](http://www.yaml.org/spec/) are lightweight, understandable, and 
@@ -47,10 +50,9 @@ website generation.
 
 Using `fd` and `pandoc`, the `Makefile` creates an HTML file for every 
 Markdown document it can find in the source directory. With `jq`, an index is 
-generated directly from the folder structure and `pandoc` metadata. After all, 
-the directory hierarchy is a simple and generic interface for organizing 
-things. just like plain text. Given an appropriate configuration, the results 
-are uploaded with `lftp` by calling `make upload`.
+generated directly from the directory structure and `pandoc` metadata. Given 
+an appropriate configuration, the results can be uploaded with `lftp` by 
+calling `make upload`.
 
 As of now, the recipe calls for [pandoc](http://pandoc.org/) 2.8 or higher, 
 [jq](https://stedolan.github.io/jq/) 1.5 or higher,
@@ -62,16 +64,13 @@ As of now, the recipe calls for [pandoc](http://pandoc.org/) 2.8 or higher,
 ingredient.
 
 
+### Style
 
-Style
-------------------------------------------------------------------------------
-
-The theme is minimal and monochrome. Its most distinguishing quality is that 
-the table of contents extends horizontally and that all its entries are 
+The stylesheet is minimal and monochrome. Its most distinguishing quality is 
+that the table of contents extends horizontally and that all its entries are 
 visible without further tapping, hovering or sliding; it is supposed to act as 
-a vantage point. The CSS is written using SASS.
-
-It is also very suitable for use in PDF writing, as demonstrated in this 
+a vantage point. It is also very suitable for use in PDF writing, as 
+demonstrated in this 
 [script](https://github.com/slakkenhuis/scripts/blob/master/printer).
 
 
