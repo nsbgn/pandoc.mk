@@ -1,6 +1,6 @@
 # TODO: Perhaps follow https://tech.davis-hansson.com/p/make/
 
-PREFIX:=/usr/local
+PREFIX := /usr/local
 INCLUDE_DIR := $(PREFIX)/include
 SHARE_DIR := $(PREFIX)/share/snel
 
@@ -10,15 +10,13 @@ BASE_DIR := $(patsubst %/,%,$(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
 # If installed in $PREFIX/include, we find other assets in $PREFIX/share/snel.
 # Otherwise, we find them relative to the current makefile
 ifeq ($(BASE_DIR),$(INCLUDE_DIR))
-    FILTERS := $(SHARE_DIR)
-    TEMPLATES := $(SHARE_DIR)
-    RESOURCES := $(SHARE_DIR)
+    RESOURCE_DIR := $(SHARE_DIR)
     JQ_DIR := $(SHARE_DIR)
+    PANDOC_DIR := $(SHARE_DIR)/pandoc
 else
-    FILTERS := $(BASE_DIR)/filters
-    TEMPLATES := $(BASE_DIR)/templates
-    RESOURCES := $(BASE_DIR)/assets
-    JQ_DIR := $(BASE_DIR)
+    RESOURCE_DIR := $(BASE_DIR)/share
+    JQ_DIR := $(BASE_DIR)/share
+    PANDOC_DIR := $(BASE_DIR)/share/pandoc
 endif
 
 # Source and destination directories, and FTP credentials. These are
@@ -85,12 +83,12 @@ upload: all
 # Theme
 
 # Stylesheet
-$(DEST)/style.css: $(RESOURCES)/style.scss
+$(DEST)/style.css: $(RESOURCE_DIR)/style.scss
 	@-mkdir -p $(@D)
 	sassc --style compressed $< $@
 
 # Optimised SVG logo
-$(DEST)/logo.svg: $(RESOURCES)/logo.svg
+$(DEST)/logo.svg: $(RESOURCE_DIR)/logo.svg
 	@-mkdir -p $(@D)
 	svgo --input=$< --output=$@
 
@@ -125,9 +123,9 @@ $(CACHE)/%.md.assets.txt: $(SRC)/%.md
 	    > $@
 
 # Record metadata for each document
-$(CACHE)/%.md.meta.json: $(SRC)/%.md $(TEMPLATES)/metadata.json
+$(CACHE)/%.md.meta.json: $(SRC)/%.md $(PANDOC_DIR)/metadata.json
 	@-mkdir -p "$(@D)"
-	pandoc --template='$(TEMPLATES)/metadata.json' \
+	pandoc --template='$(PANDOC_DIR)/metadata.json' \
 		--to=plain \
 		--output=$@ \
 		$<
@@ -161,10 +159,10 @@ $(CACHE)/index.json: $(CACHE)/filetree.json $(METADATA_FILES) $(JQ_DIR)/index.jq
 	    > $@
 
 # Generate static index page 
-$(DEST)/index.html: $(TEMPLATES)/index.html $(TEMPLATES)/nav.html $(CACHE)/index.json
+$(DEST)/index.html: $(PANDOC_DIR)/index.html $(PANDOC_DIR)/nav.html $(CACHE)/index.json
 	@-mkdir -p $(@D)
 	echo | pandoc \
-	    --template=$(TEMPLATES)/index.html \
+	    --template=$(PANDOC_DIR)/index.html \
 	    --metadata-file $(CACHE)/index.json \
 	    --metadata title="Table of contents" \
 	> $@
@@ -180,7 +178,7 @@ $(DEST)/index.html: $(TEMPLATES)/index.html $(TEMPLATES)/nav.html $(CACHE)/index
 $(DEST)/%.html: \
 		$(SRC)/%.md \
 		$(CACHE)/%.md.meta.json \
-		$(TEMPLATES)/page.html \
+		$(PANDOC_DIR)/page.html \
 		$(wildcard $(SRC)/*.bib) 
 	@echo "Generating $@..."
 	@-mkdir -p "$(@D)"
@@ -196,7 +194,7 @@ $(DEST)/%.html: \
 		--standalone \
 		--table-of-contents \
 		--toc-depth=3 \
-		--template $(TEMPLATES)/page.html \
+		--template $(PANDOC_DIR)/page.html \
 		$(foreach F,\
 			$(filter %.css, $^),\
 			--css=$(F) \

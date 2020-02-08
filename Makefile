@@ -4,10 +4,16 @@ SHARE_DIR=$(PREFIX)/share/snel
 
 install:
 	install snel.mk $(INCLUDE_DIR)/
-	install -D --target-directory $(SHARE_DIR)/ \
-	    index.jq \
-	    filters/pandoc-extract-references.py \
-	    $(addprefix assets/,logo.svg style.scss) \
-	    $(addprefix templates/,index.html metadata.json nav.html page.html)
+	install --mode=644 -D --target-directory $(SHARE_DIR)/ \
+	    $(addprefix share/,index.jq logo.svg style.scss)
+	install --mode=644 -D --target-directory $(SHARE_DIR)/pandoc/ \
+	    $(addprefix share/pandoc/,nav.html index.html page.html metadata.json)
+	install --mode=755 -D --target-directory $(SHARE_DIR)/pandoc/ \
+	    share/pandoc/extract-references.py
+
+
+uninstall:
+	rm $(INCLUDE_DIR)/snel.mk
+	rm -rf $(SHARE_DIR)
 
 .PHONY: install
