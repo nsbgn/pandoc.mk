@@ -79,13 +79,21 @@ upload: all
 
 
 
-##########################################################################$$$$
+##############################################################################
 # Theme
 
-# Stylesheet
+
+# Stylesheet. If `snel` is installed globally, the stylesheet should be already
+# available in `$PREFIX/share/snel`; otherwise it should be compiled.
+ifeq ($(BASE_DIR),$(INCLUDE_DIR))
+$(DEST)/style.css: $(RESOURCE_DIR)/style.css
+	@-mkdir -p $(@D)
+	cp $< $@
+else
 $(DEST)/style.css: $(RESOURCE_DIR)/style.scss
 	@-mkdir -p $(@D)
 	sassc --style compressed $< $@
+endif
 
 # Optimised SVG logo
 $(DEST)/logo.svg: $(RESOURCE_DIR)/logo.svg
