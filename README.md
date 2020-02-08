@@ -72,7 +72,7 @@ visible without further tapping, hovering or sliding; it is supposed to act as
 a vantage point. The CSS is written using SASS.
 
 It is also very suitable for use in PDF writing, as demonstrated in this 
-[printer](https://github.com/slakkenhuis/scripts/printer) script.
+[script](https://github.com/slakkenhuis/scripts/blob/master/printer).
 
 
 
