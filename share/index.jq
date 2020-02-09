@@ -28,7 +28,7 @@ def is_publication:
 
 # Group the values of properties of an array of objects. For example, [{"a":1,
 # "b":2}, {"a":3}] turns into {"a":[1, 3], "b":[3]}. This can be used to
-# partition an array; example: [1,2,3] | map({(.%2|tostring):.}) | group
+# partition an array; example: `[1,2,3] | map({(.%2|tostring):.}) | group`
 def group:
     reduce ([.[] | to_entries[]] | group_by(.key))[] as $group
     ( {} 
@@ -50,6 +50,23 @@ def insert($path; $child):
     else
         . * $child
     end
+;
+
+
+# Put parent objects so that the current object exists at a particular path.
+# Like `setpath/2`, but instead of making objects like `{"a":{"b":{…}}}`, this
+# makes objects like `{"contents":[{"name":"a", "contents":[{"name":"b",…}]}]}`
+def tree($path):
+    def tree_aux($history; $future):
+        { "name": $future[0] 
+        , "path": ($history + [$future[0]]) | join("/") } *
+        if ($future | length) > 1 then
+            { "contents": [ tree_aux($history + [$future[0]]; $future[1:]) ] }
+        else
+            { "contents": [] } * .
+        end 
+    ;
+    tree_aux([]; $path)
 ;
 
 
