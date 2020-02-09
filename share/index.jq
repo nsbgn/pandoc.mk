@@ -53,6 +53,33 @@ def insert($path; $child):
 ;
 
 
+# Merge two values. If the values are both objects, the values at equal indices
+# will be merged; if the values are both arrays, the arrays are concatenated;
+# if the values are some other type, we only check if the values do not
+# conflict.
+def merge(other): 
+    if (. | type) == "object" and (other | type) == "object" then
+        (. | to_entries) + (other | to_entries) 
+        | group_by(.key)
+        | map({ "key": (.[0].key), "value" : (reduce .[1:][].value as $x (.[0].value; merge($x)))})
+        | from_entries
+    elif (. | type) == "array" and (other | type) == "array" then
+        . + other
+    elif . == other then
+        .
+    else
+        error("trying to merge incompatible objects")
+    end
+;
+
+
+# Merge an array of pages by grouping them by path and then merging all the
+# pages with the same path.
+def merge_pages:
+    group_by(.path) | map(reduce .[] as $x ({}; merge($x)))
+;
+
+
 # Merge together `filetree.json` and `*.meta.json` files, with behaviour
 # depending on the filename of the object. Use with the `--null-input` switch.
 def process_files:
