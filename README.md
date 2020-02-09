@@ -5,9 +5,9 @@ snel
 It roughly consists of two parts, either of which, I hope, may prove useful to 
 someone:
 
-1.  A `Makefile`-recipe, to create HTML pages and an index file.
+1.  A `Makefile`-recipe, to generate a website.
 
-2.  A minimalist stylesheet.
+2.  A CSS stylesheet.
 
 It is currently a work-in-progress, but it is mostly functional. Website 
 generators that take a similar approach are 
@@ -23,20 +23,24 @@ for your tastes, try others such as [zola](https://www.getzola.org/),
 Usage
 -------------------------------------------------------------------------------
 
-To install `snel`, do `make install`. To then use it with your own project, 
-simply create a `Makefile` with the following lines:
+To install `snel`, do `make install`. To generate a website, simply create a 
+`Makefile` with the following lines:
 
     SRC=/path/to/sources
     DEST=/path/to/build
-    USER=ftp_username
-    HOST=ftp_host
-    REMOTE=ftp_directory
     include snel.mk
 
 Executing `make` from there will then generate the `$(DEST)` directory 
 containing a [lightweight](http://idlewords.com/talks/website_obesity.htm) 
 website made from Markdown files found in the `$(SRC)` directory. 
 
+To use the stylesheet to create a PDF, I suggest using the following options 
+to Pandoc:
+
+    pandoc --shift-heading-level-by=1 \
+        --pdf-engine=weasyprint \
+        --template "/usr/share/snel/pandoc/page.html" \
+        --css "/usr/share/snel/style.css"
 
 Rationale
 -------------------------------------------------------------------------------
@@ -66,13 +70,12 @@ ingredient.
 
 ### Style
 
-The stylesheet is minimal and monochrome. Its most distinguishing quality is 
-that the table of contents extends horizontally and that all its entries are 
-visible without further tapping, hovering or sliding; it is supposed to act as 
-a vantage point. It is also very suitable for use in PDF writing, as 
-demonstrated in this 
-[script](https://github.com/slakkenhuis/scripts/blob/master/printer).
-
+The stylesheet is minimal and monochrome. It is very suitable for use in PDF 
+typesetting, as demonstrated
+[here](https://github.com/slakkenhuis/scripts/blob/master/printer). For 
+websites, its most distinguishing quality is that the table of contents 
+extends horizontally and that all its entries are visible without further 
+tapping, hovering or sliding; it is supposed to act as a vantage point.
 
 
 License
