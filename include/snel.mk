@@ -15,9 +15,9 @@ ifeq ($(BASE_DIR),$(INCLUDE_DIR))
     JQ_DIR := $(SHARE_DIR)
     PANDOC_DIR := $(SHARE_DIR)/pandoc
 else
-    RESOURCE_DIR := $(BASE_DIR)/share
-    JQ_DIR := $(BASE_DIR)/share
-    PANDOC_DIR := $(BASE_DIR)/share/pandoc
+    RESOURCE_DIR := $(BASE_DIR)/../share
+    JQ_DIR := $(BASE_DIR)/../share
+    PANDOC_DIR := $(BASE_DIR)/../share/pandoc
 endif
 
 # Source and destination directories, and FTP credentials. These are

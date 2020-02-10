@@ -1,9 +1,9 @@
 default: build/style.css build/favicon.ico build/apple-touch-icon.png
 
-include snel.mk
+include include/snel.mk
 
 install: default
-	install snel.mk $(INCLUDE_DIR)/
+	install include/snel.mk $(INCLUDE_DIR)/
 	install --mode=644 -D --target-directory $(SHARE_DIR)/ \
 	    $(addprefix build/,style.css favicon.ico apple-touch-icon.png)
 	install --mode=644 -D --target-directory $(SHARE_DIR)/ \
