@@ -103,18 +103,16 @@ def process_files:
     reduce inputs as $input
         (   {}
         ;   ($input | input_filename) as $f |
+            merge(
             if ($f | endswith(".meta.json")) then 
-                insert
-                ( $f | ltrimstr($prefix) | rtrimstr(".meta.json") | split("/")
-                ; {"meta": $input} )
+                {"meta": $input} | tree($f | ltrimstr($prefix) | rtrimstr(".meta.json") | split("/"))
             else 
                 reduce $input[] as $entry
-                ( .
-                ;   insert
-                    ( $entry.path | split("/")
-                    ; $entry )
+                (   .
+                ;   merge($entry | tree($entry.path | split("/")))
                 )
             end
+            )
         )
 ;
 

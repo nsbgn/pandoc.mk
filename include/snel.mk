@@ -152,7 +152,7 @@ $(CACHE)/filetree.alt.json: $(SOURCE_FILES)
 
 # Overview of files & directories, including metadata, transformed into format
 # readable for the index template
-$(CACHE)/index.json: $(CACHE)/filetree.json $(METADATA_FILES) $(JQ_DIR)/index.jq
+$(CACHE)/index.json: $(JQ_DIR)/index.jq $(CACHE)/filetree.json $(METADATA_FILES)
 	@-mkdir -p $(@D)
 	jq  -L$(JQ_DIR) --null-input \
 	    --arg prefix "$(CACHE)/" \
