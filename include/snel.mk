@@ -125,12 +125,17 @@ $(CACHE)/%.md.assets.txt: $(SRC)/%.md
 	    > $@
 
 # Record metadata for each document
-$(CACHE)/%.md.meta.json: $(SRC)/%.md $(PANDOC_DIR)/metadata.json
+$(CACHE)/%.md.meta.json: $(SRC)/%.md $(PANDOC_DIR)/metadata.json $(JQ_DIR)/index.jq
 	@-mkdir -p "$(@D)"
 	pandoc --template='$(PANDOC_DIR)/metadata.json' \
-		--to=plain \
-		--output=$@ \
-		$<
+	    --to=plain \
+	    $< \
+	| jq \
+	    -L"$(JQ_DIR)" \
+	    --arg prefix "$(SRC)" \
+	    --arg full "$<" \
+	    'include "index"; {"meta":.} | tree($$full | ltrimstr($$prefix) | split("/"))' \
+	> $@
 
 # Overview of files & directories
 $(CACHE)/filetree.json: $(SOURCE_FILES) $(METADATA_FILES) $(wildcard $(SRC)/filetree-base.json)
@@ -155,7 +160,6 @@ $(CACHE)/filetree.alt.json: $(SOURCE_FILES)
 $(CACHE)/index.json: $(JQ_DIR)/index.jq $(CACHE)/filetree.json $(METADATA_FILES)
 	@-mkdir -p $(@D)
 	jq  -L$(JQ_DIR) --null-input \
-	    --arg prefix "$(CACHE)/" \
 	    'include "index"; index' \
 	     $(filter %.json, $^) \
 	    > $@
@@ -179,7 +183,6 @@ $(DEST)/index.html: $(PANDOC_DIR)/index.html $(PANDOC_DIR)/nav.html $(CACHE)/ind
 # target: $(DEST)/index.html $(DEST)/style.css $(DEST)/favicon.ico
 $(DEST)/%.html: \
 		$(SRC)/%.md \
-		$(CACHE)/%.md.meta.json \
 		$(PANDOC_DIR)/page.html \
 		$(wildcard $(SRC)/*.bib) 
 	@echo "Generating $@..."

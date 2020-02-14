@@ -63,7 +63,7 @@ def tree($path):
         if ($future | length) > 1 then
             { "contents": [ tree_aux($history + [$future[0]]; $future[1:]) ] }
         else
-            { "contents": [] } * .
+            .
         end 
     ;
     tree_aux([]; $path)
@@ -101,19 +101,18 @@ def merge_pages:
 # depending on the filename of the object. Use with the `--null-input` switch.
 def process_files:
     reduce inputs as $input
-        (   {}
+        (   []
         ;   ($input | input_filename) as $f |
-            merge(
             if ($f | endswith(".meta.json")) then 
-                {"meta": $input} | tree($f | ltrimstr($prefix) | rtrimstr(".meta.json") | split("/"))
+                . + [$input]
             else 
                 reduce $input[] as $entry
                 (   .
-                ;   merge($entry | tree($entry.path | split("/")))
+                ;   . + [$entry | tree($entry.path | split("/"))]
                 )
             end
-            )
         )
+        | merge_pages
 ;
 
 
@@ -172,6 +171,7 @@ def add_resources:
 # given operations to turn it into a proper index.
 def index:
     process_files
+    | {"contents":.}
     | add_links
     | add_frontmatter
     | add_drafts
