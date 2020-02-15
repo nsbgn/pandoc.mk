@@ -137,7 +137,18 @@ def add_resources:
         | (.contents[]? |= add_resources)
     else
         .
-    end;
+    end
+;
+
+
+# Sort content first according to sort order in metadata.
+def sort_content:
+    if has("contents") then
+        .contents |= (sort_by(.meta.sort // .meta.title // .name) | map(sort_content))
+    else
+        .
+    end
+;
 
 
 # Combines the given stream of JSON objects by merging them, and performs the
@@ -149,4 +160,5 @@ def index:
     | add_drafts
     | add_frontmatter
     | add_resources
+    | sort_content
 ;
