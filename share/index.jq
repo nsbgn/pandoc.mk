@@ -19,7 +19,7 @@ def is_manual:
 # contents: it should either be marked as `publish`, or be *not* marked as
 # `draft` and have children that *are* marked as `publish`.
 def is_publication:
-    (.meta.publish|bool)
+    (.publish or .meta.publish|bool)
     or
     ((.meta.draft|bool|not) and ((.contents // [])|any(is_publication or is_manual))
     )
@@ -51,6 +51,8 @@ def insert($path; $child):
         . * $child
     end
 ;
+
+
 
 
 # Put parent objects so that the current object exists at a particular path.
@@ -85,34 +87,33 @@ def merge(other):
     elif . == other then
         .
     else
-        error("trying to merge incompatible objects")
+        error("trying to merge incompatible objects " + (.|tostring) + " and " + (other|tostring))
     end
 ;
 
 
-# Merge an array of pages by grouping them by path and then merging all the
-# pages with the same path.
-def merge_pages:
-    group_by(.path) | map(reduce .[] as $x ({}; merge($x)))
+# Merge an array of pages by grouping them by name and then merging all the
+# pages with the same name.
+def combine_pages:
+    if has("contents") then
+        .contents |= (
+            group_by(.name) 
+            |   map(reduce .[] as $x ({}; merge($x)) | combine_pages) 
+        )
+    else
+        .
+    end
 ;
 
 
-# Merge together `filetree.json` and `*.meta.json` files, with behaviour
-# depending on the filename of the object. Use with the `--null-input` switch.
-def process_files:
-    reduce inputs as $input
-        (   []
-        ;   ($input | input_filename) as $f |
-            if ($f | endswith(".meta.json")) then 
-                . + [$input]
-            else 
-                reduce $input[] as $entry
-                (   .
-                ;   . + [$entry | tree($entry.path | split("/"))]
-                )
-            end
-        )
-        | merge_pages
+# Add paths to each object, that is, the names of the ancestors.
+def add_path:
+    def add_path_aux($history):
+        ($history + [.name]) as $present |
+        .path = ($present | join("/")) |
+        (.contents[]? |= add_path_aux($present))
+    ;
+    add_path_aux([])
 ;
 
 
@@ -170,10 +171,11 @@ def add_resources:
 # Combines the given stream of JSON objects by merging them, and performs the
 # given operations to turn it into a proper index.
 def index:
-    process_files
-    | {"contents":.}
+    reduce .[] as $x ({}; merge($x))
+    | combine_pages
+    | add_path
     | add_links
-    | add_frontmatter
     | add_drafts
-    | add_resources
+#    | add_frontmatter
+#    | add_resources
 ;

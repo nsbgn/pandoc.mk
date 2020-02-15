@@ -134,21 +134,20 @@ $(CACHE)/%.md.meta.json: $(SRC)/%.md $(PANDOC_DIR)/metadata.json $(JQ_DIR)/index
 	    -L"$(JQ_DIR)" \
 	    --arg prefix "$(SRC)" \
 	    --arg full "$<" \
-	    'include "index"; {"meta":.} | tree($$full | ltrimstr($$prefix) | split("/"))' \
+	    'include "index"; {"meta":.} | tree(["."] + ($$full | ltrimstr($$prefix) | split("/")))' \
 	> $@
 
 # Overview of files & directories
-$(CACHE)/filetree.json: $(SOURCE_FILES) $(METADATA_FILES) $(wildcard $(SRC)/filetree-base.json)
-	@-mkdir -p $(@D)
-	( \
-	    cat "$(SRC)/filetree-base.json" 2>/dev/null ; \
-	    fdfind . "$(SRC)" $(patsubst %,--exclude '%',$(IGNORE)) --follow \
-	        --exec stat --printf='{"path":"%n","size":%s,"modified":%Y,"type":"%F"}\n' \
-	) | jq --slurp '.' \
-	> $@
+#$(CACHE)/filetree.json: $(SOURCE_FILES) $(METADATA_FILES)
+#	@-mkdir -p $(@D)
+#	( \
+#	    fdfind . "$(SRC)" $(patsubst %,--exclude '%',$(IGNORE)) --follow \
+#	        --exec stat --printf='{"path":"%n","size":%s,"modified":%Y,"type":"%F"}\n' \
+#	) | jq --slurp '.' \
+#	> $@
 
 # An alternative way to create the filetree 'immediately'
-$(CACHE)/filetree.alt.json: $(SOURCE_FILES)
+$(CACHE)/filetree.json: $(SOURCE_FILES)
 	@-mkdir -p $(@D)
 	tree -JDpi --du --timefmt '%s' --dirsfirst \
 	    -I '$(subst $() $(),|,$(IGNORE))' \
@@ -157,9 +156,12 @@ $(CACHE)/filetree.alt.json: $(SOURCE_FILES)
 
 # Overview of files & directories, including metadata, transformed into format
 # readable for the index template
-$(CACHE)/index.json: $(JQ_DIR)/index.jq $(CACHE)/filetree.json $(METADATA_FILES)
+$(CACHE)/index.json: $(JQ_DIR)/index.jq \
+	    $(CACHE)/filetree.json \
+	    $(METADATA_FILES) \
+	    $(wildcard $(SRC)/index.base.json)
 	@-mkdir -p $(@D)
-	jq  -L$(JQ_DIR) --null-input \
+	jq  -L$(JQ_DIR) --slurp \
 	    'include "index"; index' \
 	     $(filter %.json, $^) \
 	    > $@
