@@ -79,15 +79,13 @@ def is_publication:
 ;
 
 
-# Merge filetrees by grouping them by name and then merging all the pages with
-# the same name. This is necessary because simply merging content will
-# concatenate pages.
+# Merge an array of content by grouping it by name and then merging all the
+# pages with the same name. This is necessary because simply merging content
+# will only concatenate pages, even if they are the same page.
 def merge_content:
+    reduce .[] as $x ({}; merge($x)) |
     if has("contents") then
-        .contents |= (
-            group_by(.name) 
-            | map(reduce .[] as $x ({}; merge($x)) | merge_content) 
-        )
+        .contents |= ( group_by(.name) | map(merge_content) )
     else
         .
     end
@@ -148,8 +146,7 @@ def add_resources:
 # Combines the given stream of JSON objects by merging them, and performs the
 # given operations to turn it into a proper index.
 def index:
-    reduce .[] as $x ({}; merge($x))
-    | merge_content
+    merge_content
     | add_paths
     | add_links
     | add_drafts
