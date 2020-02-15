@@ -8,27 +8,11 @@ def bool:
 ;
 
 
-# Determine whether an index entry was manually entered into the table of
-# contents "base".
-def is_manual:
-    .type == "hyperlink"
-;
-
-
-# Determine whether a page should be uploaded and included in the table of
-# contents: it should either be marked as `publish`, or be *not* marked as
-# `draft` and have children that *are* marked as `publish`.
-def is_publication:
-    (.publish or .meta.publish|bool)
-    or
-    ((.meta.draft|bool|not) and ((.contents // [])|any(is_publication or is_manual))
-    )
-;
-
-
-# Group the values of properties of an array of objects. For example, [{"a":1,
-# "b":2}, {"a":3}] turns into {"a":[1, 3], "b":[3]}. This can be used to
-# partition an array; example: `[1,2,3] | map({(.%2|tostring):.}) | group`
+# Group an array of objects into an object of arrays, such that the key-value
+# pairs of the new object are an accumulation of those of the old object. For
+# example, `[{"a":1, "b":2}, {"a":3}]` turns into `{"a":[1, 3], "b":[3]}`. This
+# can be used to partition an array.
+# Try: `[1,2,3] | map({(.%2|tostring):.}) | group`
 def group:
     reduce ([.[] | to_entries[]] | group_by(.key))[] as $group
     ( {} 
@@ -37,9 +21,10 @@ def group:
 ;
 
 
-# Put parent objects so that the current object exists at a particular path.
-# Like `setpath/2`, but instead of making objects like `{"a":{"b":{…}}}`, this
-# makes objects like `{"contents":[{"name":"a", "contents":[{"name":"b",…}]}]}`
+# Wrap an object in other objects so that the original object exists at a
+# particular "path". Like `{} | setpath(["a","b"], …)`, but instead of making
+# objects like `{"a":{"b":…}}`, this makes objects like `{"name":"a",
+# "contents":[{"name":"b",…}]}`.
 def tree($path):
     def tree_aux($future):
         { "name": $future[0] } + 
@@ -53,10 +38,21 @@ def tree($path):
 ;
 
 
+# Add paths to each object, that is, the names of the ancestors.
+def add_paths:
+    def add_path_aux($history):
+        ($history + [.name]) as $present |
+        .path = ($present | join("/")) |
+        (.contents[]? |= add_path_aux($present))
+    ;
+    add_path_aux([])
+;
+
+
 # Merge two values. If the values are both objects, the values at equal indices
-# will be merged; if the values are both arrays, the arrays are concatenated;
-# if the values are some other type, we only check if the values do not
-# conflict.
+# will be recursively merged; if the values are both arrays, the arrays are
+# concatenated; if the values are some other type, we only check if the values
+# do not conflict.
 def merge(other): 
     if (. | type) == "object" and (other | type) == "object" then
         (. | to_entries) + (other | to_entries) 
@@ -68,33 +64,33 @@ def merge(other):
     elif . == other then
         .
     else
-        error("trying to merge incompatible objects " + (.|tostring) + " and " + (other|tostring))
+        error("trying to merge incompatible objects " + (.|type) + " and " + (other|type))
     end
 ;
 
 
-# Merge an array of pages by grouping them by name and then merging all the
-# pages with the same name.
-def combine_pages:
+# Determine whether a page should be uploaded and included in the table of
+# contents: it should either be marked as `publish`, or be *not* marked as
+# `draft` and have children that *are* marked as `publish`.
+def is_publication:
+    ( .publish or .meta.publish | bool)
+    or
+    ( (.meta.draft | bool | not) and ((.contents // []) | any(is_publication)) )
+;
+
+
+# Merge filetrees by grouping them by name and then merging all the pages with
+# the same name. This is necessary because simply merging content will
+# concatenate pages.
+def merge_content:
     if has("contents") then
         .contents |= (
             group_by(.name) 
-            |   map(reduce .[] as $x ({}; merge($x)) | combine_pages) 
+            | map(reduce .[] as $x ({}; merge($x)) | merge_content) 
         )
     else
         .
     end
-;
-
-
-# Add paths to each object, that is, the names of the ancestors.
-def add_path:
-    def add_path_aux($history):
-        ($history + [.name]) as $present |
-        .path = ($present | join("/")) |
-        (.contents[]? |= add_path_aux($present))
-    ;
-    add_path_aux([])
 ;
 
 
@@ -115,22 +111,21 @@ def add_frontmatter:
         ( .contents | map({(.name=="index.md" or .meta.frontmatter|tostring):.}) | group) as {$true, $false}
         | .frontmatter = $true[0]
         | .contents = ($false + $true[1:])
-        | (.contents[]? |= add_frontmatter)
+        | (.contents[] |= add_frontmatter)
     else
         .
     end
 ;
 
 
-
 # If marked as such, drafts can be excluded from being uploaded and included
 # in the table of contents.
 def add_drafts:
     if has("contents") then
-        ( .contents | map({(is_publication or is_manual|tostring):.}) | group) as {$true, $false}
+        ( .contents | map({(is_publication|tostring):.}) | group) as {$true, $false}
         | .contents = ($true // [])
         | .drafts = ($false // [])
-        | (.contents[]? |= add_drafts)
+        | (.contents[] |= add_drafts)
     else
         .
     end
@@ -154,8 +149,8 @@ def add_resources:
 # given operations to turn it into a proper index.
 def index:
     reduce .[] as $x ({}; merge($x))
-    | combine_pages
-    | add_path
+    | merge_content
+    | add_paths
     | add_links
     | add_drafts
     | add_frontmatter
