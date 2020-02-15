@@ -60,7 +60,8 @@ calling `make upload`.
 
 As of now, the recipe calls for [pandoc](http://pandoc.org/) 2.8 or higher, 
 [jq](https://stedolan.github.io/jq/) 1.5 or higher,
-[fd](https://github.com/sharkdp/fd),
+[find](https://www.gnu.org/software/findutils/),
+[tree](http://mama.indstate.edu/users/ice/tree/),
 [sass](http://sass-lang.com/),
 [svgo](https://github.com/svg/svgo),
 [ImageMagick](http://www.imagemagick.org/) and

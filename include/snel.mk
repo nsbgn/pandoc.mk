@@ -41,13 +41,12 @@ ifndef REMOTE_DIR
     REMOTE_DIR := /home/user/public_html
 endif
 ifndef IGNORE
-    # .git and files from .gitignore are automatically ignored by fd
-    IGNORE=Makefile
+    IGNORE=Makefile .git .gitignore
 endif
 
 # Find source files
-SOURCE_FILES = $(addprefix $(SRC)/,\
-    $(shell fdfind --follow $(patsubst %,--exclude '%',$(IGNORE)) --extension md . "$(SRC)")\
+SOURCE_FILES = $(shell \
+    find -L "$(SRC)"  $(patsubst %,-name '%' -prune -o,$(IGNORE)) -iname '*.md' -print \
 )
 
 # Metadata and assets are collected for each source in a corresponding file
