@@ -38,17 +38,6 @@ def tree($path):
 ;
 
 
-# Add paths to each object, that is, the names of the ancestors.
-def add_paths:
-    def add_path_aux($history):
-        ($history + [.name]) as $present |
-        .path = ($present | join("/")) |
-        (.contents[]? |= add_path_aux($present))
-    ;
-    add_path_aux([])
-;
-
-
 # Merge two values. If the values are both objects, the values at equal indices
 # will be recursively merged; if the values are both arrays, the arrays are
 # concatenated; if the values are some other type, we only check if the values
@@ -69,16 +58,6 @@ def merge(other):
 ;
 
 
-# Determine whether a page should be uploaded and included in the table of
-# contents: it should either be marked as `publish`, or be *not* marked as
-# `draft` and have children that *are* marked as `publish`.
-def is_publication:
-    ( .publish or .meta.publish | bool)
-    or
-    ( (.meta.draft | bool | not) and ((.contents // []) | any(is_publication)) )
-;
-
-
 # Merge an array of content by grouping it by name and then merging all the
 # pages with the same name. This is necessary because simply merging content
 # will only concatenate pages, even if they are the same page.
@@ -89,6 +68,17 @@ def merge_content:
     else
         .
     end
+;
+
+
+# Add paths to each object, that is, the names of the ancestors.
+def add_paths:
+    def add_path_aux($history):
+        ($history + [.name]) as $present |
+        .path = ($present | join("/")) |
+        (.contents[]? |= add_path_aux($present))
+    ;
+    add_path_aux([])
 ;
 
 
@@ -116,9 +106,16 @@ def add_frontmatter:
 ;
 
 
-# If marked as such, drafts can be excluded from being uploaded and included
-# in the table of contents.
+# If marked as such, drafts can be excluded from being uploaded and included in
+# the table of contents. To not count as a draft, a document should either be
+# marked as `publish`, or be *not* marked as `draft` and have children that
+# *are* marked as `publish`.
 def add_drafts:
+    def is_publication:
+        ( .publish or .meta.publish | bool)
+        or
+        ( (.meta.draft | bool | not) and ((.contents // []) | any(is_publication)) )
+    ;
     if has("contents") then
         ( .contents | map({(is_publication|tostring):.}) | group) as {$true, $false}
         | .contents = ($true // [])
