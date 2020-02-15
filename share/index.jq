@@ -37,38 +37,19 @@ def group:
 ;
 
 
-# Insert a child element at a particular path.
-# Like `setpath/2`, but instead of making objects like `{"a":{"b":{…}}}`, this
-# makes objects like `{"contents":[{"name":"a", "contents":[{"name":"b",…}]}]}`
-def insert($path; $child):
-    if ($path | length) > 0 then
-        if ([.contents[]? | select(.name == $path[0])] | length) > 0 then
-            (.contents[] | select(.name == $path[0])) |= (. | insert($path[1:]; $child))
-        else
-            (.contents |= (. // []) + [ {} | .name = $path[0] | insert($path[1:]; $child)])
-        end
-    else
-        . * $child
-    end
-;
-
-
-
-
 # Put parent objects so that the current object exists at a particular path.
 # Like `setpath/2`, but instead of making objects like `{"a":{"b":{…}}}`, this
 # makes objects like `{"contents":[{"name":"a", "contents":[{"name":"b",…}]}]}`
 def tree($path):
-    def tree_aux($history; $future):
-        { "name": $future[0] 
-        , "path": ($history + [$future[0]]) | join("/") } *
+    def tree_aux($future):
+        { "name": $future[0] } + 
         if ($future | length) > 1 then
-            { "contents": [ tree_aux($history + [$future[0]]; $future[1:]) ] }
+            { "contents": [ tree_aux($future[1:]) ] }
         else
             .
-        end 
+        end
     ;
-    tree_aux([]; $path)
+    tree_aux($path)
 ;
 
 
@@ -156,10 +137,11 @@ def add_drafts:
 ;
 
 
-# A resource is anything that is neither a directory nor a page with metadata.
+# A resource is anything that is neither a directory nor a page with metadata
+# nor a forced link.
 def add_resources:
     if has("contents") then
-        ( .contents | map({(has("contents") or has("meta") or is_manual|tostring):.}) | group) as {$true, $false}
+        ( .contents | map({(has("contents") or has("meta") or has("publish")|tostring):.}) | group) as {$true, $false}
         | .contents = ($true // [])
         | .resources = ($false // [])
         | (.contents[]? |= add_resources)
@@ -176,6 +158,6 @@ def index:
     | add_path
     | add_links
     | add_drafts
-#    | add_frontmatter
-#    | add_resources
+    | add_frontmatter
+    | add_resources
 ;

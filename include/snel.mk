@@ -137,16 +137,7 @@ $(CACHE)/%.md.meta.json: $(SRC)/%.md $(PANDOC_DIR)/metadata.json $(JQ_DIR)/index
 	    'include "index"; {"meta":.} | tree(["."] + ($$full | ltrimstr($$prefix) | split("/")))' \
 	> $@
 
-# Overview of files & directories
-#$(CACHE)/filetree.json: $(SOURCE_FILES) $(METADATA_FILES)
-#	@-mkdir -p $(@D)
-#	( \
-#	    fdfind . "$(SRC)" $(patsubst %,--exclude '%',$(IGNORE)) --follow \
-#	        --exec stat --printf='{"path":"%n","size":%s,"modified":%Y,"type":"%F"}\n' \
-#	) | jq --slurp '.' \
-#	> $@
-
-# An alternative way to create the filetree 'immediately'
+# Overview of files & directories, without metadata
 $(CACHE)/filetree.json: $(SOURCE_FILES)
 	@-mkdir -p $(@D)
 	tree -JDpi --du --timefmt '%s' --dirsfirst \
@@ -154,8 +145,7 @@ $(CACHE)/filetree.json: $(SOURCE_FILES)
 	    | jq '.[0]' \
 	    > $@
 
-# Overview of files & directories, including metadata, transformed into format
-# readable for the index template
+# Overview of files & directories with metadata, readable for index template
 $(CACHE)/index.json: $(JQ_DIR)/index.jq \
 	    $(CACHE)/filetree.json \
 	    $(METADATA_FILES) \
