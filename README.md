@@ -1,63 +1,21 @@
 snel
 ==============================================================================
 
-`snel` can be used for static website generation and for document typesetting. 
-It roughly consists of two parts, either of which, I hope, may prove useful to 
+`snel` consists of two parts, either of which, I hope, may prove useful to 
 someone:
 
-1.  A `Makefile`-recipe, to generate a website.
+1.  A [make](https://www.gnu.org/software/make)-recipe for generating a static 
+    website.
 
 2.  A CSS stylesheet.
 
-It is currently a work-in-progress, but it is mostly functional. Website 
-generators that take a similar approach are 
-[simple-template](https://github.com/simple-template/pandoc), 
-[jqt](https://fadado.github.io/jqt/) and 
-[pansite](https://github.com/wcaleb/website). Should this be a bit primitive 
-for your tastes, try others such as [zola](https://www.getzola.org/), 
-[hugo](http://gohugo.io/), [hakyll](https://jaspervdj.be/hakyll/about.html),
-[jekyll](http://jekyllrb.com/), [nanoc](https://nanoc.ws/), 
-[yst](https://github.com/jgm/yst) or [middleman](https://middlemanapp.com/). 
-
-
-Usage
--------------------------------------------------------------------------------
-
-To install `snel`, do `make install`. To generate a website, simply create a 
-`Makefile` with the following lines:
-
-    SRC=/path/to/source/directory # defaults to "."
-    DEST=/path/to/build/directory # defaults to "./build"
-    include snel.mk # or /path/to/snel.mk if it wasn't installed globally
-
-Executing `make` from there will then generate the `$(DEST)` directory 
-containing a [lightweight](http://idlewords.com/talks/website_obesity.htm) 
-website made from Markdown files found in the `$(SRC)` directory. 
-
-To use the stylesheet to create a PDF, I suggest using the following options 
-to Pandoc:
-
-    pandoc \
-        --shift-heading-level-by=1 \
-        --pdf-engine=weasyprint \
-        --template "/usr/share/snel/pandoc/page.html" \
-        --css "/usr/share/snel/style.css"
-
-Rationale
--------------------------------------------------------------------------------
 
 Plain text formats like [Markdown](http://commonmark.org/help/) and 
-[YAML](http://www.yaml.org/spec/) are lightweight, understandable, and 
-modifiable. In the spirit of the [UNIX 
+[YAML](http://www.yaml.org/spec/) are lightweight, understandable, and easy to 
+modify. In the spirit of the [UNIX 
 philosophy](https://en.wikipedia.org/wiki/Unix_philosophy), I glued a couple 
-of standard tools into a [make](https://www.gnu.org/software/make)-recipe for 
-website generation.
-
-Using `fd` and `pandoc`, the `Makefile` creates an HTML file for every 
-Markdown document it can find in the source directory. With `jq`, an index is 
-generated directly from the directory structure and `pandoc` metadata. Given 
-an appropriate configuration, the results can be uploaded with `lftp` by 
-calling `make upload`.
+of standard tools into an application for static website generation and 
+document typesetting.
 
 As of now, the recipe calls for [pandoc](http://pandoc.org/) 2.8 or higher, 
 [jq](https://stedolan.github.io/jq/) 1.5 or higher,
@@ -71,15 +29,59 @@ As of now, the recipe calls for [pandoc](http://pandoc.org/) 2.8 or higher,
 and [weasyprint](https://weasyprint.org/). These are mostly standard programs, 
 and you could easily substitute or add any ingredient.
 
+Website generators that take a similar approach are 
+[simple-template](https://github.com/simple-template/pandoc), 
+[jqt](https://fadado.github.io/jqt/) and 
+[pansite](https://github.com/wcaleb/website). Should this be a bit primitive 
+for your tastes, try others such as [zola](https://www.getzola.org/), 
+[hugo](http://gohugo.io/), [hakyll](https://jaspervdj.be/hakyll/about.html),
+[jekyll](http://jekyllrb.com/), [nanoc](https://nanoc.ws/), 
+[yst](https://github.com/jgm/yst) or [middleman](https://middlemanapp.com/). 
 
-### Style
 
-The stylesheet is minimal and monochrome. It is very suitable for use in PDF 
-typesetting, as demonstrated
+Makefile
+-------------------------------------------------------------------------------
+
+To install `snel`, do `make install`. Afterwards, to generate a website, 
+create a `Makefile` with content like this:
+
+    SRC=/path/to/source/directory   # defaults to "."
+    DEST=/path/to/build/directory   # defaults to "./build"
+    include snel.mk   # or "/path/to/snel.mk", if it wasn't installed globally
+
+Executing `make` from there will then generate the `$(DEST)` directory 
+containing a [lightweight](http://idlewords.com/talks/website_obesity.htm) 
+website made from the Markdown files found in the `$(SRC)` directory. It will 
+also attempt to automatically build any resource the Markdown files link to. 
+If there is no recipe for a particular resource, simply add it to your 
+`Makefile`. Example:
+
+    $(DEST)/%/graph.jpg: $(SRC)/%/data.dat script
+        gnuplot -c script $<
+
+To clean up leftovers files that are no longer linked, do `make clean`. Given 
+an appropriate configuration, the results can be uploaded with `lftp` by 
+calling `make upload`.
+
+
+Stylesheet
+-------------------------------------------------------------------------------
+
+The stylesheet is minimal and mostly monochrome. It is very suitable for use 
+in PDF typesetting, as demonstrated
 [here](https://github.com/slakkenhuis/scripts/blob/master/printer). For 
 websites, its most distinguishing quality is that the table of contents 
 extends horizontally and that all its entries are visible without further 
 tapping, hovering or sliding; it is supposed to act as a vantage point.
+
+To use the stylesheet for PDFs, I suggest doing `make install` and using the 
+following options to Pandoc:
+
+    pandoc \
+        --shift-heading-level-by=1 \
+        --pdf-engine=weasyprint \
+        --template "/usr/share/snel/pandoc/page.html" \
+        --css "/usr/share/snel/style.css"
 
 
 License

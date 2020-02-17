@@ -53,7 +53,6 @@ SOURCE_FILES = $(shell \
 INFO_FILES = $(patsubst $(SRC)/%,$(CACHE)/%.info.json,$(SOURCE_FILES))
 
 # Output files
-HTML_FILES = $(patsubst $(SRC)/%.md,$(DEST)/%.html,$(SOURCE_FILES)) 
 ASSET_FILES = \
     $(DEST)/index.html \
     $(DEST)/style.css \
@@ -63,11 +62,20 @@ ASSET_FILES = \
 ##########################################################################$$$$
 # Phony targets
 
-# Make all files that are marked as published, all assets, and all indirect
-# targets (those that are linked in the documents)
-all: $(CACHE)/targets.txt | $(shell cat $(CACHE)/targets.txt 2>/dev/null)
+# Con: This will build the index twice if run with `make -B`
+all:
+	$(MAKE) cache
+	$(MAKE) documents
 
-# Remove all files in $(DEST) that are no longer targets of the current run
+# The cache is built on the first run: we read the metadata of all files to
+# build an index
+cache: $(CACHE)/targets.txt
+
+# On the second run, we build the actual published documents and files that
+# those documents refer to
+documents: $(shell cat $(CACHE)/targets.txt 2>/dev/null)
+
+# Optionally, remove all files in $(DEST) that are no longer targeted
 clean: $(CACHE)/targets.txt
 	@bash -i -c 'read -p "Operation might remove files in \"$(DEST)\". Continue? [y/N]" -n 1 -r; \
 	    [[ $$REPLY =~ ^[Yy]$$ ]] || exit 1'
@@ -85,7 +93,7 @@ upload: all
 	$(HOST)
 
 
-.PHONY: all clean upload
+.PHONY: all cache documents clean upload
 
 
 
@@ -127,23 +135,25 @@ endif
 # Record document metadata for each document
 $(CACHE)/%.md.meta.json: $(SRC)/%.md $(PANDOC_DIR)/metadata.json $(JQ_DIR)/index.jq
 	@-mkdir -p "$(@D)"
-	pandoc --template='$(PANDOC_DIR)/metadata.json' \
+	@echo "Determining document metadata for \"$<\"…" 1>&2
+	@pandoc --template='$(PANDOC_DIR)/metadata.json' \
 	    --to=plain \
 	    $< \
-	| jq '{"meta":.}' \
-	> $@
+	    | jq '{"meta":.}' \
+	    > $@
 
 # Record extra targets for each document
 $(CACHE)/%.md.targets.json: $(SRC)/%.md 
 	@-mkdir -p "$(@D)"
-	pandoc -f markdown -t json -i $< \
+	@echo "Determining indirect targets  for \"$<\"…" 1>&2
+	@pandoc -f markdown -t json -i $< \
 	    | jq -r '{"targets":[ .blocks[] | recurse(.c?[]?) | select(.t? == "Image") | .c[2][0] | select(test("^[a-z]+://") | not) ]}' \
 	    > $@
 
 # Combination of metadata + targets
 $(CACHE)/%.md.info.json: $(CACHE)/%.md.meta.json $(CACHE)/%.md.targets.json 
 	@-mkdir -p "$(@D)"
-	jq \
+	@jq \
 	    -L"$(JQ_DIR)" \
 	    --arg path "$(patsubst $(CACHE)/%.md.info.json,%.md,$@)" \
 	    --slurp \
@@ -153,18 +163,20 @@ $(CACHE)/%.md.info.json: $(CACHE)/%.md.meta.json $(CACHE)/%.md.targets.json
 
 # Overview of final targets
 $(CACHE)/targets.txt: $(CACHE)/index.json
-	jq \
+	@echo "Aggregating targets…" 1>&2
+	@jq \
 	    -L"$(JQ_DIR)" \
 	    --arg dest "$(DEST)/" \
 	    -r 'include "index"; targets | ltrimstr("./") | $$dest + .' \
 	    < $< \
 	    > $@
-	for F in $(ASSET_FILES); do echo $$F >> $@; done
+	@for F in $(ASSET_FILES); do echo $$F >> $@; done
 
 # Overview of files & directories, without metadata
 $(CACHE)/filetree.json: $(SOURCE_FILES)
 	@-mkdir -p $(@D)
-	tree -JDpi --du --timefmt '%s' --dirsfirst \
+	@echo "Generating file tree…" 1>&2
+	@tree -JDpi --du --timefmt '%s' --dirsfirst \
 	    -I '$(subst $() $(),|,$(IGNORE))' \
 	    | jq '.[0]' \
 	    > $@
@@ -175,19 +187,21 @@ $(CACHE)/index.json: $(JQ_DIR)/index.jq \
 	    $(INFO_FILES) \
 	    $(wildcard $(SRC)/index.base.json)
 	@-mkdir -p $(@D)
-	jq  -L$(JQ_DIR) --slurp \
+	@echo "Aggregating file index…" 1>&2
+	@jq  -L$(JQ_DIR) --slurp \
 	    'include "index"; index' \
-	     $(filter %.json, $^) \
+	    $(filter %.json, $^) \
 	    > $@
 
 # Generate static index page 
 $(DEST)/index.html: $(PANDOC_DIR)/index.html $(PANDOC_DIR)/nav.html $(CACHE)/index.json
 	@-mkdir -p $(@D)
-	echo | pandoc \
+	@echo "Generating table of contents…" 1>&2
+	@echo | pandoc \
 	    --template="$(PANDOC_DIR)/index.html" \
 	    --metadata-file "$(CACHE)/index.json" \
 	    --metadata title="Table of contents" \
-	> $@
+	    > $@
 
 
 
@@ -201,10 +215,10 @@ $(DEST)/%.html: \
 		$(SRC)/%.md \
 		$(PANDOC_DIR)/page.html \
 		$(wildcard $(SRC)/*.bib) 
-	@echo "Generating $@..."
+	@echo "Generating document \"$@\"..." 1>&2
 	@-mkdir -p "$(@D)"
 	@-mkdir -p "$(patsubst $(DEST)/%,$(CACHE)/%,$(@D))"
-	pandoc  \
+	@pandoc  \
 		--metadata path='$(shell realpath $(@D) --relative-to $(DEST) --canonicalize-missing)' \
 		--metadata root='$(shell realpath $(DEST) --relative-to $(@D) --canonicalize-missing)' \
 		--metadata index='$(shell realpath $(DEST)/index.html --relative-to $(@D) --canonicalize-missing)' \
@@ -238,6 +252,7 @@ $(DEST)/%.html: \
 
 # Create PDF documents
 $(DEST)/%.pdf: $(SRC)/%.md $(PANDOC_DIR)/page.html $(ASSET_DIR)/style.css
+	@echo "Generating document \"$@\"..." 1>&2
 	pandoc \
 	    --shift-heading-level-by=1 \
 	    --pdf-engine=weasyprint \
