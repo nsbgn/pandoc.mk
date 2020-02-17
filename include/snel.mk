@@ -11,11 +11,11 @@ BASE_DIR := $(patsubst %/,%,$(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
 # If installed in $PREFIX/include, we find other assets in $PREFIX/share/snel.
 # Otherwise, we find them relative to the current makefile
 ifeq ($(BASE_DIR),$(INCLUDE_DIR))
-    RESOURCE_DIR := $(SHARE_DIR)
+    ASSET_DIR := $(SHARE_DIR)
     JQ_DIR := $(SHARE_DIR)
     PANDOC_DIR := $(SHARE_DIR)/pandoc
 else
-    RESOURCE_DIR := $(BASE_DIR)/../share
+    ASSET_DIR := $(BASE_DIR)/../share
     JQ_DIR := $(BASE_DIR)/../share
     PANDOC_DIR := $(BASE_DIR)/../share/pandoc
 endif
@@ -51,11 +51,11 @@ SOURCE_FILES = $(shell \
 
 # Metadata and extra targets are collected for each source in a corresponding file
 METADATA_FILES = $(patsubst $(SRC)/%,$(CACHE)/%.meta.json,$(SOURCE_FILES))
-ASSET_FILES = $(patsubst $(SRC)/%,$(CACHE)/%.assets.txt,$(SOURCE_FILES))
+EXTRA_TARGET_FILES = $(patsubst $(SRC)/%,$(CACHE)/%.targets.txt,$(SOURCE_FILES))
 
 # Output files
 HTML_FILES = $(patsubst $(SRC)/%.md,$(DEST)/%.html,$(SOURCE_FILES)) 
-RESOURCE_FILES = \
+ASSET_FILES = \
     $(DEST)/index.html \
     $(DEST)/style.css \
     $(DEST)/favicon.ico \
@@ -64,16 +64,18 @@ RESOURCE_FILES = \
 ##########################################################################$$$$
 # Phony targets
 
-all: html resources
+all: html assets
 
 html: $(HTML_FILES)
 
-resources: $(RESOURCE_FILES)
+assets: $(ASSET_FILES)
 
-assets: $(ASSET_FILES) | $(shell cat $(ASSET_FILES) 2>/dev/null)
 
-# Remove all files in $(DEST) that are not listed in targets.txt and thus
-# assumed obsolete
+# Also make all indirect targets — ones that are linked to in the documents
+extra-targets: $(EXTRA_TARGET_FILES) | $(shell cat $(EXTRA_TARGET_FILES) 2>/dev/null)
+
+
+# Remove all files in $(DEST) that are no longer targets of the current run
 clean: $(CACHE)/targets.txt
 	@bash -i -c 'read -p "Operation might remove files in \"$(DEST)\". Continue? [y/N]" -n 1 -r; \
 	    [[ $$REPLY =~ ^[Yy]$$ ]] || exit 1'
@@ -82,13 +84,16 @@ clean: $(CACHE)/targets.txt
 	    | grep --fixed-strings --line-regexp --invert-match --file=$< \
 	    | xargs --no-run-if-empty rm
 
-upload: all
+
+# Upload the result
+upload: all extra-targets
 	read -s -p 'FTP password: ' password && \
 	lftp -u $(USER),$$password -e \
 	"mirror --reverse --only-newer --verbose --dry-run --exclude $(CACHE) $(DEST) $(REMOTE)" \
 	$(HOST)
 
-.PHONY: all html resources upload assets
+
+.PHONY: all html assets extra-targets clean upload
 
 
 
@@ -98,23 +103,23 @@ upload: all
 # If `snel` is installed globally, the stylesheet and favicon should be already
 # available in `$PREFIX/share/snel`; otherwise they should be compiled.
 ifeq ($(BASE_DIR),$(INCLUDE_DIR))
-$(DEST)/%: $(RESOURCE_DIR)/%
+$(DEST)/%: $(ASSET_DIR)/%
 	@-mkdir -p $(@D)
 	cp $< $@
 
 else
 # Stylesheet
-$(DEST)/style.css: $(RESOURCE_DIR)/style.scss
+$(DEST)/style.css: $(ASSET_DIR)/style.scss
 	@-mkdir -p $(@D)
 	sassc --style compressed $< $@
 
 # Favicon as bitmap
-$(DEST)/favicon.ico: $(RESOURCE_DIR)/favicon.svg
+$(DEST)/favicon.ico: $(ASSET_DIR)/favicon.svg
 	@-mkdir -p $(@D)
 	convert $< -transparent white -resize 16x16 -level '0%,100%,0.6' $@
 
 # Icon for bookmark on Apple devices
-$(DEST)/apple-touch-icon.png: $(RESOURCE_DIR)/favicon.svg
+$(DEST)/apple-touch-icon.png: $(ASSET_DIR)/favicon.svg
 	@-mkdir -p $(@D)
 	convert -density 1200 -resize 140x140 -gravity center -extent 180x180 \
 	    	+level-colors '#fff,#711' -colors 16 \
@@ -126,8 +131,8 @@ endif
 ##############################################################################
 # Indexing
 
-# Record assets for each document
-$(CACHE)/%.md.assets.txt: $(SRC)/%.md 
+# Record extra targets for each document
+$(CACHE)/%.md.targets.txt: $(SRC)/%.md 
 	@-mkdir -p "$(@D)"
 	pandoc -f markdown -t json -i $< \
 	    | jq -r ' .blocks[] | recurse(.c?[]?) \
@@ -137,10 +142,10 @@ $(CACHE)/%.md.assets.txt: $(SRC)/%.md
 	    > $@
 
 
-# Overview of assets
+# Overview of final targets
 $(CACHE)/targets.txt: $(ASSET_FILES)
-	cat $(ASSET_FILES) > $@
-	for F in $(HTML_FILES) $(RESOURCE_FILES); do echo $$F >> $@; done
+	cat $(EXTRA_TARGET_FILES) > $@
+	for F in $(HTML_FILES) $(ASSET_FILES); do echo $$F >> $@; done
 
 
 # Record metadata for each document
@@ -179,8 +184,8 @@ $(CACHE)/index.json: $(JQ_DIR)/index.jq \
 $(DEST)/index.html: $(PANDOC_DIR)/index.html $(PANDOC_DIR)/nav.html $(CACHE)/index.json
 	@-mkdir -p $(@D)
 	echo | pandoc \
-	    --template=$(PANDOC_DIR)/index.html \
-	    --metadata-file $(CACHE)/index.json \
+	    --template="$(PANDOC_DIR)/index.html" \
+	    --metadata-file "$(CACHE)/index.json" \
 	    --metadata title="Table of contents" \
 	> $@
 
@@ -210,15 +215,15 @@ $(DEST)/%.html: \
 		--standalone \
 		--table-of-contents \
 		--toc-depth=3 \
-		--template $(PANDOC_DIR)/page.html \
+		--template '$(PANDOC_DIR)/page.html' \
 		$(foreach F,\
 			$(filter %.css, $^),\
-			--css=$(F) \
+			--css='$(F)' \
 		) \
 		--filter pandoc-citeproc \
 		$(foreach F,\
 			$(filter %.bib, $^),\
-			--bibliography=$(F) \
+			--bibliography='$(F)' \
 		)\
 		--shift-heading-level-by=1 \
 		--ascii \
