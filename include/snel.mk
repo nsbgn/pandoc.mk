@@ -49,25 +49,38 @@ SOURCE_FILES = $(shell \
     find -L "$(SRC)"  $(patsubst %,-name '%' -prune -o,$(IGNORE)) -iname '*.md' -print \
 )
 
-# Metadata and assets are collected for each source in a corresponding file
+# Metadata and extra targets are collected for each source in a corresponding file
 METADATA_FILES = $(patsubst $(SRC)/%,$(CACHE)/%.meta.json,$(SOURCE_FILES))
 ASSET_FILES = $(patsubst $(SRC)/%,$(CACHE)/%.assets.txt,$(SOURCE_FILES))
+
+# Output files
+HTML_FILES = $(patsubst $(SRC)/%.md,$(DEST)/%.html,$(SOURCE_FILES)) 
+RESOURCE_FILES = \
+    $(DEST)/index.html \
+    $(DEST)/style.css \
+    $(DEST)/favicon.ico \
+    $(DEST)/apple-touch-icon.png
 
 ##########################################################################$$$$
 # Phony targets
 
 all: html resources
 
-html: $(patsubst $(SRC)/%.md,$(DEST)/%.html,$(SOURCE_FILES)) 
+html: $(HTML_FILES)
 
-resources: \
-		$(DEST)/index.html \
-		$(DEST)/style.css \
-		$(DEST)/favicon.ico \
-		$(DEST)/apple-touch-icon.png
-
+resources: $(RESOURCE_FILES)
 
 assets: $(ASSET_FILES) | $(shell cat $(ASSET_FILES) 2>/dev/null)
+
+# Remove all files in $(DEST) that are not listed in targets.txt and thus
+# assumed obsolete
+clean: $(CACHE)/targets.txt
+	@bash -i -c 'read -p "Operation might remove files in \"$(DEST)\". Continue? [y/N]" -n 1 -r; \
+	    [[ $$REPLY =~ ^[Yy]$$ ]] || exit 1'
+	@echo
+	find "$(DEST)" -type f -a -not -path '$(CACHE)/*' \
+	    | grep --fixed-strings --line-regexp --invert-match --file=$< \
+	    | xargs --no-run-if-empty rm
 
 upload: all
 	read -s -p 'FTP password: ' password && \
@@ -122,6 +135,13 @@ $(CACHE)/%.md.assets.txt: $(SRC)/%.md
 		    | select(test("^[a-z]+://") | not)' \
 	    | sed 's|^|$(patsubst $(CACHE)/%,$(DEST)/%,$(@D))/|' \
 	    > $@
+
+
+# Overview of assets
+$(CACHE)/targets.txt: $(ASSET_FILES)
+	cat $(ASSET_FILES) > $@
+	for F in $(HTML_FILES) $(RESOURCE_FILES); do echo $$F >> $@; done
+
 
 # Record metadata for each document
 $(CACHE)/%.md.meta.json: $(SRC)/%.md $(PANDOC_DIR)/metadata.json $(JQ_DIR)/index.jq
