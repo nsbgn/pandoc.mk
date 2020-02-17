@@ -50,8 +50,7 @@ SOURCE_FILES = $(shell \
 )
 
 # Metadata and extra targets are collected for each source in a corresponding file
-METADATA_FILES = $(patsubst $(SRC)/%,$(CACHE)/%.meta.json,$(SOURCE_FILES))
-EXTRA_TARGET_FILES = $(patsubst $(SRC)/%,$(CACHE)/%.targets.txt,$(SOURCE_FILES))
+INFO_FILES = $(patsubst $(SRC)/%,$(CACHE)/%.info.json,$(SOURCE_FILES))
 
 # Output files
 HTML_FILES = $(patsubst $(SRC)/%.md,$(DEST)/%.html,$(SOURCE_FILES)) 
@@ -64,16 +63,9 @@ ASSET_FILES = \
 ##########################################################################$$$$
 # Phony targets
 
-all: html assets
-
-html: $(HTML_FILES)
-
-assets: $(ASSET_FILES)
-
-
-# Also make all indirect targets — ones that are linked to in the documents
-extra-targets: $(EXTRA_TARGET_FILES) | $(shell cat $(EXTRA_TARGET_FILES) 2>/dev/null)
-
+# Make all files that are marked as published, all assets, and all indirect
+# targets (those that are linked in the documents)
+all: $(CACHE)/targets.txt | $(shell cat $(CACHE)/targets.txt 2>/dev/null)
 
 # Remove all files in $(DEST) that are no longer targets of the current run
 clean: $(CACHE)/targets.txt
@@ -86,14 +78,14 @@ clean: $(CACHE)/targets.txt
 
 
 # Upload the result
-upload: all extra-targets
+upload: all
 	read -s -p 'FTP password: ' password && \
 	lftp -u $(USER),$$password -e \
 	"mirror --reverse --only-newer --verbose --dry-run --exclude $(CACHE) $(DEST) $(REMOTE)" \
 	$(HOST)
 
 
-.PHONY: all html assets extra-targets clean upload
+.PHONY: all clean upload
 
 
 
@@ -131,35 +123,43 @@ endif
 ##############################################################################
 # Indexing
 
-# Record extra targets for each document
-$(CACHE)/%.md.targets.txt: $(SRC)/%.md 
-	@-mkdir -p "$(@D)"
-	pandoc -f markdown -t json -i $< \
-	    | jq -r ' .blocks[] | recurse(.c?[]?) \
-		    | select(.t? == "Image") | .c[2][0] \
-		    | select(test("^[a-z]+://") | not)' \
-	    | sed 's|^|$(patsubst $(CACHE)/%,$(DEST)/%,$(@D))/|' \
-	    > $@
 
-
-# Overview of final targets
-$(CACHE)/targets.txt: $(ASSET_FILES)
-	cat $(EXTRA_TARGET_FILES) > $@
-	for F in $(HTML_FILES) $(ASSET_FILES); do echo $$F >> $@; done
-
-
-# Record metadata for each document
+# Record document metadata for each document
 $(CACHE)/%.md.meta.json: $(SRC)/%.md $(PANDOC_DIR)/metadata.json $(JQ_DIR)/index.jq
 	@-mkdir -p "$(@D)"
 	pandoc --template='$(PANDOC_DIR)/metadata.json' \
 	    --to=plain \
 	    $< \
-	| jq \
-	    -L"$(JQ_DIR)" \
-	    --arg prefix "$(SRC)" \
-	    --arg full "$<" \
-	    'include "index"; {"meta":.} | tree(["."] + ($$full | ltrimstr($$prefix) | split("/")))' \
+	| jq '{"meta":.}' \
 	> $@
+
+# Record extra targets for each document
+$(CACHE)/%.md.targets.json: $(SRC)/%.md 
+	@-mkdir -p "$(@D)"
+	pandoc -f markdown -t json -i $< \
+	    | jq -r '{"targets":[ .blocks[] | recurse(.c?[]?) | select(.t? == "Image") | .c[2][0] | select(test("^[a-z]+://") | not) ]}' \
+	    > $@
+
+# Combination of metadata + targets
+$(CACHE)/%.md.info.json: $(CACHE)/%.md.meta.json $(CACHE)/%.md.targets.json 
+	@-mkdir -p "$(@D)"
+	jq \
+	    -L"$(JQ_DIR)" \
+	    --arg path "$(patsubst $(CACHE)/%.md.info.json,%.md,$@)" \
+	    --slurp \
+	    'include "index"; add | tree(["."] + ($$path | split("/")))' \
+	    $^ \
+	    > $@
+
+# Overview of final targets
+$(CACHE)/targets.txt: $(CACHE)/index.json
+	jq \
+	    -L"$(JQ_DIR)" \
+	    --arg dest "$(DEST)/" \
+	    -r 'include "index"; targets | ltrimstr("./") | $$dest + .' \
+	    < $< \
+	    > $@
+	for F in $(ASSET_FILES); do echo $$F >> $@; done
 
 # Overview of files & directories, without metadata
 $(CACHE)/filetree.json: $(SOURCE_FILES)
@@ -172,7 +172,7 @@ $(CACHE)/filetree.json: $(SOURCE_FILES)
 # Overview of files & directories with metadata, readable for index template
 $(CACHE)/index.json: $(JQ_DIR)/index.jq \
 	    $(CACHE)/filetree.json \
-	    $(METADATA_FILES) \
+	    $(INFO_FILES) \
 	    $(wildcard $(SRC)/index.base.json)
 	@-mkdir -p $(@D)
 	jq  -L$(JQ_DIR) --slurp \

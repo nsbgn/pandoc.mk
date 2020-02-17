@@ -72,20 +72,20 @@ def merge_content:
 
 
 # Add paths to each object, that is, the names of the ancestors.
-def add_paths:
-    def add_path_aux($history):
+def add_directories:
+    def add_directories_aux($history):
         ($history + [.name]) as $present |
-        .path = ($present | join("/")) |
-        (.contents[]? |= add_path_aux($present))
+        .directory = $history |
+        (.contents[]? |= add_directories_aux($present))
     ;
-    add_path_aux([])
+    add_directories_aux([])
 ;
 
 
 # Any page gets a link to its HTML.
 def add_links:
-    if (has("path") and (.path | endswith(".md"))) then
-        .link = (.path | rtrimstr(".md") | . + ".html")
+    if (has("directory") and (.name | endswith(".md"))) then
+        .link = ((.directory + [.name]) | join("/") | rtrimstr(".md") | . + ".html")
     else
         .contents[]? |= add_links
     end
@@ -114,6 +114,8 @@ def add_drafts:
     def is_publication:
         ( .publish or .meta.publish | bool)
         or
+        ( .external | bool )
+        or
         ( (.meta.draft | bool | not) and ((.contents // []) | any(is_publication)) )
     ;
     if has("contents") then
@@ -128,10 +130,10 @@ def add_drafts:
 
 
 # A resource is anything that is neither a directory nor a page with metadata
-# nor a forced link.
+# nor an external link.
 def add_resources:
     if has("contents") then
-        ( .contents | map({(has("contents") or has("meta") or has("publish")|tostring):.}) | group) as {$true, $false}
+        ( .contents | map({(has("contents") or has("meta") or (.external | bool | not)|tostring):.}) | group) as {$true, $false}
         | .contents = ($true // [])
         | .resources = ($false // [])
         | (.contents[]? |= add_resources)
@@ -155,10 +157,21 @@ def sort_content:
 # given operations to turn it into a proper index.
 def index:
     merge_content
-    | add_paths
+    | add_directories
     | add_links
     | add_drafts
     | add_frontmatter
     | add_resources
     | sort_content
+;
+
+
+# Get publishable targets from an index
+def targets:
+    recurse(.contents[]?)
+    | ., (.frontmatter // empty)
+    | select(has("link") and (has("external") | not)) 
+    | .directory as $dir 
+    | [.link] + [.targets?[] | $dir + [.] | join("/") ] 
+    | .[]
 ;
