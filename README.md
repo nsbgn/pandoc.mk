@@ -26,9 +26,9 @@ Usage
 To install `snel`, do `make install`. To generate a website, simply create a 
 `Makefile` with the following lines:
 
-    SRC=/path/to/sources
-    DEST=/path/to/build
-    include snel.mk
+    SRC=/path/to/source/directory # defaults to "."
+    DEST=/path/to/build/directory # defaults to "./build"
+    include snel.mk # or /path/to/snel.mk if it wasn't installed globally
 
 Executing `make` from there will then generate the `$(DEST)` directory 
 containing a [lightweight](http://idlewords.com/talks/website_obesity.htm) 
@@ -37,7 +37,8 @@ website made from Markdown files found in the `$(SRC)` directory.
 To use the stylesheet to create a PDF, I suggest using the following options 
 to Pandoc:
 
-    pandoc --shift-heading-level-by=1 \
+    pandoc \
+        --shift-heading-level-by=1 \
         --pdf-engine=weasyprint \
         --template "/usr/share/snel/pandoc/page.html" \
         --css "/usr/share/snel/style.css"
@@ -62,11 +63,13 @@ As of now, the recipe calls for [pandoc](http://pandoc.org/) 2.8 or higher,
 [jq](https://stedolan.github.io/jq/) 1.5 or higher,
 [find](https://www.gnu.org/software/findutils/),
 [tree](http://mama.indstate.edu/users/ice/tree/),
+[xargs](https://savannah.gnu.org/projects/findutils/),
 [sass](http://sass-lang.com/),
+[ImageMagick](http://www.imagemagick.org/), and optionally
+[lftp](http://lftp.yar.ru/),
 [svgo](https://github.com/svg/svgo),
-[ImageMagick](http://www.imagemagick.org/) and
-[lftp](http://lftp.yar.ru/) — but you could easily substitute or add any 
-ingredient.
+and [weasyprint](https://weasyprint.org/). These are mostly standard programs, 
+and you could easily substitute or add any ingredient.
 
 
 ### Style

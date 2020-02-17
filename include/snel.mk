@@ -196,7 +196,7 @@ $(DEST)/index.html: $(PANDOC_DIR)/index.html $(PANDOC_DIR)/nav.html $(CACHE)/ind
 
 # Create HTML documents
 # The following targets are required once but do not influence the build of this
-# target: $(DEST)/index.html $(DEST)/style.css $(DEST)/favicon.ico
+# target: $(DEST)/style.css $(DEST)/favicon.ico
 $(DEST)/%.html: \
 		$(SRC)/%.md \
 		$(PANDOC_DIR)/page.html \
@@ -234,6 +234,17 @@ $(DEST)/%.html: \
 		$(filter %/metadata.yaml, $^) \
 		| sed ':a;N;$$!ba;s|>\s*<|><|g' \
 		> $@
+
+
+# Create PDF documents
+$(DEST)/%.pdf: $(SRC)/%.md $(PANDOC_DIR)/page.html $(ASSET_DIR)/style.css
+	pandoc \
+	    --shift-heading-level-by=1 \
+	    --pdf-engine=weasyprint \
+	    --template '$(PANDOC_DIR)/page.html' \
+	    --css '$(ASSET_DIR)/style.css' \
+	    --output $@ \
+	    --input $< 
 
 
 ##########################################################################$$$$
