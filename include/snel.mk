@@ -262,8 +262,9 @@ $(DEST)/%.pdf: $(SRC)/%.md $(PANDOC_DIR)/page.html $(DEST)/style.css
 	    --pdf-engine=weasyprint \
 	    --template '$(PANDOC_DIR)/page.html' \
 	    --css '$(DEST)/style.css' \
-	    --output $@ \
-	    $< 
+	    --to pdf \
+	    $< \
+	| ps2pdf -dOptimize=true -dUseFlateCompression=true - $@
 
 
 ##########################################################################$$$$
