@@ -59,21 +59,26 @@ ASSET_FILES = \
     $(DEST)/favicon.ico \
     $(DEST)/apple-touch-icon.png
 
-##########################################################################$$$$
+##############################################################################
 # Phony targets
 
-# Con: This will build the index twice if run with `make -B`
-all:
-	$(MAKE) cache
-	$(MAKE) documents
+# We need two seperate runs: first to build the index, then to build the
+# context which is based on said index. Con: this will build the index twice if
+# run with `make -B`
+site:
+	$(MAKE) index
+	$(MAKE) content
+
+all: site
+	$(MAKE) clean upload
 
 # The cache is built on the first run: we read the metadata of all files to
 # build an index
-cache: $(CACHE)/targets.txt
+index: $(CACHE)/targets.txt
 
 # On the second run, we build the actual published documents and files that
 # those documents refer to
-documents: $(shell cat $(CACHE)/targets.txt 2>/dev/null)
+content: $(shell cat $(CACHE)/targets.txt 2>/dev/null)
 
 # Optionally, remove all files in $(DEST) that are no longer targeted
 clean: $(CACHE)/targets.txt
@@ -84,16 +89,15 @@ clean: $(CACHE)/targets.txt
 	    | grep --fixed-strings --line-regexp --invert-match --file=$< \
 	    | xargs --no-run-if-empty rm
 
-
 # Upload the result
-upload: all
+upload: 
 	read -s -p 'FTP password: ' password && \
 	lftp -u $(USER),$$password -e \
 	"mirror --reverse --only-newer --verbose --dry-run --exclude $(CACHE) $(DEST) $(REMOTE)" \
 	$(HOST)
 
 
-.PHONY: all cache documents clean upload
+.PHONY: all site index content clean upload
 
 
 
