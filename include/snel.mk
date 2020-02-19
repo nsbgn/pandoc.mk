@@ -255,15 +255,15 @@ $(DEST)/%.html: \
 
 
 # Create PDF documents
-$(DEST)/%.pdf: $(SRC)/%.md $(PANDOC_DIR)/page.html $(ASSET_DIR)/style.css
+$(DEST)/%.pdf: $(SRC)/%.md $(PANDOC_DIR)/page.html $(DEST)/style.css
 	@echo "Generating document \"$@\"..." 1>&2
 	pandoc \
 	    --shift-heading-level-by=1 \
 	    --pdf-engine=weasyprint \
 	    --template '$(PANDOC_DIR)/page.html' \
-	    --css '$(ASSET_DIR)/style.css' \
+	    --css '$(DEST)/style.css' \
 	    --output $@ \
-	    --input $< 
+	    $< 
 
 
 ##########################################################################$$$$
