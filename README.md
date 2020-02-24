@@ -23,7 +23,8 @@ As of now, the recipe calls for [pandoc](http://pandoc.org/) 2.8 or higher,
 [tree](http://mama.indstate.edu/users/ice/tree/),
 [xargs](https://savannah.gnu.org/projects/findutils/),
 [sass](http://sass-lang.com/),
-[ImageMagick](http://www.imagemagick.org/), and optionally
+[ImageMagick](http://www.imagemagick.org/),
+[optipng](http://optipng.sourceforge.net/) and optionally
 [lftp](http://lftp.yar.ru/),
 [svgo](https://github.com/svg/svgo),
 and [weasyprint](https://weasyprint.org/). These are mostly standard programs, 

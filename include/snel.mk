@@ -280,16 +280,32 @@ $(DEST)/%.png: $(SRC)/%.jpg
 	convert $< \
 		-resize '600x' \
 		-dither FloydSteinberg \
-		-colors 16 \
 		-colorspace gray \
+		-colors 8 \
 		-normalize \
 		-define png:color-type=3 \
         -define png:compression-level=9  \
 		-define png:format=png8 \
 		-strip \
 		$@
+	optipng $@
 	@echo "Original size $$(ls -sh $< | cut -d' ' -f1)."
 	@echo "Compressed to $$(ls -sh $@ | cut -d' ' -f1)."
+
+
+$(DEST)/%.gif: $(SRC)/%.jpg
+	@-mkdir -p $(@D)
+	convert $< \
+		-resize '400x' \
+		-colorspace gray \
+		-colors 12 \
+		-normalize \
+		-dither FloydSteinberg \
+		-strip \
+		$@
+	@echo "Original size $$(ls -sh $< | cut -d' ' -f1)."
+	@echo "Compressed to $$(ls -sh $@ | cut -d' ' -f1)."
+
 
 $(DEST)/%.jpg: $(SRC)/%.jpg
 	@-mkdir -p $(@D)
