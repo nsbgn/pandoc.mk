@@ -275,10 +275,30 @@ $(DEST)/%.svg: $(SRC)/%.svg
 	@-mkdir -p $(@D)
 	svgo --input=$< --output=$@
 
-# Any image file
+$(DEST)/%.png: $(SRC)/%.jpg
+	@-mkdir -p $(@D)
+	convert $< \
+		-resize '600x' \
+		-dither FloydSteinberg \
+		-colors 16 \
+		-colorspace gray \
+		-normalize \
+		-define png:color-type=3 \
+        -define png:compression-level=9  \
+		-define png:format=png8 \
+		-strip \
+		$@
+	@echo "Original size $$(ls -sh $< | cut -d' ' -f1)."
+	@echo "Compressed to $$(ls -sh $@ | cut -d' ' -f1)."
+
 $(DEST)/%.jpg: $(SRC)/%.jpg
 	@-mkdir -p $(@D)
-	convert -resize '600x' -quality '60%' $< $@
+	convert  $< \
+		-resize '600x' \
+		-quality '60%' \
+		$@
+	@echo "Original size $$(ls -sh $< | cut -d' ' -f1)."
+	@echo "Compressed to $$(ls -sh $@ | cut -d' ' -f1)."
 
 # Any file in the source is also available at the destination
 $(DEST)/%: $(SRC)/%
