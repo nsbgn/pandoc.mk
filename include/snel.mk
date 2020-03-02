@@ -87,7 +87,7 @@ clean: $(CACHE)/targets.txt
 	@echo
 	find "$(DEST)" -type f -a -not -path '$(CACHE)/*' \
 	    | grep --fixed-strings --line-regexp --invert-match --file=$< \
-	    | xargs --no-run-if-empty rm
+	    | xargs --no-run-if-empty rm --verbose
 
 # Upload the result
 upload: 
