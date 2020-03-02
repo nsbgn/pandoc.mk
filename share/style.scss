@@ -216,6 +216,29 @@ li p {
     vertical-align: top;
 }
 
+/* Description lists ********************************************************/
+
+$DL_SIZE: 17%; 
+dl {
+    margin: 0;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    width: 100%;
+}
+dl dt {
+    flex: 0 0 $DL_SIZE;
+    margin: 0.25em 0;
+    text-overflow: ellipsis;
+    font-weight: 600;
+    overflow: hidden;
+}
+dl dd {
+    flex: 0 0 (100%-$DL_SIZE);
+    margin: 0.25em 0 0 auto;
+    text-align: left;
+}
+
 
 /* Tables *******************************************************************/
 
