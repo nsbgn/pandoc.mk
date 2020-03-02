@@ -546,7 +546,7 @@ section.footnotes hr {
 /* Printing *****************************************************************/
 
 @page {
-    size: "A5";
+    size: A5;
     margin: 1.5cm 2cm;
 }
 
@@ -576,6 +576,6 @@ section.footnotes hr {
     main, section {
         margin: 0;
         width: auto;
-        max-width: auto;
+        max-width: none;
     }
 }
