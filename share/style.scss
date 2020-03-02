@@ -27,18 +27,18 @@ $HSPACE_INDEX: 3em;         // Horizontal margin around index page
 $VSPACE_INDEX: 2em;         // Vertical margin around index page
 $HSPACE_INDENT: 2.5em;      // Indentation for lists items and blockquotes
 $VSPACE_MENU: 0.5em;        // Vertical space to avoid hugging the index link
-$VSPACE_PARAGRAPH: 1em;     // Vertical space around paragraphs and lists
+$VSPACE_PARAGRAPH: 0.6em;   // Vertical space around paragraphs and lists
 $VSPACE_FIGURE: 2.5em;      // Vertical space around figures, tables, listings…
 $VSPACE_CAPTION_BODY: .8em; // Vertical space between caption and its body
 $VSPACE_CAPTION_EXTRA: .5em;// Additional space under captions
 $VSPACE_ENTRY: 0.4em;       // Vertical spacing around list items
 $VSPACE_HEAD1: 1em;         // Vertical space under title
-$VSPACE_HEAD2: 0.5em;      // Vertical space under section header
-$VSPACE_HEAD3: 1em;         // Vertical space under subsection header
+$VSPACE_HEAD2: $VSPACE_PARAGRAPH; // Vertical space under section header
+$VSPACE_HEAD3: $VSPACE_PARAGRAPH; // Vertical space under subsection header
 $HSPACE_HEAD4: 1em;         // Horizontal space next to paragraph header
-$VSPACE_BODY1: 6em;         // Vertical space between previous content and new title
-$VSPACE_BODY2: 3em;         // Vertical space between sections
-$VSPACE_BODY3: 3em;         // Vertical space between subsections
+$VSPACE_BODY1: 4em;         // Vertical space between previous content and new title
+$VSPACE_BODY2: 2em;         // Vertical space between sections
+$VSPACE_BODY3: 2em;         // Vertical space between subsections
 $VSPACE_HR_RESET: 2em;      // Space between <hr> or document start and a header
 $VSPACE_HR: 2.5em;          // Vertical space around horizontal rules
 $HSPACE_TOC: 1.5em;         // Horizontal space between ToC and page
@@ -148,19 +148,26 @@ section h1, div#refs h1 {
     font-size: $SIZE_HEAD2;
     font-weight: normal;
 }
-
 h2 {
     margin: $VSPACE_BODY2 0 $VSPACE_HEAD2;
     font-size: $SIZE_HEAD2;
     font-weight: 600;
-    padding-bottom: 5px;
-    border-bottom: 3px double $COLOR_FRILL;
+}
+h2:before {
+    content: "";
+    display: inline-block;
+    margin-right: 1em;;
+    width: 14%;
+    height: 10px;
+    background-color: $COLOR_LINK;
 }
 h3 {
     margin: $VSPACE_BODY3 0 $VSPACE_HEAD3;
     font-size: $SIZE_HEAD3;
-    font-weight: 600;
-    border-bottom: 1px solid $COLOR_FRILL;
+    font-weight: normal;
+}
+h2 + h3 {
+    margin-top: 1em;
 }
 h4 {
     margin: 0 $HSPACE_HEAD4 0 0; 
