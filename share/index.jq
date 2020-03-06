@@ -133,7 +133,7 @@ def add_drafts:
 # nor an external link.
 def add_resources:
     if has("contents") then
-        ( .contents | map({(has("contents") or has("meta") or (.external | bool | not)|tostring):.}) | group) as {$true, $false}
+        ( .contents | map({(has("contents") or has("meta") or (has("external") and (.external | bool))|tostring):.}) | group) as {$true, $false}
         | .contents = ($true // [])
         | .resources = ($false // [])
         | (.contents[]? |= add_resources)
