@@ -28,6 +28,9 @@ endif
 ifndef DEST
     DEST := build
 endif
+ifndef STYLE
+    STYLE := plain
+endif
 ifndef CACHE
     CACHE := $(DEST)/cache
 endif
@@ -55,7 +58,7 @@ INFO_FILES = $(patsubst $(SRC)/%,$(CACHE)/%.info.json,$(SOURCE_FILES))
 # Output files
 ASSET_FILES = \
     $(DEST)/index.html \
-    $(DEST)/style.css \
+    $(DEST)/$(STYLE).css \
     $(DEST)/favicon.ico \
     $(DEST)/apple-touch-icon.png
 
@@ -113,7 +116,7 @@ $(DEST)/%: $(ASSET_DIR)/%
 
 else
 # Stylesheet
-$(DEST)/style.css: $(ASSET_DIR)/style.scss
+$(DEST)/$(STYLE).css: $(ASSET_DIR)/style/$(STYLE)/main.scss
 	@-mkdir -p $(@D)
 	sassc --style compressed $< $@
 
@@ -214,7 +217,7 @@ $(DEST)/index.html: $(PANDOC_DIR)/index.html $(PANDOC_DIR)/nav.html $(CACHE)/ind
 
 # Create HTML documents
 # The following targets are required once but do not influence the build of this
-# target: $(DEST)/style.css $(DEST)/favicon.ico
+# target: $(DEST)/$(STYLE).css $(DEST)/favicon.ico
 $(DEST)/%.html: \
 		$(SRC)/%.md \
 		$(PANDOC_DIR)/page.html \
@@ -227,7 +230,7 @@ $(DEST)/%.html: \
 		--metadata root='$(shell realpath $(DEST) --relative-to $(@D) --canonicalize-missing)' \
 		--metadata index='$(shell realpath $(DEST)/index.html --relative-to $(@D) --canonicalize-missing)' \
 		--metadata favicon='$(shell realpath $(DEST)/favicon.ico --relative-to $(@D) --canonicalize-missing)' \
-		--metadata stylesheet='$(shell realpath $(DEST)/style.css --relative-to $(@D) --canonicalize-missing)' \
+		--metadata stylesheet='$(shell realpath $(DEST)/$(STYLE).css --relative-to $(@D) --canonicalize-missing)' \
 		--from markdown+smart+fenced_divs+inline_notes+table_captions \
 		--to html5 \
 		--standalone \
@@ -255,13 +258,13 @@ $(DEST)/%.html: \
 
 
 # Create PDF documents
-$(DEST)/%.pdf: $(SRC)/%.md $(PANDOC_DIR)/page.html $(DEST)/style.css
+$(DEST)/%.pdf: $(SRC)/%.md $(PANDOC_DIR)/page.html $(DEST)/$(STYLE).css
 	@echo "Generating document \"$@\"..." 1>&2
 	pandoc \
 	    --shift-heading-level-by=1 \
 	    --pdf-engine=weasyprint \
 	    --template '$(PANDOC_DIR)/page.html' \
-	    --css '$(DEST)/style.css' \
+	    --css '$(DEST)/$(STYLE).css' \
 	    --to pdf \
 	    $< \
 	| ps2pdf -dOptimize=true -dUseFlateCompression=true - $@

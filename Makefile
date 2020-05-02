@@ -1,11 +1,11 @@
-default: build/style.css build/favicon.ico build/apple-touch-icon.png
+default: build/plain.css build/favicon.ico build/apple-touch-icon.png
 
 include include/snel.mk
 
 install: default
 	install include/snel.mk $(INCLUDE_DIR)/
 	install --mode=644 -D --target-directory $(SHARE_DIR)/ \
-	    $(addprefix build/,style.css favicon.ico apple-touch-icon.png)
+	    $(addprefix build/,$(STYLE).css favicon.ico apple-touch-icon.png)
 	install --mode=644 -D --target-directory $(SHARE_DIR)/ \
 	    $(addprefix $(ASSET_DIR)/,index.jq)
 	install --mode=644 -D --target-directory $(SHARE_DIR)/pandoc/ \
