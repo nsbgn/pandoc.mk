@@ -40,16 +40,14 @@ $for(include-before)$
 $include-before$
 $endfor$
 <main>
-<header>
-<div>$if(title-prefix)$<span>$title-prefix$</span>$if(date)$ &middot; $endif$$endif$$if(date)$$date$$endif$</div>
-<h1>$if(index)$<a href="$index$">&#8801;</a>$endif$$if(title)$$title$$else$Untitled$endif$</h1>
-</header>
+<h1>$if(title-prefix)$$if(index)$<a class="placeholder">&#8801;</a>$endif$<span>$title-prefix$</span><br>$endif$$if(index)$<a href="$index$">&#8801;</a>$endif$$if(title)$$title$$else$Untitled$endif$</h1>
 $if(toc)$
 <nav id="$idprefix$toc">
 $toc$
 </nav>
 $endif$
 $body$
+<footer>&mdash; $if(author)$$author$$else$Anonymous$endif$$if(date)$, $date$$endif$</footer>
 </main>
 $if(footnotes)$
 <!-- Footnotes and references do not work like this yet, but they should -->

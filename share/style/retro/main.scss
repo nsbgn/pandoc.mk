@@ -1,4 +1,4 @@
-$FONT: "Palatino Linotype", "Book Antiqua", "Palatino", serif;
+$FONT: "Courier New", monospace;
 
 $COLOR_PAGE:  #fff;         // Background color
 $COLOR_TEXT:  #000;         // Color for normal text
@@ -69,10 +69,7 @@ main + section, div#refs {
     padding-top: 1.5em;
     margin: 3em auto 0;
 }
-main > footer {
-    margin: 2em 0 0;
-    text-align: right;
-}
+
 
 // Once the width reaches a lower limit, margins start shrinking proportionally
 @media screen and (max-width: ($WIDTH_PAGE_MIN)) {
@@ -110,35 +107,43 @@ p, ul, ol {
     line-height: $SIZE_LINE;
 }
 
-h1 {
+
+header {
+    // font-style: italic;
+    text-transform: uppercase;
     margin: $VSPACE_HR_RESET 0 $VSPACE_HEAD1;
+}
+h1 {
+    font-style: normal;
     font-size: $SIZE_HEAD1;
-    letter-spacing: 0.08em;
-    text-align: center;
+    margin-top: 0.1em;
+    text-align: left;
     font-weight: 300;
     text-transform: uppercase;
 }
-h1 span {
-    font-size: 0.3em;
-    padding: 0 0.4em 0.4em;
-    margin-bottom: 0.6em;
-    border-bottom: 1px solid $COLOR_TEXT;
-    display: inline-block; 
+header div {
+    color: #666;
+    font-size: 0.8em;
+//    margin-bottom: -0.2em;
+}
+header span {
+    //font-size: 0.5em;
+    //padding: 0 0.4em 0.4em;
+    //margin-bottom: 0.6em;
+    //border-bottom: 1px solid $COLOR_TEXT;
+    //display: inline-block; 
+    //display: block;
+    //margin-top: 1em;
 }
 h1 a {
-    text-decoration: none;
     float: right;
     margin-left: $VSPACE_MENU;
     display: inline-block;
+    text-decoration: none;
+    font-family: sans-serif;
 }
 h1 a.placeholder { 
-    // even though we really only need one, this is a (temporary?) solution to
-    // fix the centering of the lines; if we didn't have this, the title prefix
-    // wouldn't be centered the same since there is no floating object to
-    // affect the calculation
-    height: 1px;
-    overflow: hidden;
-    visibility: hidden;
+    display: none;
 }
 hr + h2, hr + h3, hr + h4 {
     margin-top: $VSPACE_HR_RESET;
@@ -312,15 +317,18 @@ hr {
     border-top: 1px solid $COLOR_TEXT;
     text-align: center;
     margin: $VSPACE_HR auto;
-    width: $WIDTH_HR;
+    width: 100%; //$WIDTH_HR;
     position: relative;
 }
 hr:after {
     $SIZE_HR: 0.5em;
     $WIDTH_HR_INNER: 3em;
-    content: "\2022";
-    font-size: $SIZE_HR;
-    line-height: $SIZE_HR;
+    content: "*";
+    font-size: 1.2em;
+    font-weight: 100;
+    //content: "\2022";
+    //font-size: $SIZE_HR;
+    //line-height: $SIZE_HR;
     color: $COLOR_TEXT;
     position: absolute;
     top: (-$SIZE_HR/2);
@@ -337,6 +345,7 @@ blockquote, .line-block {
     margin: $VSPACE_FIGURE 0 $VSPACE_FIGURE $HSPACE_INDENT;
     font-style: italic;
     quotes: "\201C""\201D""\2018""\2019";
+    position: relative;
 
     p:before, p:after {
         font-family: 'Times New Roman', serif;
@@ -363,7 +372,10 @@ blockquote, .line-block {
     footer {
         text-align: right;
         font-style: normal;
-        margin: 0 5%;
+        position: absolute;
+    }
+    footer::before {
+        content: "~";
     }
 }
 
