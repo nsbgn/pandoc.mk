@@ -3,8 +3,12 @@
 <head>
 <meta charset="utf-8">
 <title>$title$</title>
-<link rel="shortcut icon" href="favicon.ico">
-<link rel="stylesheet" href="style.css">
+$if(stylesheet)$
+<link rel="stylesheet" href="$stylesheet$">
+$endif$
+$if(favicon)$
+<link rel="shortcut icon" href="$favicon$">
+$endif$
 </head>
 <body>
 <nav id="index">

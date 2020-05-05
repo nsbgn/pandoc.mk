@@ -213,6 +213,8 @@ $(DEST)/index.html: $(PANDOC_DIR)/index.html $(PANDOC_DIR)/nav.html $(CACHE)/ind
 	    --template="$(PANDOC_DIR)/index.html" \
 	    --metadata-file "$(CACHE)/index.json" \
 	    --metadata title="Table of contents" \
+		--metadata favicon='$(shell realpath $(DEST)/favicon.ico --relative-to $(@D) --canonicalize-missing)' \
+		--metadata stylesheet='$(shell realpath $(DEST)/$(STYLE).css --relative-to $(@D) --canonicalize-missing)' \
 	    > $@
 
 
