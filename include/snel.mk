@@ -55,12 +55,17 @@ SOURCE_FILES = $(shell \
 # Metadata and extra targets are collected for each source in a corresponding file
 INFO_FILES = $(patsubst $(SRC)/%,$(CACHE)/%.info.json,$(SOURCE_FILES))
 
+# All available style files
+ALL_STYLES = $(patsubst $(ASSET_DIR)/style/%,%.css,$(wildcard $(ASSET_DIR)/style/*))
+
 # Output files
 ASSET_FILES = \
     $(DEST)/index.html \
-    $(DEST)/$(STYLE).css \
+	$(STATIC_ASSET_FILES)
+STATIC_ASSET_FILES = \
     $(DEST)/favicon.ico \
-    $(DEST)/apple-touch-icon.png
+    $(DEST)/apple-touch-icon.png \
+	$(addprefix $(DEST)/,$(ALL_STYLES))
 
 ##############################################################################
 # Phony targets
@@ -116,7 +121,7 @@ $(DEST)/%: $(ASSET_DIR)/%
 
 else
 # Stylesheet
-$(DEST)/$(STYLE).css: $(ASSET_DIR)/style/$(STYLE)/main.scss
+$(DEST)/%.css: $(ASSET_DIR)/style/%/main.scss
 	@-mkdir -p $(@D)
 	sassc --style compressed $< $@
 

@@ -1,11 +1,13 @@
-default: build/plain.css build/favicon.ico build/apple-touch-icon.png
+automatic: assets
 
 include include/snel.mk
 
-install: default
+assets: $(STATIC_ASSET_FILES)
+
+install: assets
 	install include/snel.mk $(INCLUDE_DIR)/
 	install --mode=644 -D --target-directory $(SHARE_DIR)/ \
-	    $(addprefix build/,$(STYLE).css favicon.ico apple-touch-icon.png)
+	    $(STATIC_ASSET_FILES)
 	install --mode=644 -D --target-directory $(SHARE_DIR)/ \
 	    $(addprefix $(ASSET_DIR)/,index.jq)
 	install --mode=644 -D --target-directory $(SHARE_DIR)/pandoc/ \
@@ -17,4 +19,4 @@ uninstall:
 	rm $(INCLUDE_DIR)/snel.mk
 	rm -r $(SHARE_DIR)
 
-.PHONY: install uninstall default
+.PHONY: install uninstall automatic
