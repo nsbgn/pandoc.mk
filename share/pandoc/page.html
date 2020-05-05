@@ -41,8 +41,8 @@ $include-before$
 $endfor$
 <main>
 <header>
-<div>$if(title-prefix)$<span>$title-prefix$</span>$if(date)$ &middot; $endif$$endif$$if(date)$$date$$endif$</div>
-<h1>$if(index)$<a href="$index$">&#8801;</a>$endif$$if(title)$$title$$else$Untitled$endif$</h1>
+<div>$if(title-prefix)$$title-prefix$$if(date)$ &middot; $endif$$endif$$if(date)$$date$$endif$</div>
+$if(index)$<a href="$index$">&#8801;</a> $endif$<h1>$if(title)$$title$$else$Untitled$endif$</h1>
 </header>
 $if(toc)$
 <nav id="$idprefix$toc">

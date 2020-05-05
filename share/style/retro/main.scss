@@ -1,4 +1,5 @@
 $FONT: "Courier New", monospace;
+//$FONT: "Palatino Linotype", "Book Antiqua", "Palatino", serif;
 
 $COLOR_PAGE:  #fff;         // Background color
 $COLOR_TEXT:  #000;         // Color for normal text
@@ -124,6 +125,7 @@ h1 {
 header div {
     color: #666;
     font-size: 0.8em;
+    letter-spacing: 0.1em;
 //    margin-bottom: -0.2em;
 }
 header span {
@@ -135,15 +137,13 @@ header span {
     //display: block;
     //margin-top: 1em;
 }
-h1 a {
+header a {
     float: right;
     margin-left: $VSPACE_MENU;
     display: inline-block;
     text-decoration: none;
     font-family: sans-serif;
-}
-h1 a.placeholder { 
-    display: none;
+    font-size: $SIZE_HEAD1;
 }
 hr + h2, hr + h3, hr + h4 {
     margin-top: $VSPACE_HR_RESET;
@@ -366,13 +366,11 @@ blockquote, .line-block {
         text-indent: 0; // avoid messing up quote symbols,
                         // should another indent value be inherited
     }
-    em {
-        text-decoration: underline;
-    }
     footer {
         text-align: right;
         font-style: normal;
         position: absolute;
+        right: 0;
     }
     footer::before {
         content: "~";
