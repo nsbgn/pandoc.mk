@@ -206,11 +206,11 @@ $(CACHE)/index.json: $(JQ_DIR)/index.jq \
 	    > $@
 
 # Generate static index page 
-$(DEST)/index.html: $(PANDOC_DIR)/index.html $(PANDOC_DIR)/nav.html $(CACHE)/index.json
+$(DEST)/index.html: $(PANDOC_DIR)/page.html $(PANDOC_DIR)/nav.html $(CACHE)/index.json
 	@-mkdir -p $(@D)
 	@echo "Generating table of contents…" 1>&2
 	@echo | pandoc \
-	    --template="$(PANDOC_DIR)/index.html" \
+	    --template="$(PANDOC_DIR)/page.html" \
 	    --metadata-file "$(CACHE)/index.json" \
 	    --metadata title="Table of contents" \
 		--metadata favicon='$(shell realpath $(DEST)/favicon.ico --relative-to $(@D) --canonicalize-missing)' \

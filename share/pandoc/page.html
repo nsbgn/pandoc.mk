@@ -39,6 +39,15 @@ $endfor$
 $for(include-before)$
 $include-before$
 $endfor$
+$-- It is assumed that a page with "contents" as metadata is only for showing
+$-- the index.
+$if(contents)$
+<nav id="index">
+<ul>
+${contents:nav()}
+</ul>
+</nav>
+$else$
 <main>
 <header>
 <div>$if(title-prefix)$$title-prefix$$if(date)$ &middot; $endif$$endif$$if(date)$$date$$endif$</div>
@@ -50,7 +59,6 @@ $toc$
 </nav>
 $endif$
 $body$
-</main>
 $if(footnotes)$
 <!-- Footnotes and references do not work like this yet, but they should -->
 <section class="footnotes">
@@ -61,6 +69,8 @@ $if(references)$
 <section class="references">
 $references$
 </section>
+$endif$
+</main>
 $endif$
 $for(include-after)$$include-after$$endfor$
 </body>
