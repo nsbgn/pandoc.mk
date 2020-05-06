@@ -578,7 +578,14 @@ section.footnotes hr {
 @page {
     size: A5;
     margin: 1.5cm 2cm;
+    counter-increment: page;
+
+    @bottom-right {
+        content: counter(page); 
+    }
 }
+
+//  of  counter(pages)
 
 @media print {
     .noprint {

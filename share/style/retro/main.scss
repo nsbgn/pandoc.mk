@@ -1,5 +1,5 @@
-$FONT: "Courier New", monospace;
 //$FONT: "Palatino Linotype", "Book Antiqua", "Palatino", serif;
+$FONT: "Courier New", monospace;
 
 $COLOR_PAGE:  #fff;         // Background color
 $COLOR_TEXT:  #000;         // Color for normal text
@@ -7,48 +7,43 @@ $COLOR_LINK:  #901;         // Color for links
 $COLOR_FOCUS: #f02;         // Color for focused links
 $COLOR_FRILL: #777;         // Color for quote symbols and other embellishments
 
-$SIZE_TEXT: 13pt;           // Base font size
+$SIZE_TEXT: 12pt;           // Base font size
 $SIZE_LINE: 1.8em;          // How much space a line gets
 $SIZE_HEAD1: 1.8em;         // Font size for title
 $SIZE_HEAD2: 1.2em;         // Font size for section header $SIZE_HEAD2;
 $SIZE_HEAD3: 1.1em;         // Font size for subsection header
 $SIZE_HEAD4: 1em;           // Font size for paragraph header
-$SIZE_INDEX_BODY1: 2.9em;   // Font size in column header font size
-$SIZE_INDEX_BODY2: 1.5em;   // Font size in subheader font size
-$SIZE_INDEX_BODY3: 0.8em;   // Font size in menu items
 
 $WIDTH_PAGE_MIN: 35em;      // Minimum width before margin scales down
 $WIDTH_PAGE_MAX: 40em;      // Maximum width before margin scales up
 $WIDTH_TOC: 9em;            // Width of table of contents when moved to the side
-$WIDTH_HR: 40%;             // Width of horizontal rule
 
 $VSPACE_PAGE: 5em;          // Vertical margin on the page
 $HSPACE_PAGE: 3em;          // Horizontal margin on the page
 $HSPACE_INDEX: 3em;         // Horizontal margin around index page
 $VSPACE_INDEX: 2em;         // Vertical margin around index page
 $HSPACE_INDENT: 2.5em;      // Indentation for lists items and blockquotes
+
 $VSPACE_MENU: 0.5em;        // Vertical space to avoid hugging the index link
 $VSPACE_PARAGRAPH: 0.6em;   // Vertical space around paragraphs and lists
 $VSPACE_FIGURE: 2.5em;      // Vertical space around figures, tables, listings…
 $VSPACE_CAPTION_BODY: .8em; // Vertical space between caption and its body
 $VSPACE_CAPTION_EXTRA: .5em;// Additional space under captions
+
 $VSPACE_ENTRY: 0.4em;       // Vertical spacing around list items
-$VSPACE_HEAD1: 1em;         // Vertical space under title
+
+$VSPACE_HEAD1: 1.5em;       // Vertical space under title
 $VSPACE_HEAD2: $VSPACE_PARAGRAPH; // Vertical space under section header
 $VSPACE_HEAD3: $VSPACE_PARAGRAPH; // Vertical space under subsection header
 $HSPACE_HEAD4: 1em;         // Horizontal space next to paragraph header
+
 $VSPACE_BODY1: 4em;         // Vertical space between previous content and new title
 $VSPACE_BODY2: 2em;         // Vertical space between sections
 $VSPACE_BODY3: 2em;         // Vertical space between subsections
+
 $VSPACE_HR_RESET: 2em;      // Space between <hr> or document start and a header
 $VSPACE_HR: 2.5em;          // Vertical space around horizontal rules
 $HSPACE_TOC: 1.5em;         // Horizontal space between ToC and page
-$VSPACE_INDEX_HEAD1: .6em;  // Vertical space under column header
-$HSPACE_INDEX_BODY1: 4.0em; // Horizontal spacing between columns
-$VSPACE_INDEX_BODY1: 2em;   // Vertical space between wrapped columns
-$VSPACE_INDEX_HEAD2: .15em; // Vertical space under subheader
-$HSPACE_INDEX_HEAD2: 0.2em; // Horizontal margin around level 2, below header
-$VSPACE_INDEX_BODY2: 1.5em; // Vertical spacing between subheaded sections
 
 
 * {
@@ -56,40 +51,10 @@ $VSPACE_INDEX_BODY2: 1.5em; // Vertical spacing between subheaded sections
     padding: 0;
 }
 
-body {
-    margin: $VSPACE_PAGE $HSPACE_PAGE;
+main, nav#index {
+    margin: $VSPACE_PAGE auto;
+    padding: 0 $HSPACE_PAGE;
 }
-main {
-    margin: 0 auto;
-}
-section, div#refs { // div#refs should really be a section too, but pandoc doesn't do that
-    margin: 0.5em auto 0;
-}
-main + section, div#refs {
-    border-top: 1px solid $COLOR_TEXT;
-    padding-top: 1.5em;
-    margin: 3em auto 0;
-}
-
-
-// Once the width reaches a lower limit, margins start shrinking proportionally
-@media screen and (max-width: ($WIDTH_PAGE_MIN)) {
-    body {
-        margin: $VSPACE_PAGE percentage($HSPACE_PAGE/($WIDTH_PAGE_MIN + 2*$HSPACE_PAGE));
-    }
-}
-
-// Once the width reaches an upper limit, the additional space is taken by
-// margins. I confess I don't entirely understand why the coefficient on
-// $HSPACE_PAGE is set to 4 rather than 2, but the result looks better. It's
-// still not an *entirely* smooth transition, though, so this needs looking
-// into.
-@media screen and (min-width: ($WIDTH_PAGE_MAX + 4*( $HSPACE_PAGE ) )) {
-    main, section {
-        width: $WIDTH_PAGE_MAX;
-    }
-}
-
 
 /* Basic page elements *******************************************************/
 
@@ -110,9 +75,8 @@ p, ul, ol {
 
 
 header {
-    // font-style: italic;
     text-transform: uppercase;
-    margin: $VSPACE_HR_RESET 0 $VSPACE_HEAD1;
+    margin: $VSPACE_HR_RESET 0 $VSPACE_HEAD1/2;
 }
 h1 {
     font-style: normal;
@@ -123,19 +87,9 @@ h1 {
     text-transform: uppercase;
 }
 header div {
-    color: #666;
+    color: $COLOR_FRILL;
     font-size: 0.8em;
-    letter-spacing: 0.1em;
-//    margin-bottom: -0.2em;
-}
-header span {
-    //font-size: 0.5em;
-    //padding: 0 0.4em 0.4em;
-    //margin-bottom: 0.6em;
-    //border-bottom: 1px solid $COLOR_TEXT;
-    //display: inline-block; 
-    //display: block;
-    //margin-top: 1em;
+    letter-spacing: 0.15em;
 }
 header a {
     float: right;
@@ -145,34 +99,20 @@ header a {
     font-family: sans-serif;
     font-size: $SIZE_HEAD1;
 }
-hr + h2, hr + h3, hr + h4 {
-    margin-top: $VSPACE_HR_RESET;
-}
-section h1, div#refs h1 {
-    margin: $VSPACE_BODY1 0 $VSPACE_HEAD1; //#0.2em;
-    font-size: $SIZE_HEAD2;
-    font-weight: normal;
-}
+
 h2 {
     margin: $VSPACE_BODY2 0 $VSPACE_HEAD2;
     font-size: $SIZE_HEAD2;
     font-weight: 600;
-}
-h2:before {
-    content: "";
-    display: inline-block;
-    margin-right: 1em;;
-    width: 14%;
-    height: 10px;
-    background-color: $COLOR_LINK;
+    padding-bottom: 0.5em;
+    border-bottom: 3px double $COLOR_TEXT;
 }
 h3 {
     margin: $VSPACE_BODY3 0 $VSPACE_HEAD3;
     font-size: $SIZE_HEAD3;
     font-weight: normal;
-}
-h2 + h3 {
-    margin-top: 1em;
+    padding-bottom: 0.25em;
+    border-bottom: 1px solid $COLOR_TEXT;
 }
 h4 {
     margin: 0 $HSPACE_HEAD4 0 0; 
@@ -180,6 +120,12 @@ h4 {
     line-height: $SIZE_LINE;
     float: left;
     font-weight: 600;
+}
+hr + h2, hr + h3, hr + h4 {
+    margin-top: $VSPACE_HR_RESET;
+}
+h2 + h3 {
+    margin-top: 1em;
 }
 h4 + * { // Anything that follows a paragraph header should come underneath...
     clear: left;
@@ -211,9 +157,6 @@ ul, ol {
 main li {
     margin-left: $HSPACE_INDENT;
     padding-left: 0.5em;
-}
-section li {
-    margin-left: 0;
 }
 li p {
     margin: 0 0 $VSPACE_ENTRY 0;
@@ -265,7 +208,7 @@ td:first-child {
 }
 table>tr:first-child td, caption + tr td, thead th {
     font-weight: bold;
-    border-bottom: 2px solid $COLOR_TEXT;
+    border-bottom: 1px solid $COLOR_TEXT;
     border-top: 1px solid $COLOR_TEXT;
 }
 table>tr:last-child td, tbody {
@@ -317,24 +260,21 @@ hr {
     border-top: 1px solid $COLOR_TEXT;
     text-align: center;
     margin: $VSPACE_HR auto;
-    width: 100%; //$WIDTH_HR;
+    width: 100%;
     position: relative;
 }
-hr:after {
+hr::after {
     $SIZE_HR: 0.5em;
     $WIDTH_HR_INNER: 3em;
     content: "*";
     font-size: 1.2em;
     font-weight: 100;
-    //content: "\2022";
-    //font-size: $SIZE_HR;
-    //line-height: $SIZE_HR;
-    color: $COLOR_TEXT;
     position: absolute;
     top: (-$SIZE_HR/2);
     left: 50%;
     margin-left: (-($WIDTH_HR_INNER+$SIZE_HR)/2);
-    width: 3em;
+    width: $WIDTH_HR_INNER;
+    color: $COLOR_TEXT;
     background: $COLOR_PAGE;
 }
 
@@ -347,18 +287,18 @@ blockquote, .line-block {
     quotes: "\201C""\201D""\2018""\2019";
     position: relative;
 
-    p:before, p:after {
-        font-family: 'Times New Roman', serif;
+    p::before, p::after {
+        font-family: "Times New Roman", serif;
         font-size: 2.5em;
         line-height: 0.05em;
         vertical-align: -0.4em;
         color: $COLOR_FRILL;
     }
-    p:before {
+    p::before {
         content: open-quote;
         padding-right: 0.4em;
     }
-    p:after {
+    p::after {
         content: close-quote;
         padding-left: 0.1em;
     }
@@ -382,8 +322,8 @@ blockquote, .line-block {
 
 code {
     white-space: pre-wrap;
-    font-size: 0.7em;
 }
+
 code pre {
     margin: $VSPACE_FIGURE 0;
 }
@@ -426,121 +366,43 @@ nav#toc {
     }
 }
 
-// If the width gets so small that it doesn't make sense to float the ToC, just
-// put it normally
-@media screen and (max-width: (2*($WIDTH_TOC + $HSPACE_TOC + 2*$HSPACE_PAGE))) {
-    nav#toc {
-        float: none;
-    }
-}
 
-// If the width gets large enough to fit the ToC on the side, move it there
-@media screen and (min-width: ($WIDTH_PAGE_MAX + 2*($HSPACE_PAGE*2 + $HSPACE_TOC + $WIDTH_TOC))) {
-    nav#toc {
-        display: inline-block;
-        margin: 0 0 0 ($WIDTH_PAGE_MAX / 2 + $HSPACE_TOC);
-        position: absolute; // alternative: fixed, sticky?
-        //top: $VSPACE_PAGE;  // this would place it at the top of the page
-        //rather than at the same height as the first line
-        left: 50%;
-        width: $WIDTH_TOC;
-
-        >ul {
-            position: fixed;
-        }
-    }
-}
 
 
 /* Table of contents (site-wide) *********************************************/
 
 nav#index {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    top: 0;
-    left: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    text-align: left;
 
-    a {
-        text-decoration: none;
-        color: $COLOR_TEXT;
+    > ul > li {
+        margin: 2em 0;
+    }
+
+    ul {
+        list-style: none;
+        font-weight: 600;
+    }
+    ul ul {
+        margin-left: 2em;
+        font-weight: normal;
     }
     a, span {
         text-transform: lowercase;
     }
-    a:hover {
-        text-decoration: underline;
-    }
-    a.selected, .selected>a {
-        font-style: italic;
-    }
-    a.selected:hover, .selected>a:hover {
-        text-decoration: none;
-    }
     span {
         cursor: default;
-        color: mix($COLOR_TEXT, $COLOR_PAGE, 30%);
-    }
-    
-    ul {
-        margin: 0;
-        list-style: none;
-    }
-
-    > ul {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: flex-start;
-        align-items: flex-start;
-        padding: ($VSPACE_INDEX) ($HSPACE_INDEX - ($HSPACE_INDEX_BODY1/2));
-
-        > li {
-            padding: ($VSPACE_INDEX_BODY1/2) ($HSPACE_INDEX_BODY1/2);
-            
-            > a, > span {
-                white-space: nowrap;
-                font-size: $SIZE_INDEX_BODY1;
-            }
-            
-            > ul {
-                text-align: left;
-                padding: 0 $HSPACE_INDEX_HEAD2;
-                margin-top: ($VSPACE_INDEX_HEAD1 - $VSPACE_INDEX_BODY2);
-                
-                > li {
-                    padding-top: $VSPACE_INDEX_BODY2;
-                    
-                    > a, > span {
-                        font-size: $SIZE_INDEX_BODY2;
-                    }
-
-                    > ul {
-                        padding-top: $VSPACE_INDEX_HEAD2;
-
-                        a, span {
-                            font-size: $SIZE_INDEX_BODY3;
-                        }
-                        li, ul {
-                            display: inline;
-                        }
-                    }
-
-                }
-            }
-        }
     }
 
     // Items between which a dot is placed
-    ul ul ul li + li:before {
+    ul ul li {
+        display: inline;
+    }
+    ul ul li + li:before {
         content: "\ \2022\00a0\ ";
         font-size: 0.6em;
         color: mix($COLOR_TEXT, $COLOR_PAGE, 60%);
     }
 }
-
 
 /* Miscellaneous classes & overrides ****************************************/
 
@@ -573,7 +435,7 @@ nav#index {
 
 // Annoying that pandoc puts a rule before the footnotes
 section.footnotes hr {
-    display: none;
+//    display: none;
 }
 
 // Do not underline the back link in footnotes
@@ -582,12 +444,64 @@ section.footnotes hr {
     text-decoration: none;
 }
 
+/* Responsiveness */
+
+// Once the width reaches a lower limit, margins start shrinking proportionally
+@media screen and (max-width: ($WIDTH_PAGE_MIN)) {
+    main, nav#index {
+        padding: 0 percentage($HSPACE_PAGE/($WIDTH_PAGE_MIN + 2*$HSPACE_PAGE));
+    }
+}
+
+// Once the width reaches an upper limit, the additional space is taken by
+// margins. I confess I don't entirely understand why the coefficient on
+// $HSPACE_PAGE is set to 4 rather than 2, but the result looks better. It's
+// still not an *entirely* smooth transition, though, so this needs looking
+// into.
+@media screen and (min-width: ($WIDTH_PAGE_MAX + 4*( $HSPACE_PAGE ) )) {
+    main, nav#index {
+        width: $WIDTH_PAGE_MAX;
+    }
+}
+
+// If the width gets so small that it doesn't make sense to float the ToC, just
+// put it normally
+@media screen and (max-width: (2*($WIDTH_TOC + $HSPACE_TOC + 2*$HSPACE_PAGE))) {
+    nav#toc {
+        float: none;
+    }
+}
+
+// If the width gets large enough to fit the ToC on the side, move it there
+@media screen and (min-width: ($WIDTH_PAGE_MAX + 2*($HSPACE_PAGE*2 + $HSPACE_TOC + $WIDTH_TOC))) {
+    nav#toc {
+        display: inline-block;
+        margin: 0 0 0 ($WIDTH_PAGE_MAX / 2 + $HSPACE_TOC);
+        position: absolute; // alternative: fixed, sticky?
+        //top: $VSPACE_PAGE;  // this would place it at the top of the page
+        //rather than at the same height as the first line
+        left: 50%;
+        width: $WIDTH_TOC;
+
+        >ul {
+            position: fixed;
+        }
+    }
+}
+
+
+
 
 /* Printing *****************************************************************/
 
 @page {
     size: A5;
     margin: 1.5cm 2cm;
+    counter-increment: page;
+
+    @bottom-right {
+        content: counter(page); 
+    }
 }
 
 @media print {
