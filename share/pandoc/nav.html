@@ -7,7 +7,7 @@ $else$
 <span>$if(it.meta.title)$$it.meta.title$$else$$it.name$$endif$</span>
 $endif$
 $if(it.contents)$
-<ul>
+<ul$if(it.only_leaves)$ class="only-leaves"$endif$>
 ${ it.contents:nav() }
 </ul>
 $endif$

@@ -393,14 +393,15 @@ nav#index {
         cursor: default;
     }
 
-    // Items between which a dot is placed
-    ul ul li {
+    // If an item contains no items with children of their own, we collapse
+    // them onto a single line with a dot in between them
+    ul.only-leaves li {
         display: inline;
     }
-    ul ul li + li:before {
+    ul.only-leaves li + li:before {
         content: "\ \2022\00a0\ ";
         font-size: 0.6em;
-        color: mix($COLOR_TEXT, $COLOR_PAGE, 60%);
+        color: $COLOR_FRILL;
     }
 }
 
@@ -433,10 +434,6 @@ nav#index {
     font-size: 2em !important;
 }
 
-// Annoying that pandoc puts a rule before the footnotes
-section.footnotes hr {
-//    display: none;
-}
 
 // Do not underline the back link in footnotes
 .footnotes a:last-child {

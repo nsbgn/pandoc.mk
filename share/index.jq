@@ -153,6 +153,18 @@ def sort_content:
 ;
 
 
+# Add a note that tells us whether this has only children who have no more
+# subchildren.
+def annotate_leaves:
+    if has("contents") then
+        .only_leaves = (.contents | all(has("contents") | not))
+        | (.contents |= map(annotate_leaves))
+    else
+        .
+    end
+;
+
+
 # Combines the given stream of JSON objects by merging them, and performs the
 # given operations to turn it into a proper index.
 def index:
@@ -163,6 +175,7 @@ def index:
     | add_frontmatter
     | add_resources
     | sort_content
+    | annotate_leaves
 ;
 
 
