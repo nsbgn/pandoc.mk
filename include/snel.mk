@@ -46,6 +46,9 @@ endif
 ifndef IGNORE
     IGNORE=Makefile .git .gitignore
 endif
+ifndef HIDE_WEB_INFO
+	HIDE_WEB_INFO=
+endif
 
 # Find source files
 SOURCE_FILES = $(shell \
@@ -233,16 +236,15 @@ $(DEST)/%.html: \
 	@-mkdir -p "$(@D)"
 	@-mkdir -p "$(patsubst $(DEST)/%,$(CACHE)/%,$(@D))"
 	@pandoc  \
+		--metadata hide_web_info='$(HIDE_WEB_INFO)' \
 		--metadata path='$(shell realpath $(@D) --relative-to $(DEST) --canonicalize-missing)' \
 		--metadata root='$(shell realpath $(DEST) --relative-to $(@D) --canonicalize-missing)' \
-		--metadata index='$(shell realpath $(DEST)/index.html --relative-to $(@D) --canonicalize-missing)' \
 		--metadata favicon='$(shell realpath $(DEST)/favicon.ico --relative-to $(@D) --canonicalize-missing)' \
 		--metadata stylesheet='$(shell realpath $(DEST)/$(STYLE).css --relative-to $(@D) --canonicalize-missing)' \
+		--metadata index='$(shell realpath $(DEST)/index.html --relative-to $(@D) --canonicalize-missing)' \
 		--from markdown+smart+fenced_divs+inline_notes+table_captions \
 		--to html5 \
 		--standalone \
-		--table-of-contents \
-		--toc-depth=3 \
 		--template '$(PANDOC_DIR)/page.html' \
 		$(foreach F,\
 			$(filter %.css, $^),\
@@ -263,18 +265,25 @@ $(DEST)/%.html: \
 		| sed ':a;N;$$!ba;s|>\s*<|><|g' \
 		> $@
 
+		# No table of contents for now since it's not yet used
+		#--table-of-contents
+		#--toc-depth=3
 
 # Create PDF documents
 $(DEST)/%.pdf: $(SRC)/%.md $(PANDOC_DIR)/page.html $(DEST)/$(STYLE).css
 	@echo "Generating document \"$@\"..." 1>&2
 	pandoc \
+		--metadata hide_web_info='$(HIDE_WEB_INFO)' \
 	    --shift-heading-level-by=1 \
 	    --pdf-engine=weasyprint \
 	    --template '$(PANDOC_DIR)/page.html' \
 	    --css '$(DEST)/$(STYLE).css' \
 	    --to pdf \
 	    $< \
-	| ps2pdf -dOptimize=true -dUseFlateCompression=true - $@
+	| ps2pdf \
+		-dOptimize=true \
+		-dUseFlateCompression=true \
+		- $@
 
 
 ##########################################################################$$$$

@@ -50,8 +50,8 @@ ${contents:nav()}
 $else$
 <main>
 <header>
-<div>$if(title-prefix)$$title-prefix$$if(date)$ &middot; $endif$$endif$$if(date)$$date$$endif$</div>
-$if(index)$<a href="$index$">&#8801;</a> $endif$<h1>$if(title)$$title$$else$Untitled$endif$</h1>
+$if(hide_web_info)$$else$<div>$if(title-prefix)$$title-prefix$$if(date)$ &middot; $endif$$endif$$if(date)$$date$$endif$</div>
+$if(index)$<a href="$index$">&#8801;</a> $endif$$endif$<h1>$if(title)$$title$$else$Untitled$endif$</h1>
 </header>
 $if(toc)$
 <nav id="$idprefix$toc">
