@@ -1,0 +1,68 @@
+@import "page";
+
+/* Table of contents (page) *************************************************/
+
+$HSPACE_TOC: 1.5em; // Horizontal space between ToC and page
+
+#toc {
+    text-align: left;
+    float: right;
+    background: $COLOR_PAGE;
+    padding: 0.3em 0 0.3em $HSPACE_TOC;
+
+    ul {
+        line-height: 1em;
+        margin: 0;
+        list-style: none; // to override unorderedness of ToC
+        counter-reset: item;
+        >li {
+            display: block;
+            margin-left: 0;
+        }
+        >li:before {
+            content: counters(item, ".") ". ";
+            counter-increment: item;
+            padding-right: 0.4em;
+            font-size: 0.5em;
+        }
+    }
+
+    li li {
+        margin-left: 1em;
+    }
+
+    a {
+        font-size: 0.6em;
+        text-decoration: none;
+        text-transform: lowercase;
+        color: $COLOR_TEXT;
+    }
+}
+
+// If the width gets so small that it doesn't make sense to float the ToC, just
+// put it normally
+@media screen and (max-width: (2*($WIDTH_TOC + $HSPACE_TOC + 2*$HSPACE_PAGE))) {
+    #toc {
+        float: none;
+    }
+}
+
+// If the width gets large enough to fit the ToC on the side, move it there
+@media screen and (min-width: ($WIDTH_PAGE_MAX + 2*($HSPACE_PAGE*2 + $HSPACE_TOC + $WIDTH_TOC))) {
+    #toc {
+        display: inline-block;
+        margin: 0 0 0 ($WIDTH_PAGE_MAX / 2 + $HSPACE_TOC);
+        position: absolute; // alternative: fixed, sticky?
+        //top: $VSPACE_PAGE;  // this would place it at the top of the page
+        //rather than at the same height as the first line
+        left: 50%;
+        width: $WIDTH_TOC;
+
+        >ul {
+            position: fixed;
+        }
+    }
+}
+
+
+

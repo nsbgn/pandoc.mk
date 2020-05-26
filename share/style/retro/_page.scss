@@ -1,0 +1,30 @@
+$WIDTH_PAGE_MIN: 35em; // Minimum width before margin scales down
+$WIDTH_PAGE_MAX: 40em; // Maximum width before margin scales up
+$WIDTH_TOC: 9em; // Width of table of contents when moved to the side
+$VSPACE_PAGE: 5em; // Vertical margin on the page
+$HSPACE_PAGE: 3em; // Horizontal margin on the page
+
+main, #index {
+    margin: $VSPACE_PAGE auto;
+    padding: 0 $HSPACE_PAGE;
+
+}
+
+
+// Once the width reaches a lower limit, margins start shrinking proportionally
+@media screen and (max-width: ($WIDTH_PAGE_MIN)) {
+    main, nav#index {
+        padding: 0 percentage($HSPACE_PAGE/($WIDTH_PAGE_MIN + 2*$HSPACE_PAGE));
+    }
+}
+
+// Once the width reaches an upper limit, the additional space is taken by
+// margins. I confess I don't entirely understand why the coefficient on
+// $HSPACE_PAGE is set to 4 rather than 2, but the result looks better. It's
+// still not an *entirely* smooth transition, though, so this needs looking
+// into.
+@media screen and (min-width: ($WIDTH_PAGE_MAX + 4*( $HSPACE_PAGE ) )) {
+    main, #index {
+        width: $WIDTH_PAGE_MAX;
+    }
+}

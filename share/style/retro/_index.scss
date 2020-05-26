@@ -1,0 +1,37 @@
+@import "colors";
+
+/* Table of contents (site-wide) *********************************************/
+
+#index {
+    text-align: left;
+    > ul > li {
+        margin: 2em 0;
+    }
+    ul {
+        list-style: none;
+        font-weight: 600;
+    }
+    ul ul {
+        margin-left: 2em;
+        font-weight: normal;
+    }
+    a, span {
+        text-transform: lowercase;
+    }
+    span {
+        cursor: default;
+    }
+
+    // If an item contains no items with children of their own, we collapse
+    // them onto a single line with a dot in between them
+    ul.only-leaves li {
+        display: inline;
+    }
+    ul.only-leaves li + li:before {
+        content: "\ \2022\00a0\ ";
+        font-size: 0.6em;
+        color: $COLOR_FRILL;
+    }
+}
+
+

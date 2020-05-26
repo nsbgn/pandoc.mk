@@ -1,0 +1,210 @@
+@import "colors";
+
+/* Basic page elements *******************************************************/
+
+$VSPACE_FIGURE: 2.5em; // Vertical space around figures, tables, listings…
+$VSPACE_PARAGRAPH: 0.6em;   // Vertical space around paragraphs and lists
+$HSPACE_INDENT: 2.5em; // Indentation for lists items and blockquotes
+$SIZE_LINE: 1.8em; // How much space a line gets
+
+body {
+    color: $COLOR_TEXT;
+    background-color: $COLOR_PAGE;
+    font-family: "Courier New", monospace;
+    font-size: 12pt;
+    text-align: justify;
+    word-wrap: break-word;
+    letter-spacing: 0.01em;
+}
+
+p, ul, ol {
+    margin: $VSPACE_PARAGRAPH 0;
+    line-height: $SIZE_LINE;
+}
+header {
+    text-transform: uppercase;
+    margin: 0 0 1.5em;
+}
+
+header div {
+    color: $COLOR_FRILL;
+    font-size: 0.8em;
+    letter-spacing: 0.15em;
+}
+header a {
+    float: right;
+    font-size: 1.8em;
+    margin-left: 0.5em; // Avoid hugging index list
+    display: inline-block;
+    text-decoration: none;
+    font-family: sans-serif;
+}
+h1 {
+    font-style: normal;
+    font-size: 1.8em;
+    margin-top: 0.1em;
+    text-align: left;
+    font-weight: 300;
+    text-transform: uppercase;
+}
+h2 {
+    margin: 2em 0 $VSPACE_PARAGRAPH;
+    font-size: 1.2em;
+    font-weight: 600;
+    padding-bottom: 0.5em;
+    border-bottom: 3px double $COLOR_TEXT;
+}
+h3 {
+    margin: 2em 0 $VSPACE_PARAGRAPH;
+    font-size: 1.1em;
+    font-weight: normal;
+    padding-bottom: 0.25em;
+    border-bottom: 1px solid $COLOR_TEXT;
+}
+h4 {
+    margin: 0 1em 0 0; 
+    font-size: 1em;
+    line-height: $SIZE_LINE;
+    float: left;
+    font-weight: 600;
+}
+hr + h2, hr + h3, hr + h4 {
+    margin-top: 2em; // Reset header after horizontal rule
+}
+h2 + h3 {
+    margin-top: 1em;
+}
+h4 + * { // Anything that follows a paragraph header should come underneath...
+    clear: left;
+}
+h4 + p { // ... except paragraphs, which come inline.
+    clear: none;
+}
+
+a {
+    text-decoration: underline;
+    color: $COLOR_LINK;
+}
+a:hover {
+    color: $COLOR_FOCUS;
+}
+a.footnote-ref {
+    text-decoration: none;
+}
+sup {
+    line-height: 1em;
+}
+
+
+/* Lists ********************************************************************/
+
+ul, ol {
+    list-style-type: square;
+}
+main li {
+    margin-left: $HSPACE_INDENT;
+    padding-left: 0.5em;
+}
+li p {
+    margin: 0 0 0.4em 0;
+    display: inline-block;
+    vertical-align: top;
+}
+
+/* Description lists ********************************************************/
+
+$DL_SIZE: 17%; 
+dl {
+    margin: 0;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    width: 100%;
+}
+dl dt {
+    flex: 0 0 $DL_SIZE;
+    margin: 0.25em 0;
+    text-overflow: ellipsis;
+    font-weight: 600;
+    overflow: hidden;
+}
+dl dd {
+    flex: 0 0 (100%-$DL_SIZE);
+    margin: 0.25em 0 0 auto;
+    text-align: left;
+}
+
+/* Separating lines *********************************************************/
+
+hr {
+    border: none;
+    border-top: 1px solid $COLOR_TEXT;
+    text-align: center;
+    margin: 2.5em auto;
+    width: 100%;
+    position: relative;
+}
+hr::after {
+    $SIZE_HR: 0.8em;
+    $WIDTH_HR_INNER: 3em;
+    content: "*";
+    font-size: 1.2em;
+    font-weight: 100;
+    position: absolute;
+    top: (-$SIZE_HR/2);
+    left: 50%;
+    margin-left: (-($WIDTH_HR_INNER+$SIZE_HR)/2);
+    width: $WIDTH_HR_INNER;
+    color: $COLOR_TEXT;
+    background: $COLOR_PAGE;
+}
+
+
+/* Quotes and line blocks ***************************************************/
+
+blockquote, .line-block {
+    margin: $VSPACE_FIGURE 0 $VSPACE_FIGURE $HSPACE_INDENT;
+    font-style: italic;
+    quotes: "\201C""\201D""\2018""\2019";
+    position: relative;
+
+    p::before, p::after {
+        font-family: "Times New Roman", serif;
+        font-size: 2.5em;
+        line-height: 0.05em;
+        vertical-align: -0.4em;
+        color: $COLOR_FRILL;
+    }
+    p::before {
+        content: open-quote;
+        padding-right: 0.4em;
+    }
+    p::after {
+        content: close-quote;
+        padding-left: 0.1em;
+    }
+    p {
+        text-indent: 0; // avoid messing up quote symbols,
+                        // should another indent value be inherited
+    }
+    footer {
+        text-align: right;
+        font-style: normal;
+        position: absolute;
+        right: 0;
+    }
+    footer::before {
+        content: "~";
+    }
+}
+
+
+/* Source code **************************************************************/
+
+code {
+    white-space: pre-wrap;
+}
+
+code pre {
+    margin: $VSPACE_FIGURE 0;
+}

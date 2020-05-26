@@ -1,0 +1,69 @@
+@import "colors";
+
+/* Tables *******************************************************************/
+
+$VSPACE_CAPTION_BODY: .8em; // Vertical space between caption and its body
+$VSPACE_CAPTION_EXTRA: .5em;// Additional space under captions
+
+
+table {
+    margin: $VSPACE_FIGURE auto;
+    border-collapse: collapse;
+}
+caption {
+    font-style: italic;
+    margin-top: $VSPACE_CAPTION_BODY;
+    padding-bottom: $VSPACE_CAPTION_EXTRA;
+    caption-side: bottom;
+}
+th, td {
+    padding: 0.5em;
+}
+td:first-child {
+    font-weight: bold;
+}
+table>tr:first-child td, caption + tr td, thead th {
+    font-weight: bold;
+    border-bottom: 1px solid $COLOR_TEXT;
+    border-top: 1px solid $COLOR_TEXT;
+}
+table>tr:last-child td, tbody {
+    border-bottom: 1px solid $COLOR_TEXT;
+}
+tr + caption {
+    border-top: 1px solid $COLOR_TEXT;
+}
+table.no-col-header {
+    td:first-child {
+        font-weight: normal;
+    }
+}
+table.no-row-header {
+    > tr:first-child td, caption + tr td {
+        font-weight: normal;
+        border-bottom: none;
+    }
+}
+
+
+/* Images *******************************************************************/
+
+figure {
+    margin: $VSPACE_FIGURE 0;
+    text-align: center;
+
+    img {
+        display: inline-block;
+        width: 100%;
+        vertical-align: top; // Gets rid of space under inlined image
+    }
+    figcaption {
+        margin-top: $VSPACE_CAPTION_BODY;
+        padding-bottom: $VSPACE_CAPTION_EXTRA;
+        font-style: italic;
+        
+        * {
+            margin: 0;
+        } 
+    }
+}
