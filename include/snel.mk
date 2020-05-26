@@ -283,6 +283,8 @@ $(DEST)/%.pdf: $(SRC)/%.md $(PANDOC_DIR)/page.html $(DEST)/$(STYLE).css
 	| ps2pdf \
 		-dOptimize=true \
 		-dUseFlateCompression=true \
+		-dEmbedAllFonts=true \
+		-dPrinted=false \
 		- $@
 
 
