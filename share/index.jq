@@ -8,6 +8,22 @@ def bool:
 ;
 
 
+# Format a date into its wordy equivalent.
+def format_date:
+    try
+    (
+        (   try (. | strptime("%Y-%m-%d")) 
+            catch (
+                try (. | strptime("%Y/%m/%d")) 
+                catch (
+                    try (. | strptime("%Y-%m"))
+                )
+            )
+        ) | mktime | strftime("%B %-d, %Y")
+    )
+;
+
+
 # Group an array of objects into an object of arrays, such that the key-value
 # pairs of the new object are an accumulation of those of the old object. For
 # example, `[{"a":1, "b":2}, {"a":3}]` turns into `{"a":[1, 3], "b":[3]}`. This
@@ -137,6 +153,17 @@ def add_resources:
         | .contents = ($true // [])
         | .resources = ($false // [])
         | (.contents[]? |= add_resources)
+    else
+        .
+    end
+;
+
+
+def add_formatted_dates:
+    if has("contents") then
+        .contents[]? |= add_formatted_dates
+    elif has("meta") then
+        .meta.formatted_date = (.meta.date | format_date)
     else
         .
     end
