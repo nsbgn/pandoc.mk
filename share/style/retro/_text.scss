@@ -2,7 +2,6 @@
 
 /* Basic page elements *******************************************************/
 
-$VSPACE_FIGURE: 2.5em; // Vertical space around figures, tables, listings…
 $VSPACE_PARAGRAPH: 0.6em;   // Vertical space around paragraphs and lists
 $HSPACE_INDENT: 2.5em; // Indentation for lists items and blockquotes
 $SIZE_LINE: 1.8em; // How much space a line gets
@@ -163,7 +162,7 @@ hr::after {
 /* Quotes and line blocks ***************************************************/
 
 blockquote, .line-block {
-    margin: $VSPACE_FIGURE 0 $VSPACE_FIGURE $HSPACE_INDENT;
+    margin: $VSPACE_PARAGRAPH 0 $VSPACE_PARAGRAPH $HSPACE_INDENT;
     font-style: italic;
     quotes: "\201C""\201D""\2018""\2019";
     position: relative;
@@ -175,11 +174,11 @@ blockquote, .line-block {
         vertical-align: -0.4em;
         color: $COLOR_FRILL;
     }
-    p::before {
+    p:first-of-type::before {
         content: open-quote;
         padding-right: 0.4em;
     }
-    p::after {
+    p:last-of-type::after {
         content: close-quote;
         padding-left: 0.1em;
     }
@@ -206,5 +205,5 @@ code {
 }
 
 code pre {
-    margin: $VSPACE_FIGURE 0;
+    margin: $VSPACE_PARAGRAPH 0;
 }
