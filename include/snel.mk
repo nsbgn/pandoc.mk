@@ -59,8 +59,7 @@ SOURCE_FILES = $(shell \
 INFO_FILES = $(patsubst $(SRC)/%,$(CACHE)/%.info.json,$(SOURCE_FILES))
 
 # All available style files
-TARGET_STYLES = $(patsubst $(ASSET_DIR)/style/%,%.css,$(wildcard $(ASSET_DIR)/style/*))
-
+TARGET_STYLES = $(filter-out _%,$(patsubst $(ASSET_DIR)/style/%.scss,%.css,$(wildcard $(ASSET_DIR)/style/*.scss)))
 STYLE_MODULES = $(shell \
 	find -L "$(ASSET_DIR)/style" -iname '_*.scss' -print \
 )
@@ -128,7 +127,7 @@ $(DEST)/%: $(ASSET_DIR)/%
 
 else
 # Stylesheet
-$(DEST)/%.css: $(ASSET_DIR)/style/%/main.scss $(STYLE_MODULES)
+$(DEST)/%.css: $(ASSET_DIR)/style/%.scss $(STYLE_MODULES)
 	@-mkdir -p $(@D)
 	sassc --style compressed $< $@
 
