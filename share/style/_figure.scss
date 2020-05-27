@@ -1,20 +1,18 @@
 @import "colors";
+@import "text";
+
+$figure-space: 2.5em; // Vertical space around figures & tables
+$caption-space: .8em;
 
 /* Tables *******************************************************************/
 
-$VSPACE_FIGURE: 2.5em; // Vertical space around figures, tables, listings…
-$VSPACE_CAPTION_BODY: .8em; // Vertical space between caption and its body
-$VSPACE_CAPTION_EXTRA: .5em;// Additional space under captions
-
-
 table {
-    margin: $VSPACE_FIGURE auto;
+    margin: $figure-space auto;
     border-collapse: collapse;
 }
 caption {
     font-style: italic;
-    margin-top: $VSPACE_CAPTION_BODY;
-    padding-bottom: $VSPACE_CAPTION_EXTRA;
+    margin: $caption-space 0 $paragraph-space;
     caption-side: bottom;
 }
 th, td {
@@ -25,14 +23,14 @@ td:first-child {
 }
 table>tr:first-child td, caption + tr td, thead th {
     font-weight: bold;
-    border-bottom: 1px solid $COLOR_TEXT;
-    border-top: 1px solid $COLOR_TEXT;
+    border-bottom: 1px solid $color-text;
+    border-top: 1px solid $color-text;
 }
 table>tr:last-child td, tbody {
-    border-bottom: 1px solid $COLOR_TEXT;
+    border-bottom: 1px solid $color-text;
 }
 tr + caption {
-    border-top: 1px solid $COLOR_TEXT;
+    border-top: 1px solid $color-text;
 }
 table.no-col-header {
     td:first-child {
@@ -50,18 +48,17 @@ table.no-row-header {
 /* Images *******************************************************************/
 
 figure {
-    margin: $VSPACE_FIGURE 0;
+    margin: $figure-space 0;
     text-align: center;
 
     img {
         display: inline-block;
         width: 100%;
-        vertical-align: top; // Gets rid of space under inlined image
+        vertical-align: top; // gets rid of space under inlined image
     }
     figcaption {
-        margin-top: $VSPACE_CAPTION_BODY;
-        padding-bottom: $VSPACE_CAPTION_EXTRA;
         font-style: italic;
+        margin: $caption-space 0 $paragraph-space;
         
         * {
             margin: 0;

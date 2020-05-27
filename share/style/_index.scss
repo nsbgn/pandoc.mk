@@ -30,7 +30,7 @@
     ul.only-leaves li + li:before {
         content: "\ \2022\00a0\ ";
         font-size: 0.6em;
-        color: $COLOR_FRILL;
+        color: $color-scenery;
     }
 }
 

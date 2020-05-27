@@ -1,14 +1,14 @@
 @import "colors";
 
+$paragraph-space: 0.6em; // Vertical space around paragraphs and text objects
+$indentation: 2.5em; // Indentation for lists items and blockquotes
+$line-height: 1.8em; // How much space a line gets
+
 /* Basic page elements *******************************************************/
 
-$VSPACE_PARAGRAPH: 0.6em;   // Vertical space around paragraphs and lists
-$HSPACE_INDENT: 2.5em; // Indentation for lists items and blockquotes
-$SIZE_LINE: 1.8em; // How much space a line gets
-
 p, ul, ol {
-    margin: $VSPACE_PARAGRAPH 0;
-    line-height: $SIZE_LINE;
+    margin: $paragraph-space 0;
+    line-height: $line-height;
     word-wrap: break-word;
     letter-spacing: 0.01em;
     text-align: justify;
@@ -19,7 +19,7 @@ header {
 }
 
 header div {
-    color: $COLOR_FRILL;
+    color: $color-scenery;
     font-size: 0.8em;
     letter-spacing: 0.15em;
 }
@@ -40,23 +40,23 @@ h1 {
     text-transform: uppercase;
 }
 h2 {
-    margin: 2em 0 $VSPACE_PARAGRAPH;
+    margin: 2em 0 $paragraph-space;
     font-size: 1.2em;
     font-weight: 600;
     padding-bottom: 0.5em;
-    border-bottom: 3px double $COLOR_TEXT;
+    border-bottom: 3px double $color-text;
 }
 h3 {
-    margin: 2em 0 $VSPACE_PARAGRAPH;
+    margin: 2em 0 $paragraph-space;
     font-size: 1.1em;
     font-weight: normal;
     padding-bottom: 0.25em;
-    border-bottom: 1px solid $COLOR_TEXT;
+    border-bottom: 1px solid $color-text;
 }
 h4 {
     margin: 0 1em 0 0; 
     font-size: 1em;
-    line-height: $SIZE_LINE;
+    line-height: $line-height;
     float: left;
     font-weight: 600;
 }
@@ -75,10 +75,10 @@ h4 + p { // ... except paragraphs, which come inline.
 
 a {
     text-decoration: underline;
-    color: $COLOR_LINK;
+    color: $color-link;
 }
 a:hover {
-    color: $COLOR_FOCUS;
+    color: $color-focus;
 }
 a.footnote-ref {
     text-decoration: none;
@@ -94,7 +94,7 @@ ul, ol {
     list-style-type: square;
 }
 main li {
-    margin-left: $HSPACE_INDENT;
+    margin-left: $indentation;
     padding-left: 0.5em;
 }
 li p {
@@ -105,7 +105,8 @@ li p {
 
 /* Description lists ********************************************************/
 
-$DL_SIZE: 17%; 
+$dl-width: 17%; // How wide the titles of description lists are
+
 dl {
     margin: 0;
     display: flex;
@@ -114,14 +115,14 @@ dl {
     width: 100%;
 }
 dl dt {
-    flex: 0 0 $DL_SIZE;
+    flex: 0 0 $dl-width;
     margin: 0.25em 0;
     text-overflow: ellipsis;
     font-weight: 600;
     overflow: hidden;
 }
 dl dd {
-    flex: 0 0 (100%-$DL_SIZE);
+    flex: 0 0 (100% - $dl-width);
     margin: 0.25em 0 0 auto;
 }
 
@@ -129,7 +130,7 @@ dl dd {
 
 hr {
     border: none;
-    border-top: 1px solid $COLOR_TEXT;
+    border-top: 1px solid $color-text;
     text-align: center;
     margin: 2.5em auto;
     width: 100%;
@@ -146,15 +147,15 @@ hr::after {
     left: 50%;
     margin-left: (-($WIDTH_HR_INNER+$SIZE_HR)/2);
     width: $WIDTH_HR_INNER;
-    color: $COLOR_TEXT;
-    background: $COLOR_PAGE;
+    color: $color-text;
+    background: $color-page;
 }
 
 
 /* Quotes and line blocks ***************************************************/
 
 blockquote, .line-block {
-    margin: $VSPACE_PARAGRAPH 0 $VSPACE_PARAGRAPH $HSPACE_INDENT;
+    margin: $paragraph-space 0 $paragraph-space $indentation;
     font-style: italic;
     quotes: "\201C""\201D""\2018""\2019";
     position: relative;
@@ -164,7 +165,7 @@ blockquote, .line-block {
         font-size: 2.5em;
         line-height: 0.05em;
         vertical-align: -0.4em;
-        color: $COLOR_FRILL;
+        color: $color-scenery;
     }
     p:first-of-type::before {
         content: open-quote;
@@ -197,5 +198,5 @@ code {
 }
 
 code pre {
-    margin: $VSPACE_PARAGRAPH 0;
+    margin: $paragraph-space 0;
 }

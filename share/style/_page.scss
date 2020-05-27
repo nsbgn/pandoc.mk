@@ -1,30 +1,29 @@
 @import "colors";
 
-$WIDTH_PAGE_MIN: 35em; // Minimum width before margin scales down
-$WIDTH_PAGE_MAX: 40em; // Maximum width before margin scales up
-$WIDTH_TOC: 9em; // Width of table of contents when moved to the side
-$VSPACE_PAGE: 5em; // Vertical margin on the page
-$HSPACE_PAGE: 3em; // Horizontal margin on the page
+$minwidth: 35em; // Minimum width before margin scales down
+$maxwidth: 40em; // Maximum width before margin scales up
+$vmargin: 5em; // Vertical margin on the page
+$hmargin: 3em; // Horizontal margin on the page
 
 body {
-    color: $COLOR_TEXT;
-    background-color: $COLOR_PAGE;
+    color: $color-text;
+    background-color: $color-page;
     font-family: "Courier New", monospace;
     font-size: 12pt;
 }
 
 
 main, #index {
-    margin: $VSPACE_PAGE auto;
-    padding: 0 $HSPACE_PAGE;
+    margin: $vmargin auto;
+    padding: 0 $hmargin;
 
 }
 
 
 // Once the width reaches a lower limit, margins start shrinking proportionally
-@media screen and (max-width: ($WIDTH_PAGE_MIN)) {
+@media screen and (max-width: $minwidth) {
     main, nav#index {
-        padding: 0 percentage($HSPACE_PAGE/($WIDTH_PAGE_MIN + 2*$HSPACE_PAGE));
+        padding: 0 percentage($hmargin/($minwidth + 2*$hmargin));
     }
 }
 
@@ -33,8 +32,8 @@ main, #index {
 // $HSPACE_PAGE is set to 4 rather than 2, but the result looks better. It's
 // still not an *entirely* smooth transition, though, so this needs looking
 // into.
-@media screen and (min-width: ($WIDTH_PAGE_MAX + 4*( $HSPACE_PAGE ) )) {
+@media screen and (min-width: ($maxwidth + 4*( $hmargin ) )) {
     main, #index {
-        width: $WIDTH_PAGE_MAX;
+        width: $maxwidth;
     }
 }
