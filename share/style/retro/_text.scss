@@ -6,19 +6,12 @@ $VSPACE_PARAGRAPH: 0.6em;   // Vertical space around paragraphs and lists
 $HSPACE_INDENT: 2.5em; // Indentation for lists items and blockquotes
 $SIZE_LINE: 1.8em; // How much space a line gets
 
-body {
-    color: $COLOR_TEXT;
-    background-color: $COLOR_PAGE;
-    font-family: "Courier New", monospace;
-    font-size: 12pt;
-    text-align: justify;
-    word-wrap: break-word;
-    letter-spacing: 0.01em;
-}
-
 p, ul, ol {
     margin: $VSPACE_PARAGRAPH 0;
     line-height: $SIZE_LINE;
+    word-wrap: break-word;
+    letter-spacing: 0.01em;
+    text-align: justify;
 }
 header {
     text-transform: uppercase;
@@ -130,7 +123,6 @@ dl dt {
 dl dd {
     flex: 0 0 (100%-$DL_SIZE);
     margin: 0.25em 0 0 auto;
-    text-align: left;
 }
 
 /* Separating lines *********************************************************/

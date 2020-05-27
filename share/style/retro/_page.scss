@@ -4,6 +4,14 @@ $WIDTH_TOC: 9em; // Width of table of contents when moved to the side
 $VSPACE_PAGE: 5em; // Vertical margin on the page
 $HSPACE_PAGE: 3em; // Horizontal margin on the page
 
+body {
+    color: $COLOR_TEXT;
+    background-color: $COLOR_PAGE;
+    font-family: "Courier New", monospace;
+    font-size: 12pt;
+}
+
+
 main, #index {
     margin: $VSPACE_PAGE auto;
     padding: 0 $HSPACE_PAGE;
