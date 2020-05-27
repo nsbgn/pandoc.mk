@@ -8,32 +8,23 @@ $hmargin: 3em; // Horizontal margin on the page
 body {
     color: $color-text;
     background-color: $color-page;
+    margin: $vmargin $hmargin;
     font-family: "Courier New", monospace;
     font-size: 12pt;
 }
 
-
-main, #index {
-    margin: $vmargin auto;
-    padding: 0 $hmargin;
-
-}
-
-
 // Once the width reaches a lower limit, margins start shrinking proportionally
-@media screen and (max-width: $minwidth) {
-    main, nav#index {
-        padding: 0 percentage($hmargin/($minwidth + 2*$hmargin));
+@media screen and (max-width: ($minwidth)) {
+    body {
+        margin: $vmargin percentage($hmargin/$minwidth);
     }
 }
 
-// Once the width reaches an upper limit, the additional space is taken by
-// margins. I confess I don't entirely understand why the coefficient on
-// $HSPACE_PAGE is set to 4 rather than 2, but the result looks better. It's
-// still not an *entirely* smooth transition, though, so this needs looking
-// into.
-@media screen and (min-width: ($maxwidth + 4*( $hmargin ) )) {
+// Once the width reaches an upper limit, margins start expanding
+// proportionally
+@media screen and (min-width: ($maxwidth)) {
     main, #index {
+        margin: 0 auto;
         width: $maxwidth;
     }
 }
