@@ -59,7 +59,11 @@ SOURCE_FILES = $(shell \
 INFO_FILES = $(patsubst $(SRC)/%,$(CACHE)/%.info.json,$(SOURCE_FILES))
 
 # All available style files
-ALL_STYLES = $(patsubst $(ASSET_DIR)/style/%,%.css,$(wildcard $(ASSET_DIR)/style/*))
+TARGET_STYLES = $(patsubst $(ASSET_DIR)/style/%,%.css,$(wildcard $(ASSET_DIR)/style/*))
+
+STYLE_MODULES = $(shell \
+	find -L "$(ASSET_DIR)/style" -iname '_*.scss' -print \
+)
 
 # Output files
 ASSET_FILES = \
@@ -68,7 +72,7 @@ ASSET_FILES = \
 STATIC_ASSET_FILES = \
     $(DEST)/favicon.ico \
     $(DEST)/apple-touch-icon.png \
-	$(addprefix $(DEST)/,$(ALL_STYLES))
+	$(addprefix $(DEST)/,$(TARGET_STYLES))
 
 ##############################################################################
 # Phony targets
@@ -115,8 +119,8 @@ upload:
 ##############################################################################
 # Resources
 
-# If `snel` is installed globally, the stylesheet and favicon should be already
-# available in `$PREFIX/share/snel`; otherwise they should be compiled.
+# If `snel` is installed & used globally, the stylesheet and favicon should be
+# already available in `$PREFIX/share/snel`; otherwise they should be compiled.
 ifeq ($(BASE_DIR),$(INCLUDE_DIR))
 $(DEST)/%: $(ASSET_DIR)/%
 	@-mkdir -p $(@D)
@@ -124,7 +128,7 @@ $(DEST)/%: $(ASSET_DIR)/%
 
 else
 # Stylesheet
-$(DEST)/%.css: $(ASSET_DIR)/style/%/main.scss
+$(DEST)/%.css: $(ASSET_DIR)/style/%/main.scss $(STYLE_MODULES)
 	@-mkdir -p $(@D)
 	sassc --style compressed $< $@
 
