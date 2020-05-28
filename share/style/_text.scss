@@ -1,17 +1,21 @@
 @import "colors";
 
 $paragraph-space: 0.6em; // Vertical space around paragraphs and text objects
+$object-space: 2.5em; // Vertical space around objects like lists and quotes
 $indentation: 2.5em; // Indentation for lists items and blockquotes
 $line-height: 1.8em; // How much space a line gets
 
 /* Basic page elements *******************************************************/
 
 p, ul, ol {
-    margin: $paragraph-space 0;
+    margin: $object-space 0;
     line-height: $line-height;
     word-wrap: break-word;
     letter-spacing: 0.01em;
     text-align: justify;
+}
+p {
+    margin: $paragraph-space 0;
 }
 header {
     text-transform: uppercase;
@@ -155,7 +159,7 @@ hr::after {
 /* Quotes and line blocks ***************************************************/
 
 blockquote, .line-block {
-    margin: $paragraph-space 0 $paragraph-space $indentation;
+    margin: $object-space 0 $object-space $indentation;
     font-style: italic;
     quotes: "\201C""\201D""\2018""\2019";
     position: relative;
