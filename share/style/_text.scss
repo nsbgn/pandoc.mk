@@ -186,7 +186,7 @@ blockquote, .line-block {
     footer {
         text-align: right;
         font-style: normal;
-        position: absolute;
+        position: relative;
         right: 0;
     }
     footer::before {
