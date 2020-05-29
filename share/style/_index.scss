@@ -10,10 +10,14 @@
     ul {
         list-style: none;
         font-weight: 600;
+        margin: 0.1em 0;
     }
     ul ul {
         margin-left: 2em;
         font-weight: normal;
+    }
+    ul ul li::before {
+        content: "↳\ ";
     }
     a, span {
         text-transform: lowercase;
