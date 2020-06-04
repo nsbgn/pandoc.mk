@@ -275,8 +275,9 @@ $(DEST)/%.html: \
 # Create PDF documents
 $(DEST)/%.pdf: $(SRC)/%.md $(PANDOC_DIR)/page.html $(DEST)/$(STYLE).css
 	@echo "Generating document \"$@\"..." 1>&2
+	@-mkdir -p "$(@D)"
 	pandoc \
-		--metadata hide_web_info='$(HIDE_WEB_INFO)' \
+	    --metadata hide_web_info='$(HIDE_WEB_INFO)' \
 	    --shift-heading-level-by=1 \
 	    --pdf-engine=weasyprint \
 	    --template '$(PANDOC_DIR)/page.html' \
