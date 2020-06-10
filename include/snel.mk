@@ -220,7 +220,7 @@ $(DEST)/index.html: $(PANDOC_DIR)/page.html $(PANDOC_DIR)/nav.html $(CACHE)/inde
 	    --metadata-file "$(CACHE)/index.json" \
 	    --metadata title="Table of contents" \
 		--metadata favicon='$(shell realpath $(DEST)/favicon.ico --relative-to $(@D) --canonicalize-missing)' \
-		--metadata stylesheet='$(shell realpath $(DEST)/$(STYLE).css --relative-to $(@D) --canonicalize-missing)' \
+		--metadata style='$(STYLE)' \
 	    > $@
 
 
@@ -243,15 +243,15 @@ $(DEST)/%.html: \
 		--metadata path='$(shell realpath $(@D) --relative-to $(DEST) --canonicalize-missing)' \
 		--metadata root='$(shell realpath $(DEST) --relative-to $(@D) --canonicalize-missing)' \
 		--metadata favicon='$(shell realpath $(DEST)/favicon.ico --relative-to $(@D) --canonicalize-missing)' \
-		--metadata stylesheet='$(shell realpath $(DEST)/$(STYLE).css --relative-to $(@D) --canonicalize-missing)' \
 		--metadata index='$(shell realpath $(DEST)/index.html --relative-to $(@D) --canonicalize-missing)' \
+		--metadata default-style='$(STYLE)' \
 		--from markdown+smart+fenced_divs+inline_notes+table_captions \
 		--to html5 \
 		--standalone \
 		--template '$(PANDOC_DIR)/page.html' \
 		$(foreach F,\
 			$(filter %.css, $^),\
-			--css='$(F)' \
+			--ss='$(F)' \
 		) \
 		--filter pandoc-citeproc \
 		$(foreach F,\
@@ -268,9 +268,9 @@ $(DEST)/%.html: \
 		| sed ':a;N;$$!ba;s|>\s*<|><|g' \
 		> $@
 
-		# No table of contents for now since it's not yet used
-		#--table-of-contents
-		#--toc-depth=3
+# No table of contents for now since it's not yet used
+#--table-of-contents
+#--toc-depth=3
 
 # Create PDF documents
 $(DEST)/%.pdf: $(SRC)/%.md $(PANDOC_DIR)/page.html $(DEST)/$(STYLE).css
@@ -281,7 +281,8 @@ $(DEST)/%.pdf: $(SRC)/%.md $(PANDOC_DIR)/page.html $(DEST)/$(STYLE).css
 	    --shift-heading-level-by=1 \
 	    --pdf-engine=weasyprint \
 	    --template '$(PANDOC_DIR)/page.html' \
-	    --css '$(DEST)/$(STYLE).css' \
+	    --metadata default-style='$(STYLE)' \
+	    --metadata root='$(DEST)' \
 	    --to pdf \
 	    $< \
 	| ps2pdf \
