@@ -55,8 +55,8 @@ SOURCE_FILES = $(shell \
     find -L "$(SRC)"  $(patsubst %,-name '%' -prune -o,$(IGNORE)) -iname '*.md' -print \
 )
 
-# Metadata and extra targets are collected for each source in a corresponding file
-INFO_FILES = $(patsubst $(SRC)/%,$(CACHE)/%.info.json,$(SOURCE_FILES))
+# Headers and extra targets are collected for each source in a corresponding file
+META_FILES = $(patsubst $(SRC)/%,$(CACHE)/%.meta.json,$(SOURCE_FILES))
 
 # All available style files
 STYLE_SOURCES = $(patsubst $(ASSET_DIR)/style/%.scss,%,$(wildcard $(ASSET_DIR)/style/*.scss))
@@ -89,14 +89,14 @@ all: site
 
 # The cache is built on the first run: we read the metadata of all files to
 # build an index
-index: $(CACHE)/targets.txt
+index: $(CACHE)/targets.html.txt
 
 # On the second run, we build the actual published documents and files that
 # those documents refer to
-content: $(shell cat $(CACHE)/targets.txt 2>/dev/null)
+content: $(shell cat $(CACHE)/targets.html.txt 2>/dev/null)
 
 # Optionally, remove all files in $(DEST) that are no longer targeted
-clean: $(CACHE)/targets.txt
+clean: $(CACHE)/targets.html.txt
 	@bash -i -c 'read -p "Operation might remove files in \"$(DEST)\". Continue? [y/N]" -n 1 -r; \
 	    [[ $$REPLY =~ ^[Yy]$$ ]] || exit 1'
 	@echo
@@ -151,10 +151,9 @@ endif
 # Indexing
 
 
-# Record document metadata for each document
-$(CACHE)/%.md.meta.json: $(SRC)/%.md $(PANDOC_DIR)/metadata.json $(JQ_DIR)/index.jq
+# Record metadata headers for each document
+$(CACHE)/%.md.headers.json: $(SRC)/%.md $(PANDOC_DIR)/metadata.json $(JQ_DIR)/index.jq
 	@-mkdir -p "$(@D)"
-	@echo "Determining document metadata for \"$<\"…" 1>&2
 	@pandoc --template='$(PANDOC_DIR)/metadata.json' \
 	    --to=plain \
 	    $< \
@@ -164,25 +163,25 @@ $(CACHE)/%.md.meta.json: $(SRC)/%.md $(PANDOC_DIR)/metadata.json $(JQ_DIR)/index
 # Record extra targets for each document
 $(CACHE)/%.md.targets.json: $(SRC)/%.md 
 	@-mkdir -p "$(@D)"
-	@echo "Determining indirect targets  for \"$<\"…" 1>&2
 	@pandoc -f markdown -t json -i $< \
 	    | jq -r '{"targets":[ .blocks[] | recurse(.c?[]?) | select(.t? == "Image") | .c[2][0] | select(test("^[a-z]+://") | not) ]}' \
 	    > $@
 
-# Combination of metadata + targets
-$(CACHE)/%.md.info.json: $(CACHE)/%.md.meta.json $(CACHE)/%.md.targets.json 
+# Combination of headers + targets
+$(CACHE)/%.md.meta.json: $(CACHE)/%.md.headers.json $(CACHE)/%.md.targets.json 
 	@-mkdir -p "$(@D)"
+	@echo "Generating metadata for \"$<\"..." 1>&2
 	@jq \
 	    -L"$(JQ_DIR)" \
-	    --arg path "$(patsubst $(CACHE)/%.md.info.json,%.md,$@)" \
+	    --arg path "$(patsubst $(CACHE)/%.md.meta.json,%.md,$@)" \
 	    --slurp \
 	    'include "index"; add | tree(["."] + ($$path | split("/")))' \
 	    $^ \
 	    > $@
 
 # Overview of final targets
-$(CACHE)/targets.txt: $(CACHE)/index.json
-	@echo "Aggregating targets…" 1>&2
+$(CACHE)/targets.%.txt: $(CACHE)/index.%.json
+	@echo "Aggregating targets..." 1>&2
 	@jq \
 	    -L"$(JQ_DIR)" \
 	    --arg dest "$(DEST)/" \
@@ -194,31 +193,31 @@ $(CACHE)/targets.txt: $(CACHE)/index.json
 # Overview of files & directories, without metadata
 $(CACHE)/filetree.json: $(SOURCE_FILES)
 	@-mkdir -p $(@D)
-	@echo "Generating file tree…" 1>&2
+	@echo "Generating file tree..." 1>&2
 	@tree -JDpi --du --timefmt '%s' --dirsfirst \
 	    -I '$(subst $() $(),|,$(IGNORE))' \
 	    | jq '.[0]' \
 	    > $@
 
 # Overview of files & directories with metadata, readable for index template
-$(CACHE)/index.json: $(JQ_DIR)/index.jq \
+$(CACHE)/index.%.json: $(JQ_DIR)/index.jq \
 	    $(CACHE)/filetree.json \
-	    $(INFO_FILES) \
+	    $(META_FILES) \
 	    $(wildcard $(SRC)/index.base.json)
 	@-mkdir -p $(@D)
-	@echo "Aggregating file index…" 1>&2
+	@echo "Generating index data..." 1>&2
 	@jq  -L$(JQ_DIR) --slurp \
-	    'include "index"; index' \
+	    'include "index"; index("$(patsubst $(CACHE)/index.%.json,%,$@)")' \
 	    $(filter %.json, $^) \
 	    > $@
 
 # Generate static index page 
-$(DEST)/index.html: $(PANDOC_DIR)/page.html $(PANDOC_DIR)/nav.html $(CACHE)/index.json
+$(DEST)/index.html: $(PANDOC_DIR)/page.html $(PANDOC_DIR)/nav.html $(CACHE)/index.html.json
 	@-mkdir -p $(@D)
-	@echo "Generating table of contents…" 1>&2
+	@echo "Generating index page..." 1>&2
 	@echo | pandoc \
 	    --template="$(PANDOC_DIR)/page.html" \
-	    --metadata-file "$(CACHE)/index.json" \
+	    --metadata-file "$(CACHE)/index.html.json" \
 	    --metadata title="Table of contents" \
 		--metadata favicon='$(shell realpath $(DEST)/favicon.ico --relative-to $(@D) --canonicalize-missing)' \
 		--metadata style='$(STYLE)' \

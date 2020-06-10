@@ -98,12 +98,12 @@ def add_directories:
 ;
 
 
-# Any page gets a link to its HTML.
-def add_links:
+# Any page gets a link to its target.
+def add_links(target_extension):
     if (has("directory") and (.name | endswith(".md"))) then
-        .link = ((.directory + [.name]) | join("/") | rtrimstr(".md") | . + ".html")
+        .link = ((.directory + [.name]) | join("/") | rtrimstr(".md") | . + "." + target_extension)
     else
-        .contents[]? |= add_links
+        .contents[]? |= add_links(target_extension)
     end
 ;
 
@@ -194,10 +194,10 @@ def annotate_leaves:
 
 # Combines the given stream of JSON objects by merging them, and performs the
 # given operations to turn it into a proper index.
-def index:
+def index(target_extension):
     merge_content
     | add_directories
-    | add_links
+    | add_links(target_extension)
     | add_drafts
     | add_frontmatter
     | add_resources
