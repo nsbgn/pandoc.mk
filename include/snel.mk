@@ -59,10 +59,11 @@ SOURCE_FILES = $(shell \
 INFO_FILES = $(patsubst $(SRC)/%,$(CACHE)/%.info.json,$(SOURCE_FILES))
 
 # All available style files
-TARGET_STYLES = $(filter-out _%,$(patsubst $(ASSET_DIR)/style/%.scss,%.css,$(wildcard $(ASSET_DIR)/style/*.scss)))
-STYLE_MODULES = $(shell \
-	find -L "$(ASSET_DIR)/style" -iname '_*.scss' -print \
-)
+STYLE_SOURCES = $(patsubst $(ASSET_DIR)/style/%.scss,%,$(wildcard $(ASSET_DIR)/style/*.scss))
+STYLE_MODULES = $(filter _%,$(STYLE_SOURCES))
+STYLE_TARGETS = $(filter-out _%,$(STYLE_SOURCES))
+STYLE_MODULE_FILES = $(patsubst %,$(ASSET_DIR)/style/%.scss,$(STYLE_MODULES))
+STYLE_TARGET_FILES = $(patsubst %,$(DEST)/%.css,$(STYLE_TARGETS))
 
 # Output files
 ASSET_FILES = \
@@ -71,7 +72,7 @@ ASSET_FILES = \
 STATIC_ASSET_FILES = \
     $(DEST)/favicon.ico \
     $(DEST)/apple-touch-icon.png \
-	$(addprefix $(DEST)/,$(TARGET_STYLES))
+	$(STYLE_TARGET_FILES)
 
 ##############################################################################
 # Phony targets
@@ -127,7 +128,7 @@ $(DEST)/%: $(ASSET_DIR)/%
 
 else
 # Stylesheet
-$(DEST)/%.css: $(ASSET_DIR)/style/%.scss $(STYLE_MODULES)
+$(DEST)/%.css: $(ASSET_DIR)/style/%.scss $(STYLE_MODULE_FILES)
 	@-mkdir -p $(@D)
 	sassc --style compressed $< $@
 
@@ -249,10 +250,6 @@ $(DEST)/%.html: \
 		--to html5 \
 		--standalone \
 		--template '$(PANDOC_DIR)/page.html' \
-		$(foreach F,\
-			$(filter %.css, $^),\
-			--ss='$(F)' \
-		) \
 		--filter pandoc-citeproc \
 		$(foreach F,\
 			$(filter %.bib, $^),\
@@ -273,7 +270,7 @@ $(DEST)/%.html: \
 #--toc-depth=3
 
 # Create PDF documents
-$(DEST)/%.pdf: $(SRC)/%.md $(PANDOC_DIR)/page.html $(DEST)/$(STYLE).css
+$(DEST)/%.pdf: $(SRC)/%.md $(PANDOC_DIR)/page.html $(STYLE_TARGET_FILES)
 	@echo "Generating document \"$@\"..." 1>&2
 	@-mkdir -p "$(@D)"
 	pandoc \
