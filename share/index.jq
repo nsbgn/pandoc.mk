@@ -114,7 +114,7 @@ def add_frontmatter:
     if has("contents") then
         ( .contents | map({(.name=="index.md" or .meta.frontmatter|tostring):.}) | group) as {$true, $false}
         | .frontmatter = $true[0]
-        | .contents = ($false + $true[1:])
+        | .contents = (($false // []) + $true[1:])
         | (.contents[] |= add_frontmatter)
     else
         .

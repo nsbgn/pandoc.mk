@@ -70,8 +70,6 @@ ASSET_FILES = \
     $(DEST)/index.html \
 	$(STATIC_ASSET_FILES)
 STATIC_ASSET_FILES = \
-    $(DEST)/favicon.ico \
-    $(DEST)/apple-touch-icon.png \
 	$(STYLE_TARGET_FILES)
 
 ##############################################################################
@@ -80,7 +78,7 @@ STATIC_ASSET_FILES = \
 # We need two seperate runs: first to build the index, then to build the
 # content which is based on said index. Con: this will build the index twice if
 # run with `make -B`
-html: $(CACHE)/targets.html.txt
+html: $(CACHE)/targets.html.txt $(DEST)/favicon.ico $(DEST)/apple-touch-icon.png 
 	$(MAKE) content-html
 
 pdf: $(CACHE)/targets.pdf.txt
