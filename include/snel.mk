@@ -78,22 +78,18 @@ STATIC_ASSET_FILES = \
 # Phony targets
 
 # We need two seperate runs: first to build the index, then to build the
-# context which is based on said index. Con: this will build the index twice if
+# content which is based on said index. Con: this will build the index twice if
 # run with `make -B`
-site:
-	$(MAKE) index
-	$(MAKE) content
+html: $(CACHE)/targets.html.txt
+	$(MAKE) content-html
 
-all: site
-	$(MAKE) clean upload
-
-# The cache is built on the first run: we read the metadata of all files to
-# build an index
-index: $(CACHE)/targets.html.txt
+pdf: $(CACHE)/targets.pdf.txt
+	$(MAKE) content-pdf
 
 # On the second run, we build the actual published documents and files that
 # those documents refer to
-content: $(shell cat $(CACHE)/targets.html.txt 2>/dev/null)
+content-html: $(shell cat $(CACHE)/targets.html.txt 2>/dev/null)
+content-pdf: $(shell cat $(CACHE)/targets.pdf.txt 2>/dev/null)
 
 # Optionally, remove all files in $(DEST) that are no longer targeted
 clean: $(CACHE)/targets.html.txt
@@ -112,7 +108,7 @@ upload:
 	$(HOST)
 
 
-.PHONY: all site index content clean upload
+.PHONY: all html content-html pdf content-pdf clean upload
 
 
 
@@ -170,7 +166,7 @@ $(CACHE)/%.md.targets.json: $(SRC)/%.md
 # Combination of headers + targets
 $(CACHE)/%.md.meta.json: $(CACHE)/%.md.headers.json $(CACHE)/%.md.targets.json 
 	@-mkdir -p "$(@D)"
-	@echo "Generating metadata for \"$<\"..." 1>&2
+	@echo "Generating metadata \"$@\"..." 1>&2
 	@jq \
 	    -L"$(JQ_DIR)" \
 	    --arg path "$(patsubst $(CACHE)/%.md.meta.json,%.md,$@)" \
