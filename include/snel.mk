@@ -29,7 +29,7 @@ ifndef DEST
     DEST := build
 endif
 ifndef STYLE
-    STYLE := plain
+    STYLE := letter
 endif
 ifndef CACHE
     CACHE := $(DEST)/cache
