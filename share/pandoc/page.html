@@ -53,7 +53,7 @@ $else$
 <main>
 <header>
 $if(hide_web_info)$$else$<div>$if(title-prefix)$$title-prefix$$if(date)$ &middot; $endif$$endif$$if(date)$$date$$endif$</div>
-$if(index)$<a href="$index$">&#8801;</a> $endif$$endif$<h1>$if(title)$$title$$else$Untitled$endif$</h1>
+$if(index)$<a href="$index$">&#8801;</a>$endif$$endif$$if(title)$<h1>$title$</h1>$elseif(default-title)$<h1>$default-title$</h1>$endif$
 </header>
 $if(toc)$
 <nav id="$idprefix$toc">
