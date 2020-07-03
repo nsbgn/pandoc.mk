@@ -32,4 +32,4 @@ upload-ssh:
 	rsync -e "ssh -p $(PORT)" \
 		--recursive --times --copy-links --verbose --progress \
 		--exclude="$(CACHE)" \
-		 $(HOST) $(USER)@$(HOST):'$(REMOTE_DIR)'
+		"$(DEST)/" $(USER)@$(HOST):'$(REMOTE_DIR)/'
