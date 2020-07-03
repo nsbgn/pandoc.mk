@@ -28,7 +28,7 @@ def format_date:
 # pairs of the new object are an accumulation of those of the old object. For
 # example, `[{"a":1, "b":2}, {"a":3}]` turns into `{"a":[1, 3], "b":[3]}`. This
 # can be used to partition an array.
-# Try: `[1,2,3] | map({(.%2|tostring):.}) | group`
+# Try: `[1,"2",3] | map ({(.|type):.}) | group`
 def group:
     reduce ([.[] | to_entries[]] | group_by(.key))[] as $group
     ( {} 
