@@ -34,15 +34,6 @@ endif
 ifndef CACHE
     CACHE := $(DEST)/cache
 endif
-ifndef USER
-    USER := user
-endif
-ifndef HOST
-    HOST := host
-endif
-ifndef REMOTE_DIR
-    REMOTE_DIR := /home/user/public_html
-endif
 ifndef IGNORE
     IGNORE=Makefile .git .gitignore
 endif
@@ -97,14 +88,6 @@ clean: $(CACHE)/targets.html.txt
 	find "$(DEST)" -type f -a -not -path '$(CACHE)/*' \
 	    | grep --fixed-strings --line-regexp --invert-match --file=$< \
 	    | xargs --no-run-if-empty rm --verbose
-
-# Upload the result
-upload: 
-	read -s -p 'FTP password: ' password && \
-	lftp -u $(USER),$$password -e \
-	"mirror --reverse --only-newer --verbose --dry-run --exclude $(CACHE) $(DEST) $(REMOTE)" \
-	$(HOST)
-
 
 .PHONY: all html content-html pdf content-pdf clean upload
 

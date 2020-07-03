@@ -2,10 +2,13 @@ automatic: assets
 
 include include/snel.mk
 
+MAKEFILES := $(patsubst include/%,%,$(wildcard include/*))
+
 assets: $(STATIC_ASSET_FILES)
 
 install: assets
-	install include/snel.mk $(INCLUDE_DIR)/
+	install --mode 755 -D --target-directory $(INCLUDE_DIR)/ \
+		$(addprefix include/,$(MAKEFILES))
 	install --mode=644 -D --target-directory $(SHARE_DIR)/ \
 	    $(STATIC_ASSET_FILES)
 	install --mode=644 -D --target-directory $(SHARE_DIR)/ \
@@ -16,7 +19,7 @@ install: assets
 	    $(PANDOC_DIR)/extract-references.py
 
 uninstall:
-	rm $(INCLUDE_DIR)/snel.mk
+	rm -f $(addprefix $(INCLUDE_DIR)/,$(MAKEFILES))
 	rm -r $(SHARE_DIR)
 
 .PHONY: install uninstall automatic
