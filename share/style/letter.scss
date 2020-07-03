@@ -6,7 +6,7 @@ $COLOR_LINK:  #901;         // Color for links
 $COLOR_FOCUS: #f02;         // Color for focused links
 $COLOR_FRILL: #777;         // Color for quote symbols and other embellishments
 
-$SIZE_TEXT: 13pt;           // Base font size
+$SIZE_TEXT: 12pt;           // Base font size
 $SIZE_LINE: 1.8em;          // How much space a line gets
 $SIZE_HEAD1: 1.8em;         // Font size for title
 $SIZE_HEAD2: 1.2em;         // Font size for section header $SIZE_HEAD2;
@@ -576,7 +576,7 @@ section.footnotes hr {
 /* Printing *****************************************************************/
 
 @page {
-    size: A5;
+    size: A4;
     margin: 1.5cm 2cm;
     counter-increment: page;
 
