@@ -1,3 +1,5 @@
+# This sets the variables that all of `snel` needs; included by every file.
+
 # Location of this makefile
 BASE_DIR := $(patsubst %/,%,$(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
 

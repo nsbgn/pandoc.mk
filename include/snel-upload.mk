@@ -1,4 +1,7 @@
-include snel-variables.mk
+# This adds recipes for uploading the destination directory to a server, via
+# FTP or SSH.
+
+include $(dir $(abspath $(lastword $(MAKEFILE_LIST))))/snel-variables.mk
 
 ifndef PROTOCOL
     PROTOCOL := ssh
@@ -25,11 +28,13 @@ upload: upload-$(PROTOCOL)
 upload-ftp: 
 	read -s -p 'FTP password: ' password && \
 	lftp -u "$(USER),$$password" -p "$(PORT)" \
-	-e "mirror --reverse --only-newer --verbose --dry-run --exclude $(CACHE) $(DEST) $(REMOTE_DIR)" \
-	$(HOST)
+	-e 'mirror --reverse --only-newer --verbose --dry-run --exclude "$(CACHE)" "$(DEST)" $(REMOTE_DIR)"' \
+	"$(HOST)"
 
 upload-ssh:
 	rsync -e "ssh -p $(PORT)" \
 		--recursive --times --copy-links --verbose --progress \
 		--exclude="$(CACHE)" \
 		"$(DEST)/" $(USER)@$(HOST):'$(REMOTE_DIR)/'
+
+.PHONY: upload upload-ftp upload-ssh
