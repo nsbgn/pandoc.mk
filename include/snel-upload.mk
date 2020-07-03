@@ -4,10 +4,10 @@ ifndef PROTOCOL
     PROTOCOL := ssh
 endif
 ifndef USER
-    USER := user
+    $(error Variable USER is not set)
 endif
 ifndef HOST
-    HOST := host
+    $(error Variable HOST is not set)
 endif
 ifndef REMOTE_DIR
     REMOTE_DIR := /home/$(USER)/public_html
