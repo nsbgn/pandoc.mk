@@ -4,21 +4,26 @@
 
 include $(dir $(abspath $(lastword $(MAKEFILE_LIST))))/snel-variables.mk
 
-# Find source files
+# Find potential source Markdown files
 SOURCE_FILES = $(shell \
     find -L "$(SRC)"  $(patsubst %,-name '%' -prune -o,$(IGNORE)) -iname '*.md' -print \
 )
+
 # Headers and extra targets are collected for each source in a corresponding file
 META_FILES = $(patsubst $(SRC)/%,$(CACHE)/%.meta.json,$(SOURCE_FILES))
 
-
-html: $(CACHE)/content.mk indirect-targets $(DEST)/favicon.ico $(DEST)/apple-touch-icon.png $(DEST)/index.html
+html: $(CACHE)/content.mk html-targets $(DEST)/favicon.ico $(DEST)/apple-touch-icon.png $(DEST)/index.html
+pdf:  $(CACHE)/content.mk pdf-targets
 
 include $(CACHE)/content.mk
 
-$(CACHE)/content.mk: $(CACHE)/targets.html.txt
-	@echo "Generating recipes..."
-	@jq -R -r '"indirect-targets: " + ([inputs] | join(" ")) + "\n.PHONY: indirect-targets"' < $< > $@
+# Generate the makefile containing the dynamic targets for HTML/PDF documents
+# and any external content referred inside
+$(CACHE)/content.mk: $(CACHE)/targets.pdf.txt $(CACHE)/targets.html.txt
+	@echo "Generating content recipes..."
+	@jq -R -r '"html-targets: " + ([inputs] | join(" "))' < "$(CACHE)/targets.html.txt" >> "$@"
+	@jq -R -r '"pdf-targets: " + ([inputs] | join(" "))' < "$(CACHE)/targets.pdf.txt" >> "$@"
+	@echo ".PHONY: html-targets pdf-targets" >> "$@"
 
 
 # Optionally, remove all files in $(DEST) that are no longer targeted
