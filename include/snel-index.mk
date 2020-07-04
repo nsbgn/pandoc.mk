@@ -1,5 +1,6 @@
 # This adds recipes for collecting all the Markdown files from a particular
-# directory and generating an index file and a set of targets.
+# directory that have `publish: true` in the metadata. It also generates an
+# index file for them.
 
 include $(dir $(abspath $(lastword $(MAKEFILE_LIST))))/snel-variables.mk
 
@@ -7,23 +8,18 @@ include $(dir $(abspath $(lastword $(MAKEFILE_LIST))))/snel-variables.mk
 SOURCE_FILES = $(shell \
     find -L "$(SRC)"  $(patsubst %,-name '%' -prune -o,$(IGNORE)) -iname '*.md' -print \
 )
-
 # Headers and extra targets are collected for each source in a corresponding file
 META_FILES = $(patsubst $(SRC)/%,$(CACHE)/%.meta.json,$(SOURCE_FILES))
 
-# We need two seperate runs: first to build the index, then to build the
-# content which is based on said index. Con: this will build the index twice if
-# run with `make -B`
-html: $(CACHE)/targets.html.txt $(DEST)/favicon.ico $(DEST)/apple-touch-icon.png $(DEST)/index.html
-	$(MAKE) content-html
 
-pdf: $(CACHE)/targets.pdf.txt
-	$(MAKE) content-pdf
+html: $(CACHE)/content.mk indirect-targets $(DEST)/favicon.ico $(DEST)/apple-touch-icon.png $(DEST)/index.html
 
-# On the second run, we build the actual published documents and files that
-# those documents refer to
-content-html: $(shell cat $(CACHE)/targets.html.txt 2>/dev/null)
-content-pdf: $(shell cat $(CACHE)/targets.pdf.txt 2>/dev/null)
+include $(CACHE)/content.mk
+
+$(CACHE)/content.mk: $(CACHE)/targets.html.txt
+	@echo "Generating recipes..."
+	@jq -R -r '"indirect-targets: " + ([inputs] | join(" ")) + "\n.PHONY: indirect-targets"' < $< > $@
+
 
 # Optionally, remove all files in $(DEST) that are no longer targeted
 clean: $(CACHE)/targets.html.txt
@@ -34,7 +30,7 @@ clean: $(CACHE)/targets.html.txt
 	    | grep --fixed-strings --line-regexp --invert-match --file=$< \
 	    | xargs --no-run-if-empty rm --verbose
 
-.PHONY: all html content-html pdf content-pdf clean
+.PHONY: all html pdf clean
 
 # Record metadata headers for each document
 $(CACHE)/%.md.headers.json: $(SRC)/%.md $(PANDOC_DIR)/metadata.json $(JQ_DIR)/index.jq
@@ -64,6 +60,18 @@ $(CACHE)/%.md.meta.json: $(CACHE)/%.md.headers.json $(CACHE)/%.md.targets.json
 	    $^ \
 	    > $@
 
+# Overview of files & directories with metadata, readable for index template
+$(CACHE)/index.%.json: $(JQ_DIR)/index.jq \
+	    $(CACHE)/filetree.json \
+	    $(META_FILES) \
+	    $(wildcard $(SRC)/index.base.json)
+	@-mkdir -p $(@D)
+	@echo "Generating index data..." 1>&2
+	@jq  -L$(JQ_DIR) --slurp \
+	    'include "index"; index("$(patsubst $(CACHE)/index.%.json,%,$@)")' \
+	    $(filter %.json, $^) \
+	    > $@
+
 # Overview of final targets
 $(CACHE)/targets.%.txt: $(CACHE)/index.%.json
 	@echo "Aggregating targets..." 1>&2
@@ -81,18 +89,6 @@ $(CACHE)/filetree.json: $(SOURCE_FILES)
 	@tree -JDpi --du --timefmt '%s' --dirsfirst \
 	    -I '$(subst $() $(),|,$(IGNORE))' \
 	    | jq '.[0]' \
-	    > $@
-
-# Overview of files & directories with metadata, readable for index template
-$(CACHE)/index.%.json: $(JQ_DIR)/index.jq \
-	    $(CACHE)/filetree.json \
-	    $(META_FILES) \
-	    $(wildcard $(SRC)/index.base.json)
-	@-mkdir -p $(@D)
-	@echo "Generating index data..." 1>&2
-	@jq  -L$(JQ_DIR) --slurp \
-	    'include "index"; index("$(patsubst $(CACHE)/index.%.json,%,$@)")' \
-	    $(filter %.json, $^) \
 	    > $@
 
 # Generate static index page 
