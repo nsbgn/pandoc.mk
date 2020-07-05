@@ -179,16 +179,18 @@ def sort_content:
     end
 ;
 
+# Generate this object and all its children.
+def all_children:
+    ., ((.contents // empty) | .[] | all_children)
+;
+
 
 # Add a note that tells us whether this has only children who have no more
 # subchildren.
 def annotate_leaves:
-    if has("contents") then
-        .only_leaves = (.contents | all(has("contents") | not))
-        | (.contents |= map(annotate_leaves))
-    else
-        .
-    end
+    all_children |= (
+        .only_leaves = (has("contents") | not) or (.contents | all(has("contents") | not))
+    )
 ;
 
 

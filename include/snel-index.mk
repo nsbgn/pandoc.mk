@@ -12,7 +12,7 @@ SOURCE_FILES = $(shell \
 # Headers and extra targets are collected for each source in a corresponding file
 META_FILES = $(patsubst $(SRC)/%,$(CACHE)/%.meta.json,$(SOURCE_FILES))
 
-html: $(CACHE)/content.mk html-targets $(DEST)/favicon.ico $(DEST)/apple-touch-icon.png $(DEST)/index.html
+html: $(CACHE)/content.mk html-targets $(DEST)/favicon.ico $(DEST)/apple-touch-icon.png $(DEST)/index.html $(DEST)/web.css
 pdf:  $(CACHE)/content.mk pdf-targets
 
 include $(CACHE)/content.mk
@@ -21,7 +21,7 @@ include $(CACHE)/content.mk
 # and any external content referred inside
 $(CACHE)/content.mk: $(CACHE)/targets.pdf.txt $(CACHE)/targets.html.txt
 	@echo "Generating content recipes..."
-	@jq -R -r '"html-targets: " + ([inputs] | join(" "))' < "$(CACHE)/targets.html.txt" >> "$@"
+	@jq -R -r '"html-targets: " + ([inputs] | join(" "))' < "$(CACHE)/targets.html.txt" > "$@"
 	@jq -R -r '"pdf-targets: " + ([inputs] | join(" "))' < "$(CACHE)/targets.pdf.txt" >> "$@"
 	@echo ".PHONY: html-targets pdf-targets" >> "$@"
 
