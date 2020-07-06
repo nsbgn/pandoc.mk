@@ -8,6 +8,12 @@ def bool:
 ;
 
 
+# Generate this object and all its children.
+def all_children:
+    ., ((.contents // empty) | .[] | all_children)
+;
+
+
 # Format a date into its wordy equivalent.
 def format_date:
     try
@@ -172,24 +178,17 @@ def add_formatted_dates:
 
 # Sort content first according to sort order in metadata.
 def sort_content:
-    if has("contents") then
-        .contents |= (sort_by(.meta.sort // .meta.title // .name) | map(sort_content))
-    else
-        .
-    end
-;
-
-# Generate this object and all its children.
-def all_children:
-    ., ((.contents // empty) | .[] | all_children)
+    (all_children | select(has("contents")) | .contents) |= (
+        sort_by(.meta.sort // .meta.title // .name)
+    )
 ;
 
 
 # Add a note that tells us whether this has only children who have no more
 # subchildren.
 def annotate_leaves:
-    all_children |= (
-        .only_leaves = (has("contents") | not) or (.contents | all(has("contents") | not))
+    (all_children | select(has("contents"))) |= (
+        .only_leaves = (.contents | all(has("contents") | not))
     )
 ;
 
