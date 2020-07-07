@@ -18,7 +18,7 @@ of standard tools into an application for static website generation and
 document typesetting.
 
 As of now, the recipe calls for [pandoc](http://pandoc.org/) 2.8 or higher, 
-[jq](https://stedolan.github.io/jq/) 1.5 or higher,
+[jq](https://stedolan.github.io/jq/) 1.6 or higher,
 [find](https://www.gnu.org/software/findutils/),
 [tree](http://mama.indstate.edu/users/ice/tree/),
 [xargs](https://savannah.gnu.org/projects/findutils/),

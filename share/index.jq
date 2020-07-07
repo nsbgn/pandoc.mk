@@ -10,7 +10,7 @@ def bool:
 
 # Generate this object and all its children.
 def all_children:
-    ., ((.contents // empty) | .[] | all_children)
+    ., ((.contents? // empty) | .[] | all_children)
 ;
 
 
@@ -128,26 +128,29 @@ def add_frontmatter:
 ;
 
 
-# If marked as such, drafts can be excluded from being uploaded and included in
-# the table of contents. To not count as a draft, a document should either be
-# marked as `publish`, or be *not* marked as `draft` and have children that
-# *are* marked as `publish`.
-def add_drafts:
-    def is_publication:
-        ( .publish or .meta.publish | bool)
-        or
-        ( .external | bool )
-        or
-        ( (.meta.draft | bool | not) and ((.contents // []) | any(is_publication)) )
-    ;
-    if has("contents") then
-        ( .contents | map({(is_publication|tostring):.}) | group) as {$true, $false}
-        | .contents = ($true // [])
-        | .drafts = ($false // [])
-        | (.contents[] |= add_drafts)
-    else
-        .
+# To remove an object, we first mark it for removal, then actually remove it
+# later. It would be nicer if we could just do `all_children ... |= empty`,
+# which works in some cases but not all. I suppose it has to do with changing
+# objects as we are iterating over them.
+def mark:
+    .marked_for_removal = true
+;
+
+# Remove all objects marked for removal.
+def remove_marked:
+    if .marked_for_removal? == true
+    then empty
+    else (.contents? // empty) |= map(remove_marked)
     end
+;
+
+
+
+# Drafts can be excluded from being uploaded and included in the table of
+# contents. To not count as a draft, a document should be explicitly marked as
+# "publish" in the metadata.
+def add_drafts:
+    ( ( all_children | select((has("contents") or .external or .meta.publish | bool) | not)) |= mark) | remove_marked
 ;
 
 
@@ -159,17 +162,6 @@ def add_resources:
         | .contents = ($true // [])
         | .resources = ($false // [])
         | (.contents[]? |= add_resources)
-    else
-        .
-    end
-;
-
-
-def add_formatted_dates:
-    if has("contents") then
-        .contents[]? |= add_formatted_dates
-    elif has("meta") then
-        .meta.formatted_date = (.meta.date | format_date)
     else
         .
     end
