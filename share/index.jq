@@ -10,7 +10,7 @@ def bool:
 
 # Generate this object and all its children.
 def all_children:
-    ., ((.contents? // empty) | .[] | all_children)
+    ., recurse(.contents[]?)
 ;
 
 
