@@ -4,7 +4,7 @@
 
 # Convert "truthy" value to actual boolean.
 def bool:
-    (. == {} or . == [] or . == false or . == null or . == 0) | not
+    [. == (null,false,0,{},[])] | any | not
 ;
 
 
