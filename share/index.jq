@@ -93,41 +93,6 @@ def merge_content:
 ;
 
 
-# Add paths to each object, that is, the names of the ancestors.
-def add_directories:
-    def add_directories_aux($history):
-        ($history + [.name]) as $present |
-        .directory = $history |
-        (.contents[]? |= add_directories_aux($present))
-    ;
-    add_directories_aux([])
-;
-
-
-# Any page gets a link to its target.
-def add_links(target_extension):
-    if (has("directory") and (.name | endswith(".md"))) then
-        .link = ((.directory + [.name]) | join("/") | rtrimstr(".md") | . + "." + target_extension)
-    else
-        .contents[]? |= add_links(target_extension)
-    end
-;
-
-
-# Front matter is the page to be associated with the enclosing directory rather
-# than itself.
-def add_frontmatter:
-    if has("contents") then
-        ( .contents | map({(.name=="index.md" or .meta.frontmatter|tostring):.}) | group) as {$true, $false}
-        | .frontmatter = $true[0]
-        | .contents = (($false // []) + $true[1:])
-        | (.contents[] |= add_frontmatter)
-    else
-        .
-    end
-;
-
-
 # To remove an object, we first mark it for removal, then actually remove it
 # later. It would be nicer if we could just do `all_children ... |= empty`,
 # which works in some cases but not all. I suppose it has to do with changing
@@ -145,28 +110,40 @@ def remove_marked:
 ;
 
 
+# Add paths to each object, that is, the names of the ancestors.
+def directory:
+    def add_directories_aux($history):
+        ($history + [.name]) as $present |
+        .directory = $history |
+        (.contents[]? |= add_directories_aux($present))
+    ;
+    add_directories_aux([])
+;
+
+
+# Any page gets a link to its target.
+def link(target_extension):
+    (all_children | select(has("directory") and (.name | endswith(".md")))) |= (
+        .link = ((.directory + [.name]) | join("/") | rtrimstr(".md") | . + "." + target_extension)
+    )
+;
+
+# Front matter is the page to be associated with the enclosing directory rather
+# than itself.
+def frontmatter:
+    (all_children | select(has("contents"))) |= (
+        (.frontmatter = [.contents[] | select(.meta.frontmatter | bool)][0]) |
+        (.contents = .contents - [.frontmatter])
+    )
+;
 
 # Drafts can be excluded from being uploaded and included in the table of
 # contents. To not count as a draft, a document should be explicitly marked as
 # "publish" in the metadata.
-def add_drafts:
-    ( ( all_children | select((has("contents") or .external or .meta.publish | bool) | not)) |= mark) | remove_marked
+def explicit_publish:
+    def publish: has("contents") or .external or .meta.publish | bool;
+    (( all_children | select(publish | not)) |= mark) | remove_marked
 ;
-
-
-# A resource is anything that is neither a directory nor a page with metadata
-# nor an external link.
-def add_resources:
-    if has("contents") then
-        ( .contents | map({(has("contents") or has("meta") or (has("external") and (.external | bool))|tostring):.}) | group) as {$true, $false}
-        | .contents = ($true // [])
-        | .resources = ($false // [])
-        | (.contents[]? |= add_resources)
-    else
-        .
-    end
-;
-
 
 # Sort content first according to sort order in metadata.
 def sort_content:
@@ -174,7 +151,6 @@ def sort_content:
         sort_by(.meta.sort // .meta.title // .name)
     )
 ;
-
 
 # Add a note that tells us whether this has only children who have no more
 # subchildren.
@@ -189,11 +165,10 @@ def annotate_leaves:
 # given operations to turn it into a proper index.
 def index(target_extension):
     merge_content
-    | add_directories
-    | add_links(target_extension)
-    | add_drafts
-    | add_frontmatter
-    | add_resources
+    | directory
+    | link(target_extension)
+    | explicit_publish
+    | frontmatter
     | sort_content
     | annotate_leaves
 ;
