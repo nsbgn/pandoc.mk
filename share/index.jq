@@ -14,32 +14,20 @@ def all_children:
 ;
 
 
-# Format a date into its wordy equivalent.
-def format_date:
-    try
-    (
-        (   try (. | strptime("%Y-%m-%d")) 
-            catch (
-                try (. | strptime("%Y/%m/%d")) 
-                catch (
-                    try (. | strptime("%Y-%m"))
-                )
-            )
-        ) | mktime | strftime("%B %-d, %Y")
-    )
+# To remove an object, we first mark it for removal, then actually remove it
+# later. It would be nicer if we could just do `all_children ... |= empty`,
+# which works in some cases but not all. I suppose it has to do with changing
+# objects as we are iterating over them.
+def mark:
+    .marked_for_removal = true
 ;
 
-
-# Group an array of objects into an object of arrays, such that the key-value
-# pairs of the new object are an accumulation of those of the old object. For
-# example, `[{"a":1, "b":2}, {"a":3}]` turns into `{"a":[1, 3], "b":[3]}`. This
-# can be used to partition an array.
-# Try: `[1,"2",3] | map ({(.|type):.}) | group`
-def group:
-    reduce ([.[] | to_entries[]] | group_by(.key))[] as $group
-    ( {} 
-    ; .[ $group[0].key ] |= (. // []) + [ $group[].value ] 
-    )
+# Remove all objects marked for removal.
+def remove_marked:
+    if .marked_for_removal? == true
+    then empty
+    else (.contents? // empty) |= map(remove_marked)
+    end
 ;
 
 
@@ -89,23 +77,6 @@ def merge_content:
         .contents |= ( group_by(.name) | map(merge_content) )
     else
         .
-    end
-;
-
-
-# To remove an object, we first mark it for removal, then actually remove it
-# later. It would be nicer if we could just do `all_children ... |= empty`,
-# which works in some cases but not all. I suppose it has to do with changing
-# objects as we are iterating over them.
-def mark:
-    .marked_for_removal = true
-;
-
-# Remove all objects marked for removal.
-def remove_marked:
-    if .marked_for_removal? == true
-    then empty
-    else (.contents? // empty) |= map(remove_marked)
     end
 ;
 
@@ -176,10 +147,9 @@ def index(target_extension):
 
 # Get publishable targets from an index
 def targets:
-    recurse(.contents[]?)
+    all_children
     | ., (.frontmatter // empty)
     | select(has("link") and (has("external") | not)) 
     | .directory as $dir 
-    | [.link] + [.targets?[] | $dir + [.] | join("/") ] 
-    | .[]
+    | .link, (.targets?[] | $dir + [.] | join("/")) 
 ;
