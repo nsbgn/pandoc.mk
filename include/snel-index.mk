@@ -12,8 +12,8 @@ SOURCE_FILES = $(shell \
 # Headers and extra targets are collected for each source in a corresponding file
 META_FILES = $(patsubst $(SRC)/%,$(CACHE)/%.meta.json,$(SOURCE_FILES))
 
-html: $(CACHE)/content.mk external-targets html-targets $(DEST)/favicon.ico $(DEST)/apple-touch-icon.png $(DEST)/index.html $(DEST)/web.css
-pdf:  $(CACHE)/content.mk external-targets pdf-targets
+html: $(CACHE)/content.mk $(DEST)/favicon.ico $(DEST)/apple-touch-icon.png $(DEST)/index.html $(DEST)/web.css | external-targets html-targets
+pdf:  $(CACHE)/content.mk | external-targets pdf-targets
 
 include $(CACHE)/content.mk
 
