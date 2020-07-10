@@ -12,22 +12,20 @@ SOURCE_FILES = $(shell \
 # Headers and extra targets are collected for each source in a corresponding file
 META_FILES = $(patsubst $(SRC)/%,$(CACHE)/%.meta.json,$(SOURCE_FILES))
 
-html: $(CACHE)/content.mk html-targets $(DEST)/favicon.ico $(DEST)/apple-touch-icon.png $(DEST)/index.html $(DEST)/web.css
-pdf:  $(CACHE)/content.mk pdf-targets
+html: $(CACHE)/content.mk external-targets html-targets $(DEST)/favicon.ico $(DEST)/apple-touch-icon.png $(DEST)/index.html $(DEST)/web.css
+pdf:  $(CACHE)/content.mk external-targets pdf-targets
 
 include $(CACHE)/content.mk
 
 # Generate the makefile containing the dynamic targets for HTML/PDF documents
 # and any external content referred inside
-$(CACHE)/content.mk: $(CACHE)/targets.pdf.txt $(CACHE)/targets.html.txt
+$(CACHE)/content.mk: $(CACHE)/index.json
 	@echo "Generating content recipes..."
-	@jq -R -r '"html-targets: " + ([inputs] | join(" "))' < "$(CACHE)/targets.html.txt" > "$@"
-	@jq -R -r '"pdf-targets: " + ([inputs] | join(" "))' < "$(CACHE)/targets.pdf.txt" >> "$@"
-	@echo ".PHONY: html-targets pdf-targets" >> "$@"
-
+	@jq -L"$(JQ_DIR)" --arg dest "$(DEST)" -r 'include "index"; targets($$dest) | to_entries | .[] | (.key + ": " + (.value | join(" ")))' < $< > $@
+	@echo ".PHONY: external-targets html-targets pdf-targets" >> "$@"
 
 # Optionally, remove all files in $(DEST) that are no longer targeted
-clean: $(CACHE)/targets.html.txt
+clean: $(CACHE)/targets.txt
 	@bash -i -c 'read -p "Operation might remove files in \"$(DEST)\". Continue? [y/N]" -n 1 -r; \
 	    [[ $$REPLY =~ ^[Yy]$$ ]] || exit 1'
 	@echo
@@ -66,24 +64,24 @@ $(CACHE)/%.md.meta.json: $(CACHE)/%.md.headers.json $(CACHE)/%.md.targets.json
 	    > $@
 
 # Overview of files & directories with metadata, readable for index template
-$(CACHE)/index.%.json: $(JQ_DIR)/index.jq \
+$(CACHE)/index.json: $(JQ_DIR)/index.jq \
 	    $(CACHE)/filetree.json \
 	    $(META_FILES) \
 	    $(wildcard $(SRC)/index.base.json)
 	@-mkdir -p $(@D)
 	@echo "Generating index data..." 1>&2
 	@jq  -L$(JQ_DIR) --slurp \
-	    'include "index"; index("$(patsubst $(CACHE)/index.%.json,%,$@)")' \
+	    'include "index"; index' \
 	    $(filter %.json, $^) \
 	    > $@
 
 # Overview of final targets
-$(CACHE)/targets.%.txt: $(CACHE)/index.%.json
+$(CACHE)/targets.txt: $(CACHE)/index.json
 	@echo "Aggregating targets..." 1>&2
 	@jq \
 	    -L"$(JQ_DIR)" \
-	    --arg dest "$(DEST)/" \
-	    -r 'include "index"; targets | ltrimstr("./") | $$dest + .' \
+	    --arg dest "$(DEST)" \
+	    -r 'include "index"; targets($$dest) | to_entries | .[] | .value[]' \
 	    < $< \
 	    > $@
 
@@ -97,12 +95,12 @@ $(CACHE)/filetree.json: $(SOURCE_FILES)
 	    > $@
 
 # Generate static index page 
-$(DEST)/index.html: $(PANDOC_DIR)/page.html $(PANDOC_DIR)/nav.html $(CACHE)/index.html.json
+$(DEST)/index.html: $(PANDOC_DIR)/page.html $(PANDOC_DIR)/nav.html $(CACHE)/index.json
 	@-mkdir -p $(@D)
 	@echo "Generating index page..." 1>&2
 	@echo | pandoc \
 	    --template="$(PANDOC_DIR)/page.html" \
-	    --metadata-file "$(CACHE)/index.html.json" \
+	    --metadata-file "$(CACHE)/index.json" \
 	    --metadata title="Table of contents" \
 		--metadata favicon='$(shell realpath $(DEST)/favicon.ico --relative-to $(@D) --canonicalize-missing)' \
 		--metadata style='$(STYLE)' \

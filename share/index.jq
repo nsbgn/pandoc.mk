@@ -91,11 +91,17 @@ def directory:
     add_directories_aux([])
 ;
 
+# Every leaf node gets a basename, eg name without extension.
+def basename:
+    (all_children | select(has("contents") | not)) |= (
+        .basename = (.name | sub(".([A-z]*)$";""))
+    )
+;
 
-# Any page gets a link to its target.
-def link(target_extension):
-    (all_children | select(has("directory") and (.name | endswith(".md")))) |= (
-        .link = ((.directory + [.name]) | join("/") | rtrimstr(".md") | . + "." + target_extension)
+# Any Markdown page gets a link to its HTML page.
+def link:
+    (all_children | select(has("directory") and has("basename") and (.name | test(".(md|markdown)$";"i")))) |= (
+        .link = ((.directory + [.basename + ".html"]) | join("/") | ltrimstr("./"))
     )
 ;
 
@@ -134,10 +140,11 @@ def annotate_leaves:
 
 # Combines the given stream of JSON objects by merging them, and performs the
 # given operations to turn it into a proper index.
-def index(target_extension):
+def index:
     merge_content
     | directory
-    | link(target_extension)
+    | basename
+    | link
     | explicit_publish
     | frontmatter
     | sort_content
@@ -145,11 +152,19 @@ def index(target_extension):
 ;
 
 
-# Get publishable targets from an index
-def targets:
-    all_children
-    | ., (.frontmatter // empty)
-    | select(has("link") and (has("external") | not)) 
-    | .directory as $dir 
-    | .link, (.targets?[] | $dir + [.] | join("/")) 
+# Get publishable targets from an index, as an object containing the names of
+# the relevant Makefile recipes.
+def targets($dest):
+    [ all_children
+        | ., (.frontmatter // empty)
+        | select(has("directory") and has("basename") and (has("external") | not)) 
+        | .directory as $dir 
+        | {"target": "pdf-targets", "name": (.basename + ".pdf")}
+        , {"target": "html-targets", "name": (.basename + ".html")}
+        , {"target": "external-targets", "name": .targets?[]}
+        | .name |= ($dir + [.] | join("/") | ltrimstr("./") | ($dest + "/" + .) )
+    ]
+    | group_by(.target)
+    | map({(.[0].target): map(.name)})
+    | add
 ;
