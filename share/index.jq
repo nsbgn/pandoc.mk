@@ -17,14 +17,14 @@ def all_children:
 # which works in some cases but not all. I suppose it has to do with changing
 # objects as we are iterating over them.
 def mark:
-    .marked_for_removal = true
+    .remove = true
 ;
 
 # Remove all objects marked for removal.
 def remove_marked:
-    if .marked_for_removal? == true
+    if .remove == true
     then empty
-    else (.contents? // empty) |= map(remove_marked)
+    else (.contents // empty) |= map(remove_marked)
     end
 ;
 
@@ -56,12 +56,8 @@ def merge:
 
 # Add paths to each object, that is, the names of the ancestors.
 def directory:
-    def add_directories_aux($history):
-        ($history + [.name]) as $present |
-        .directory = $history |
-        (.contents[]? |= add_directories_aux($present))
-    ;
-    add_directories_aux([])
+    def f($d): .directory = $d | .name as $n | .contents[]? |= f($d+[$n]);
+    f([])
 ;
 
 # Every leaf node gets a basename, eg name without extension.
