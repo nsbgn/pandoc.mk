@@ -7,12 +7,10 @@ def bool:
     [. == (null,false,0,{},[])] | any | not
 ;
 
-
 # Generate this object and all its children.
 def all_children:
     ., recurse(.contents[]?)
 ;
-
 
 # To remove an object, we first mark it for removal, then actually remove it
 # later. It would be nicer if we could just do `all_children ... |= empty`,
@@ -30,23 +28,16 @@ def remove_marked:
     end
 ;
 
-
 # Wrap an object in other objects so that the original object exists at a
 # particular "path". Like `{} | setpath(["a","b"], …)`, but instead of making
 # objects like `{"a":{"b":…}}`, this makes objects like `{"name":"a",
 # "contents":[{"name":"b",…}]}`.
 def tree($path):
-    def tree_aux($future):
-        { "name": $future[0] } + 
-        if ($future | length) > 1 then
-            { "contents": [ tree_aux($future[1:]) ] }
-        else
-            .
-        end
-    ;
-    tree_aux($path)
+    if ($path | length) <= 1
+    then .name = $path[0]
+    else { "name": $path[0], "contents": [ tree($path[1:]) ] }
+    end
 ;
-
 
 # Merge an array of page objects into a single page object.
 def merge: 
@@ -62,7 +53,6 @@ def merge:
         ) }
     ) | from_entries
 ;
-
 
 # Add paths to each object, that is, the names of the ancestors.
 def directory:
@@ -120,7 +110,6 @@ def annotate_leaves:
     )
 ;
 
-
 # Combines the given stream of JSON objects by merging them, and performs the
 # given operations to turn it into a proper index.
 def index:
@@ -133,7 +122,6 @@ def index:
     | sort_content
     | annotate_leaves
 ;
-
 
 # Get publishable targets from an index, as an object containing the names of
 # the relevant Makefile recipes.
