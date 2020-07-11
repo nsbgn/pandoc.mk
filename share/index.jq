@@ -48,36 +48,19 @@ def tree($path):
 ;
 
 
-# Merge two values. If the values are both objects, the values at equal indices
-# will be recursively merged; if the values are both arrays, the arrays are
-# concatenated; if the values are some other type, we only check if the values
-# do not conflict.
-def merge(other): 
-    if (. | type) == "object" and (other | type) == "object" then
-        (. | to_entries) + (other | to_entries) 
-        | group_by(.key)
-        | map({ "key": (.[0].key), "value" : (reduce .[1:][].value as $x (.[0].value; merge($x)))})
-        | from_entries
-    elif (. | type) == "array" and (other | type) == "array" then
-        . + other
-    elif . == other then
-        .
-    else
-        error("trying to merge incompatible objects " + (.|type) + " and " + (other|type))
-    end
-;
-
-
-# Merge an array of content by grouping it by name and then merging all the
-# pages with the same name. This is necessary because simply merging content
-# will only concatenate pages, even if they are the same page.
-def merge_content:
-    reduce .[] as $x ({}; merge($x)) |
-    if has("contents") then
-        .contents |= ( group_by(.name) | map(merge_content) )
-    else
-        .
-    end
+# Merge an array of page objects into a single page object.
+def merge: 
+    map(to_entries) | add | group_by(.key) | map(
+        { "key": (.[0].key)
+        , "value": (
+            if .[0].key == "contents"
+            then [ .[].value ] | add | group_by(.name) | map(merge)
+            elif [ .[].value == .[0].value ] | all
+            then .[0].value
+            else error("can't merge incompatible values")
+            end
+        ) }
+    ) | from_entries
 ;
 
 
@@ -141,7 +124,7 @@ def annotate_leaves:
 # Combines the given stream of JSON objects by merging them, and performs the
 # given operations to turn it into a proper index.
 def index:
-    merge_content
+    merge
     | directory
     | basename
     | link
