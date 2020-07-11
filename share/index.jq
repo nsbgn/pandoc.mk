@@ -122,14 +122,16 @@ def index:
 # Get publishable targets from an index, as an object containing the names of
 # the relevant Makefile recipes.
 def targets($dest):
+    def in_dir($dir; $file):
+        $dir + [$file] | join("/") | ltrimstr("./") | ($dest + "/" + .)
+    ;
     [ all_children
         | ., (.frontmatter // empty)
         | select(has("directory") and has("basename") and (has("external") | not)) 
-        | .directory as $dir 
-        | {"target": "pdf-targets", "name": (.basename + ".pdf")}
-        , {"target": "html-targets", "name": (.basename + ".html")}
-        , {"target": "external-targets", "name": .targets?[]}
-        | .name |= ($dir + [.] | join("/") | ltrimstr("./") | ($dest + "/" + .) )
+        | {"target": "pdf-targets", "name": in_dir(.directory; .basename + ".pdf")}
+        , {"target": "html-targets", "name": in_dir(.directory; .basename + ".html")}
+        , {"target": "external-targets", "name": in_dir(.directory; .targets?[])}
+        , {"target": "external-targets", "name": in_dir(["."]; (.meta.style // empty) + ".css")}
     ]
     | group_by(.target)
     | map({(.[0].target): map(.name)})
