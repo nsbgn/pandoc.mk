@@ -135,3 +135,8 @@ def targets($dest):
     | map({(.[0].target): map(.name)})
     | add
 ;
+
+# Turn a target object into makefile recipes.
+def as_makefile:
+    . + {".PHONY": keys} | to_entries[] | (.key + ": " + (.value | join(" ")))
+;

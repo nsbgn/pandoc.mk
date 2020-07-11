@@ -71,9 +71,8 @@ $(CACHE)/index.json: $(JQ_DIR)/index.jq \
 # Generate the makefile containing the dynamic targets for HTML/PDF documents
 # and any external content referred inside
 $(CACHE)/dynamic.mk: $(CACHE)/index.json
-	@echo "Generating Makefile for content \"$@\"..."
-	@jq -L"$(JQ_DIR)" --arg dest "$(DEST)" -r 'include "index"; targets($$dest) | to_entries | .[] | (.key + ": " + (.value | join(" ")))' < $< > $@
-	@echo ".PHONY: external-targets html-targets pdf-targets" >> "$@"
+	@echo "Generating Makefile \"$@\"..."
+	@jq -L"$(JQ_DIR)" --arg dest "$(DEST)" -r 'include "index"; targets($$dest) | as_makefile' < $< > $@
 
 # Overview of final targets
 $(CACHE)/targets.txt: $(CACHE)/index.json
@@ -81,7 +80,7 @@ $(CACHE)/targets.txt: $(CACHE)/index.json
 	@jq \
 	    -L"$(JQ_DIR)" \
 	    --arg dest "$(DEST)" \
-	    -r 'include "index"; targets($$dest) | to_entries | .[] | .value[]' \
+	    -r 'include "index"; targets($$dest) | to_entries[].value[]' \
 	    < $< \
 	    > $@
 
