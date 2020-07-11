@@ -12,7 +12,9 @@ SOURCE_FILES = $(shell \
 # Headers and extra targets are collected for each source in a corresponding file
 META_FILES = $(patsubst $(SRC)/%,$(CACHE)/%.meta.json,$(SOURCE_FILES))
 
-html: $(CACHE)/dynamic.mk $(DEST)/favicon.ico $(DEST)/apple-touch-icon.png $(DEST)/index.html $(DEST)/web.css | external-targets html-targets
+EXTRA_HTML_TARGETS = $(addprefix $(DEST)/,index.html favicon.ico apple-touch-icon.png web.css)
+
+html: $(CACHE)/dynamic.mk $(EXTRA_HTML_TARGETS) | external-targets html-targets
 pdf:  $(CACHE)/dynamic.mk | external-targets pdf-targets
 
 include $(CACHE)/dynamic.mk
@@ -81,8 +83,9 @@ $(CACHE)/targets.txt: $(CACHE)/index.json
 	    -L"$(JQ_DIR)" \
 	    --arg dest "$(DEST)" \
 	    -r 'include "index"; targets($$dest) | to_entries[].value[]' \
-	    < $< \
-	    > $@
+	    < "$<" \
+	    > "$@"
+	@$(foreach target,$(EXTRA_HTML_TARGETS),echo $(target) >> "$@";)
 
 # Optionally, remove all files in $(DEST) that are no longer targeted
 clean: $(CACHE)/targets.txt
