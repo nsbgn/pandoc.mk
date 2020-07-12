@@ -136,6 +136,7 @@ def targets($dest):
     | group_by(.target)
     | map({(.[0].target): map(.name)})
     | add
+    | . // {}
 ;
 
 # Turn a target object into makefile recipes.
