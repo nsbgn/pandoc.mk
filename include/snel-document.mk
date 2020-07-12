@@ -55,6 +55,7 @@ $(DEST)/%.html: \
 		--metadata favicon='$(shell realpath $(DEST)/favicon.ico --relative-to $(@D) --canonicalize-missing)' \
 		--metadata index='$(shell realpath $(DEST)/index.html --relative-to $(@D) --canonicalize-missing)' \
 		--metadata default-style='$(STYLE)' \
+		--metadata last-modified='$(shell date -r "$<" '+%Y-%m-%d')' \
 		--from markdown+smart+fenced_divs+inline_notes+table_captions \
 		--to html5 \
 		--standalone \
