@@ -6,7 +6,11 @@ include $(dir $(abspath $(lastword $(MAKEFILE_LIST))))/snel-variables.mk
 
 # Find potential source Markdown files
 SOURCE_FILES = $(shell \
-    find -L "$(SRC)"  $(patsubst %,-name '%' -prune -o,$(IGNORE)) -iname '*.md' -print \
+    find -L "$(SRC)" \
+	$(patsubst %,-name '%' -prune -o,$(IGNORE)) \
+	-iname '*.md' \
+	-exec grep -li --perl-regexp '^publish:\s+((?!(false|null)).*)$$' {} \; \
+	-print \
 )
 
 # Headers and extra targets are collected for each source in a corresponding file
