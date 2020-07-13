@@ -1,35 +1,36 @@
 /* Miscellaneous classes & overrides ****************************************/
 
-.hide {
-    display: none;
-}
+@mixin misc {
+    .hide {
+        display: none;
+    }
 
-.right {
-    clear: right;
-    float: right;
-}
+    .right {
+        clear: right;
+        float: right;
+    }
 
-.left {
-    clear: left;
-    float: left;
-}
+    .left {
+        clear: left;
+        float: left;
+    }
 
-.invert {
-    display: inline-block;
-    -webkit-transform: matrix(-1, 0, 0, 1, 0, 0);
-    -moz-transform: matrix(-1, 0, 0, 1, 0, 0);
-    -o-transform: matrix(-1, 0, 0, 1, 0, 0);
-    transform: matrix(-1, 0, 0, 1, 0, 0);
-}
+    .invert {
+        display: inline-block;
+        -webkit-transform: matrix(-1, 0, 0, 1, 0, 0);
+        -moz-transform: matrix(-1, 0, 0, 1, 0, 0);
+        -o-transform: matrix(-1, 0, 0, 1, 0, 0);
+        transform: matrix(-1, 0, 0, 1, 0, 0);
+    }
 
-// Make sure MathJax elements are not too large
-.MathJax {
-    font-size: 2em !important;
-}
+    // Make sure MathJax elements are not too large
+    .MathJax {
+        font-size: 2em !important;
+    }
 
-// Do not underline the back link in footnotes
-.footnotes a:last-child {
-    padding: 0 0 0 0.5em;
-    text-decoration: none;
+    // Do not underline the back link in footnotes
+    .footnotes a:last-child {
+        padding: 0 0 0 0.5em;
+        text-decoration: none;
+    }
 }
-

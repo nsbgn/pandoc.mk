@@ -1,40 +1,45 @@
 /* Printing *****************************************************************/
 
-@page {
-    size: A5;
-    margin: 1.5cm 2cm;
-    counter-increment: page;
+@mixin print($page-size: A4, $vmargin: 1.5cm, $hmargin: 2cm) {
 
-    @bottom-right {
-        content: counter(page); 
+    @page {
+        size: $page-size;
+        margin: 1.5cm 2cm;
+        counter-increment: page;
+
+        @bottom-right {
+            content: counter(page); 
+        }
     }
+
+    @media print {
+        .noprint {
+            display: none;
+        }
+        .pgbrk {
+            page-break-after: always;
+        }
+
+        h1, h2 { 
+            page-break-before: always;
+        }
+        header + h2, h1 + h2 {
+            page-break-before: auto; /* override page break if h2 comes immediately
+                                      after bigger header */
+        }
+        h1, h2, h3, h4 {
+            page-break-after: avoid;
+        }
+
+        body {
+            margin: 0;
+        }
+        main, section {
+            margin: 0;
+            width: auto;
+            max-width: none;
+        }
+    }
+
 }
 
-@media print {
-    .noprint {
-        display: none;
-    }
-    .pgbrk {
-        page-break-after: always;
-    }
-
-    h1, h2 { 
-        page-break-before: always;
-    }
-    header + h2, h1 + h2 {
-        page-break-before: auto; /* override page break if h2 comes immediately
-                                  after bigger header */
-    }
-    h1, h2, h3, h4 {
-        page-break-after: avoid;
-    }
-
-    body {
-        margin: 0;
-    }
-    main, section {
-        margin: 0;
-        width: auto;
-        max-width: none;
-    }
-}

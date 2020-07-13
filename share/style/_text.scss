@@ -1,206 +1,288 @@
-@import "colors";
+@mixin text( $font
+           , $font-family
+           , $font-size
+           , $align: left
+           , $line-height: 1.8em // Vertical space around objects like lists and quotes
+           , $indentation: 2.5em // Indentation for lists items and blockquotes
+           , $object-space: 2.5em
+           , $paragraph-space: 0.6em // Space around paragraphs and text objects
+           ) {
 
-$paragraph-space: 0.6em; // Vertical space around paragraphs and text objects
-$object-space: 2.5em; // Vertical space around objects like lists and quotes
-$indentation: 2.5em; // Indentation for lists items and blockquotes
-$line-height: 1.8em; // How much space a line gets
-
-/* Basic page elements *******************************************************/
-
-p, ul, ol {
-    margin: $object-space 0;
-    line-height: $line-height;
-    word-wrap: break-word;
-    letter-spacing: 0.01em;
-    text-align: justify;
-}
-p {
-    margin: $paragraph-space 0;
-}
-header {
-    text-transform: uppercase;
-    margin: 0 0 1.5em;
-}
-
-header div {
-    color: $color-scenery;
-    font-size: 0.8em;
-    letter-spacing: 0.15em;
-}
-header a {
-    float: right;
-    font-size: 1.8em;
-    margin-left: 0.5em; // Avoid hugging index list
-    display: inline-block;
-    text-decoration: none;
-    font-family: sans-serif;
-}
-h1 {
-    font-style: normal;
-    font-size: 1.8em;
-    margin-top: 0.1em;
-    text-align: left;
-    font-weight: 300;
-    text-transform: uppercase;
-}
-h2 {
-    margin: 2em 0 $paragraph-space;
-    font-size: 1.2em;
-    font-weight: 600;
-    padding-bottom: 0.5em;
-    border-bottom: 3px double $color-text;
-}
-h3 {
-    margin: 2em 0 $paragraph-space;
-    font-size: 1.1em;
-    font-weight: normal;
-    padding-bottom: 0.25em;
-    border-bottom: 1px solid $color-text;
-}
-h4 {
-    margin: 0 1em 0 0; 
-    font-size: 1em;
-    line-height: $line-height;
-    float: left;
-    font-weight: 600;
-}
-hr + h2, hr + h3, hr + h4 {
-    margin-top: 2em; // Reset header after horizontal rule
-}
-h2 + h3 {
-    margin-top: 1em;
-}
-h4 + * { // Anything that follows a paragraph header should come underneath...
-    clear: left;
-}
-h4 + p { // ... except paragraphs, which come inline.
-    clear: none;
-}
-
-a {
-    text-decoration: underline;
-    color: $color-link;
-}
-a:hover {
-    color: $color-focus;
-}
-a.footnote-ref {
-    text-decoration: none;
-}
-sup {
-    line-height: 1em;
-}
-
-
-/* Lists ********************************************************************/
-
-ul, ol {
-    list-style-type: square;
-}
-main li {
-    margin-left: $indentation;
-    padding-left: 0.5em;
-}
-li p {
-    margin: 0 0 0.4em 0;
-    display: inline-block;
-    vertical-align: top;
-}
-
-/* Description lists ********************************************************/
-
-$dl-width: 17%; // How wide the titles of description lists are
-
-dl {
-    margin: 0;
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    width: 100%;
-}
-dl dt {
-    flex: 0 0 $dl-width;
-    margin: 0.25em 0;
-    text-overflow: ellipsis;
-    font-weight: 600;
-    overflow: hidden;
-}
-dl dd {
-    flex: 0 0 (100% - $dl-width);
-    margin: 0.25em 0 0 auto;
-}
-
-/* Separating lines *********************************************************/
-
-hr {
-    border: none;
-    border-top: 1px solid $color-text;
-    text-align: center;
-    margin: 2.5em auto;
-    width: 100%;
-    position: relative;
-}
-hr::after {
-    $SIZE_HR: 0.8em;
-    $WIDTH_HR_INNER: 3em;
-    content: "*";
-    font-size: 1.2em;
-    font-weight: 100;
-    position: absolute;
-    top: (-$SIZE_HR/2);
-    left: 50%;
-    margin-left: (-($WIDTH_HR_INNER+$SIZE_HR)/2);
-    width: $WIDTH_HR_INNER;
-    color: $color-text;
-    background: $color-page;
-}
-
-
-/* Quotes and line blocks ***************************************************/
-
-blockquote, .line-block {
-    margin: $object-space 0 $object-space $indentation;
-    font-style: italic;
-    quotes: "\201C""\201D""\2018""\2019";
-    position: relative;
-
-    p::before, p::after {
-        font-family: "Times New Roman", serif;
-        font-size: 2.5em;
-        line-height: 0.05em;
-        vertical-align: -0.4em;
-        color: $color-scenery;
+    body {
+        font-family: $font, $font-family;
+        font-size: $font-size;
     }
-    p:first-of-type::before {
-        content: open-quote;
-        padding-right: 0.4em;
-    }
-    p:last-of-type::after {
-        content: close-quote;
-        padding-left: 0.1em;
+
+    /* Basic page elements *******************************************************/
+
+    p, ul, ol {
+        margin: $object-space 0;
+        line-height: $line-height;
+        word-wrap: break-word;
+        letter-spacing: 0.01em;
+        text-align: $align;
     }
     p {
-        text-indent: 0; // avoid messing up quote symbols,
-                        // should another indent value be inherited
+        margin: $paragraph-space 0;
     }
-    footer {
-        text-align: right;
+
+    a {
+        text-decoration: underline;
+        color: $color-link;
+    }
+    a:hover {
+        color: $color-focus;
+    }
+    a.footnote-ref {
+        text-decoration: none;
+    }
+    sup {
+        line-height: 1em;
+    }
+
+    header {
+        text-transform: uppercase;
+        margin: 0 0 1.5em;
+    }
+
+    header div {
+        color: $color-scenery;
+        font-size: 0.8em;
+        letter-spacing: 0.15em;
+    }
+    header a {
+        float: right;
+        font-size: 1.8em;
+        margin-left: 0.5em; // Avoid hugging index list
+        display: inline-block;
+        text-decoration: none;
+        font-family: sans-serif;
+    }
+    h1 {
         font-style: normal;
+        font-size: 1.8em;
+        margin-top: 0.1em;
+        text-align: left;
+        font-weight: 300;
+        text-transform: uppercase;
+    }
+    h2 {
+        margin: 2em 0 $paragraph-space;
+        font-size: 1.2em;
+        font-weight: 600;
+        padding-bottom: 0.5em;
+        border-bottom: 3px double $color-text;
+    }
+    h3 {
+        margin: 2em 0 $paragraph-space;
+        font-size: 1.1em;
+        font-weight: normal;
+        padding-bottom: 0.25em;
+        border-bottom: 1px solid $color-text;
+    }
+    h4 {
+        margin: 0 1em 0 0; 
+        font-size: 1em;
+        line-height: $line-height;
+        float: left;
+        font-weight: 600;
+    }
+    hr + h2, hr + h3, hr + h4 {
+        margin-top: 2em; // Reset header after horizontal rule
+    }
+    h2 + h3 {
+        margin-top: 1em;
+    }
+    h4 + * { // Anything that follows a paragraph header should come underneath...
+        clear: left;
+    }
+    h4 + p { // ... except paragraphs, which come inline.
+        clear: none;
+    }
+
+
+
+    /* Lists ********************************************************************/
+
+    ul, ol {
+        list-style-type: square;
+    }
+    main li {
+        margin-left: $indentation;
+        padding-left: 0.5em;
+    }
+    li p {
+        margin: 0 0 0.4em 0;
+        display: inline-block;
+        vertical-align: top;
+    }
+
+    /* Description lists ********************************************************/
+
+    $dl-width: 17%; // How wide the titles of description lists are
+
+    dl {
+        margin: 0;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        width: 100%;
+    }
+    dl dt {
+        flex: 0 0 $dl-width;
+        margin: 0.25em 0;
+        text-overflow: ellipsis;
+        font-weight: 600;
+        overflow: hidden;
+    }
+    dl dd {
+        flex: 0 0 (100% - $dl-width);
+        margin: 0.25em 0 0 auto;
+    }
+
+    /* Separating lines *********************************************************/
+
+    hr {
+        border: none;
+        border-top: 1px solid $color-text;
+        text-align: center;
+        margin: 2.5em auto;
+        width: 100%;
         position: relative;
-        right: 0;
     }
-    footer::before {
-        content: "~";
+    hr::after {
+        $SIZE_HR: 0.8em;
+        $WIDTH_HR_INNER: 3em;
+        content: "*";
+        font-size: 1.2em;
+        font-weight: 100;
+        position: absolute;
+        top: (-$SIZE_HR/2);
+        left: 50%;
+        margin-left: (-($WIDTH_HR_INNER+$SIZE_HR)/2);
+        width: $WIDTH_HR_INNER;
+        color: $color-text;
+        background: $color-page;
+    }
+
+
+    /* Quotes and line blocks ***************************************************/
+
+    blockquote, .line-block {
+        margin: $object-space 0 $object-space $indentation;
+        font-style: italic;
+        quotes: "\201C""\201D""\2018""\2019";
+        position: relative;
+
+        p::before, p::after {
+            font-family: "Times New Roman", serif;
+            font-size: 2.5em;
+            line-height: 0.05em;
+            vertical-align: -0.4em;
+            color: $color-scenery;
+        }
+        p:first-of-type::before {
+            content: open-quote;
+            padding-right: 0.4em;
+        }
+        p:last-of-type::after {
+            content: close-quote;
+            padding-left: 0.1em;
+        }
+        p {
+            text-indent: 0; // avoid messing up quote symbols,
+                            // should another indent value be inherited
+        }
+        footer {
+            text-align: right;
+            font-style: normal;
+            position: relative;
+            right: 0;
+        }
+        footer::before {
+            content: "~";
+        }
+    }
+
+
+    /* Source code **************************************************************/
+
+    code {
+        white-space: pre-wrap;
+        font-family: "Courier New", monospace;
+    }
+
+    code pre {
+        margin: $paragraph-space 0;
     }
 }
 
+@mixin figures() {
 
-/* Source code **************************************************************/
+    $paragraph-space: 0.6em; // Vertical space around paragraphs and text objects
+    $figure-space: 2.5em; // Vertical space around figures & tables
+    $caption-space: .8em;
 
-code {
-    white-space: pre-wrap;
+    /* Tables *******************************************************************/
+
+    table {
+        margin: $figure-space auto;
+        border-collapse: collapse;
+    }
+    caption {
+        font-style: italic;
+        margin: $caption-space 0 $paragraph-space;
+        caption-side: bottom;
+    }
+    th, td {
+        padding: 0.5em;
+    }
+    td:first-child {
+        font-weight: bold;
+    }
+    table>tr:first-child td, caption + tr td, thead th {
+        font-weight: bold;
+        border-bottom: 1px solid $color-text;
+        border-top: 1px solid $color-text;
+    }
+    table>tr:last-child td, tbody {
+        border-bottom: 1px solid $color-text;
+    }
+    tr + caption {
+        border-top: 1px solid $color-text;
+    }
+    table.no-col-header {
+        td:first-child {
+            font-weight: normal;
+        }
+    }
+    table.no-row-header {
+        > tr:first-child td, caption + tr td {
+            font-weight: normal;
+            border-bottom: none;
+        }
+    }
+
+
+    /* Images *******************************************************************/
+
+    figure {
+        margin: $figure-space 0;
+        text-align: center;
+
+        img {
+            display: inline-block;
+            width: 100%;
+            vertical-align: top; // gets rid of space under inlined image
+        }
+        figcaption {
+            font-style: italic;
+            margin: $caption-space 0 $paragraph-space;
+            
+            * {
+                margin: 0;
+            } 
+        }
+    }
 }
 
-code pre {
-    margin: $paragraph-space 0;
-}

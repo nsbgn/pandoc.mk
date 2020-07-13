@@ -1,30 +1,29 @@
-@import "colors";
-
-$minwidth: 35em; // Minimum width before margin scales down
-$maxwidth: 40em; // Maximum width before margin scales up
-$vmargin: 5em; // Vertical margin on the page
-$hmargin: 3em; // Horizontal margin on the page
-
-body {
-    color: $color-text;
-    background-color: $color-page;
-    margin: $vmargin $hmargin;
-    font-family: "Courier New", monospace;
-    font-size: 12pt;
-}
-
-// Once the width reaches a lower limit, margins start shrinking proportionally
-@media screen and (max-width: ($minwidth)) {
+@mixin page(
+        $vmargin: 5em, // Vertical margin on the page
+        $hmargin: 3em, // Horizontal margin on the page
+        $minwidth: 35em, // Minimum width before margin scales down
+        $maxwidth: 40em, // Maximum width before margin scales up
+){
     body {
-        margin: $vmargin percentage($hmargin/$minwidth);
+        color: $color-text;
+        background-color: $color-page;
+        margin: $vmargin $hmargin;
+    }
+
+    // Once the width reaches a lower limit, margins start shrinking proportionally
+    @media screen and (max-width: ($minwidth)) {
+        body {
+            margin: $vmargin percentage($hmargin/$minwidth);
+        }
+    }
+
+    // Once the width reaches an upper limit, margins start expanding
+    // proportionally
+    @media screen and (min-width: ($maxwidth)) {
+        main, #index {
+            margin: 0 auto;
+            width: $maxwidth;
+        }
     }
 }
 
-// Once the width reaches an upper limit, margins start expanding
-// proportionally
-@media screen and (min-width: ($maxwidth)) {
-    main, #index {
-        margin: 0 auto;
-        width: $maxwidth;
-    }
-}

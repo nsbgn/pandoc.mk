@@ -1,13 +1,15 @@
-* {
-    margin: 0;
-    padding: 0;
-}
-
 @import "colors";
-@import "page";
-@import "text";
-@import "figure";
-@import "print";
-@import "index";
-@import "table-of-contents";
-@import "misc";
+@import "snel";
+
+$vmargin: 5em; // Vertical margin on the page
+$hmargin: 3em; // Horizontal margin on the page
+$minwidth: 35em; // Minimum width before margin scales down
+$maxwidth: 40em; // Maximum width before margin scales up
+
+@include index;
+@include page($vmargin, $hmargin, $minwidth, $maxwidth);
+@include table-of-contents($maxwidth: $maxwidth, $hmargin: $hmargin);
+@include print($page-size: A5);
+@include text($font: "Courier New", $font-family: monospace, $font-size: 12pt, $align: left);
+@include figures;
+@include misc;

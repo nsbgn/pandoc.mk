@@ -1,69 +1,67 @@
-@import "page";
-@import "colors";
-
 /* Table of contents (page) *************************************************/
 
-$toc-space: 1.5em; // Horizontal space between ToC and page
-$toc-width: 9em; // Width of table of contents when moved to the side
+@mixin table-of-contents($hmargin, $maxwidth) {
 
-#toc {
-    float: right;
-    background: $color-page;
-    padding: 0.3em 0 0.3em $toc-space;
+    $toc-space: 1.5em; // Horizontal space between ToC and page
+    $toc-width: 9em; // Width of table of contents when moved to the side
 
-    ul {
-        line-height: 1em;
-        margin: 0;
-        list-style: none; // to override unorderedness of ToC
-        counter-reset: item;
-        >li {
-            display: block;
-            margin-left: 0;
-        }
-        >li:before {
-            content: counters(item, ".") ". ";
-            counter-increment: item;
-            padding-right: 0.4em;
-            font-size: 0.5em;
-        }
-    }
-
-    li li {
-        margin-left: 1em;
-    }
-
-    a {
-        font-size: 0.6em;
-        text-decoration: none;
-        text-transform: lowercase;
-        color: $color-text;
-    }
-}
-
-// If the width gets so small that it doesn't make sense to float the ToC, just
-// put it normally
-@media screen and (max-width: (2*($toc-width + $toc-space + 2*$hmargin))) {
     #toc {
-        float: none;
-    }
-}
+        float: right;
+        background: $color-page;
+        padding: 0.3em 0 0.3em $toc-space;
 
-// If the width gets large enough to fit the ToC on the side, move it there
-@media screen and (min-width: ($maxwidth + 2*($hmargin*2 + $toc-space + $toc-width))) {
-    #toc {
-        display: inline-block;
-        margin: 0 0 0 ($maxwidth / 2 + $toc-space);
-        position: absolute; // alternative: fixed, sticky?
-        //top: $VSPACE_PAGE;  // this would place it at the top of the page
-        //rather than at the same height as the first line
-        left: 50%;
-        width: $toc-width;
+        ul {
+            line-height: 1em;
+            margin: 0;
+            list-style: none; // to override unorderedness of ToC
+            counter-reset: item;
+            >li {
+                display: block;
+                margin-left: 0;
+            }
+            >li:before {
+                content: counters(item, ".") ". ";
+                counter-increment: item;
+                padding-right: 0.4em;
+                font-size: 0.5em;
+            }
+        }
 
-        >ul {
-            position: fixed;
+        li li {
+            margin-left: 1em;
+        }
+
+        a {
+            font-size: 0.6em;
+            text-decoration: none;
+            text-transform: lowercase;
+            color: $color-text;
         }
     }
+
+    // If the width gets so small that it doesn't make sense to float the ToC, just
+    // put it normally
+    @media screen and (max-width: (2*($toc-width + $toc-space + 2*$hmargin))) {
+        #toc {
+            float: none;
+        }
+    }
+
+    // If the width gets large enough to fit the ToC on the side, move it there
+    @media screen and (min-width: ($maxwidth + 2*($hmargin*2 + $toc-space + $toc-width))) {
+        #toc {
+            display: inline-block;
+            margin: 0 0 0 ($maxwidth / 2 + $toc-space);
+            position: absolute; // alternative: fixed, sticky?
+            //top: $VSPACE_PAGE;  // this would place it at the top of the page
+            //rather than at the same height as the first line
+            left: 50%;
+            width: $toc-width;
+
+            >ul {
+                position: fixed;
+            }
+        }
+    }
+
 }
-
-
-
