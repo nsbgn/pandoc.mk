@@ -1,15 +1,27 @@
-@import "colors";
 @import "snel";
 
+@import "colors";
 $vmargin: 5em; // Vertical margin on the page
 $hmargin: 3em; // Horizontal margin on the page
 $minwidth: 35em; // Minimum width before margin scales down
 $maxwidth: 40em; // Maximum width before margin scales up
+$line-height: 1.8em; // Vertical space around objects like lists and quotes
+$indentation: 2.5em; // Indentation for lists items and blockquotes
+$paragraph-space: 0.6em; // Space around paragraphs and text objects
+$object-space: 2.5em;
 
-@include index;
-@include page($vmargin, $hmargin, $minwidth, $maxwidth);
-@include table-of-contents($maxwidth: $maxwidth, $hmargin: $hmargin);
-@include print($page-size: A5);
-@include text($font: "Courier New", $font-family: monospace, $font-size: 12pt, $align: left);
-@include figures;
-@include misc;
+@include index();
+@include page();
+@include table-of-contents();
+@include print
+    ( $page-size: A5 );
+@include text
+    ( $font: ("Courier New", monospace)
+    , $font-size: 12pt
+    , $align: left );
+@include text-objects();
+@include header
+    ( $title-align: left
+    , $include-link: true );
+@include figures();
+@include misc();

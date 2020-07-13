@@ -1,15 +1,10 @@
 @mixin text( $font
-           , $font-family
            , $font-size
            , $align: left
-           , $line-height: 1.8em // Vertical space around objects like lists and quotes
-           , $indentation: 2.5em // Indentation for lists items and blockquotes
-           , $object-space: 2.5em
-           , $paragraph-space: 0.6em // Space around paragraphs and text objects
            ) {
 
     body {
-        font-family: $font, $font-family;
+        font-family: $font;
         font-size: $font-size;
     }
 
@@ -39,30 +34,45 @@
     sup {
         line-height: 1em;
     }
+}
 
+@mixin header
+    ( $title-align: left
+    , $paragraph-space: 0.6em
+    , $line-height: 1.8em 
+    , $include-link: true
+    ) {
     header {
         text-transform: uppercase;
         margin: 0 0 1.5em;
+
+        @if $include-link {
+            div {
+                color: $color-scenery;
+                font-size: 0.8em;
+                letter-spacing: 0.15em;
+            }
+            a {
+                float: right;
+                font-size: 1.8em;
+                margin-left: 0.5em; // Avoid hugging index list
+                display: inline-block;
+                text-decoration: none;
+                font-family: sans-serif;
+            }
+        } @else {
+            a, div {
+                display: none;
+            }   
+        }
     }
 
-    header div {
-        color: $color-scenery;
-        font-size: 0.8em;
-        letter-spacing: 0.15em;
-    }
-    header a {
-        float: right;
-        font-size: 1.8em;
-        margin-left: 0.5em; // Avoid hugging index list
-        display: inline-block;
-        text-decoration: none;
-        font-family: sans-serif;
-    }
+
     h1 {
         font-style: normal;
         font-size: 1.8em;
         margin-top: 0.1em;
-        text-align: left;
+        text-align: $title-align;
         font-weight: 300;
         text-transform: uppercase;
     }
@@ -99,8 +109,9 @@
     h4 + p { // ... except paragraphs, which come inline.
         clear: none;
     }
+}
 
-
+@mixin text-objects {
 
     /* Lists ********************************************************************/
 
@@ -217,9 +228,8 @@
     }
 }
 
-@mixin figures() {
+@mixin figures {
 
-    $paragraph-space: 0.6em; // Vertical space around paragraphs and text objects
     $figure-space: 2.5em; // Vertical space around figures & tables
     $caption-space: .8em;
 

@@ -1,9 +1,4 @@
-@mixin page(
-        $vmargin: 5em, // Vertical margin on the page
-        $hmargin: 3em, // Horizontal margin on the page
-        $minwidth: 35em, // Minimum width before margin scales down
-        $maxwidth: 40em, // Maximum width before margin scales up
-){
+@mixin page {
     body {
         color: $color-text;
         background-color: $color-page;
