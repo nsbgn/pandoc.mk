@@ -151,31 +151,6 @@
         margin: 0.25em 0 0 auto;
     }
 
-    /* Separating lines *********************************************************/
-
-    hr {
-        border: none;
-        border-top: 1px solid $color-text;
-        text-align: center;
-        margin: 2.5em auto;
-        width: 100%;
-        position: relative;
-    }
-    hr::after {
-        $SIZE_HR: 0.8em;
-        $WIDTH_HR_INNER: 3em;
-        content: "*";
-        font-size: 1.2em;
-        font-weight: 100;
-        position: absolute;
-        top: (-$SIZE_HR/2);
-        left: 50%;
-        margin-left: (-($WIDTH_HR_INNER+$SIZE_HR)/2);
-        width: $WIDTH_HR_INNER;
-        color: $color-text;
-        background: $color-page;
-    }
-
 
     /* Quotes and line blocks ***************************************************/
 
@@ -225,6 +200,32 @@
 
     code pre {
         margin: $paragraph-space 0;
+    }
+}
+
+@mixin hr ($decoration: "*", $font-size: 1.2em) {
+    /* Separating lines *********************************************************/
+
+    hr {
+        border: none;
+        border-top: 1px solid $color-text;
+        text-align: center;
+        margin: 2.5em auto;
+        width: 100%;
+        position: relative;
+    }
+    hr::after {
+        $inner-width: 3em;
+        color: $color-text;
+        background: $color-page;
+        content: $decoration;
+        font-size: $font-size;
+        line-height: $font-size;
+        position: absolute;
+        top: (-($font-size)/2);
+        left: 50%;
+        margin-left: (-($inner-width)/2);
+        width: $inner-width;
     }
 }
 

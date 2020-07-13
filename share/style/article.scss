@@ -5,7 +5,7 @@ $vmargin: 5em; // Vertical margin on the page
 $hmargin: 3em; // Horizontal margin on the page
 $minwidth: 35em; // Minimum width before margin scales down
 $maxwidth: 40em; // Maximum width before margin scales up
-$line-height: 1.8em; // Vertical space around objects like lists and quotes
+$line-height: 2em; // Vertical space around objects like lists and quotes
 $indentation: 2.5em; // Indentation for lists items and blockquotes
 $paragraph-space: 0.6em; // Space around paragraphs and text objects
 $object-space: 2.5em;
@@ -16,14 +16,15 @@ $object-space: 2.5em;
 @include print
     ( $page-size: A5 );
 @include text
-    ( $font: ("Courier New", monospace)
-    , $font-size: 12pt
-    , $align: left );
+    ( $font: ("Palatino Linotype", "Book Antiqua", "Palatino", serif)
+    , $font-size: 13pt
+    , $align: justify );
 @include text-objects();
 @include hr
-    ( $decoration: "*" );
+    ( $decoration: "\2022"
+    , $font-size: 0.4em );
 @include header
-    ( $title-align: left
-    , $include-link: true );
+    ( $title-align: center
+    , $include-link: false );
 @include figures();
 @include misc();
