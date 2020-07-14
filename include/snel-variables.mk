@@ -37,6 +37,7 @@ endif
 ifndef IGNORE
     IGNORE=Makefile .git .gitignore
 endif
+IGNORE:=$(IGNORE) $(CACHE) $(DEST)
 ifndef HIDE_WEB_INFO
 	HIDE_WEB_INFO=
 endif
