@@ -141,5 +141,5 @@ def targets($dest):
 
 # Turn a target object into makefile recipes.
 def as_makefile:
-    . + {".PHONY": keys} | to_entries[] | (.key + ": " + (.value | join(" ")))
+    to_entries[] | (.key + ": " + (.value | join(" ")))
 ;

@@ -21,9 +21,11 @@ EXTRA_HTML_TARGETS = $(addprefix $(DEST)/,index.html favicon.ico apple-touch-ico
 html: $(CACHE)/dynamic.mk $(EXTRA_HTML_TARGETS) | external-targets html-targets
 pdf:  $(CACHE)/dynamic.mk | external-targets pdf-targets
 
-include $(CACHE)/dynamic.mk
+external-targets:
+pdf-targets:
+html-targets:
 
-.PHONY: html pdf clean
+include $(CACHE)/dynamic.mk
 
 # Record metadata headers for each document
 $(CACHE)/%.md.headers.json: $(SRC)/%.md $(PANDOC_DIR)/metadata.json $(JQ_DIR)/index.jq
@@ -111,4 +113,6 @@ $(DEST)/index.html: $(PANDOC_DIR)/page.html $(PANDOC_DIR)/nav.html $(CACHE)/inde
 		--metadata favicon='$(shell realpath $(DEST)/favicon.ico --relative-to $(@D) --canonicalize-missing)' \
 		--metadata style='$(STYLE)' \
 	    > $@
+
+.PHONY: html pdf clean external-targets pdf-targets html-targets
 
