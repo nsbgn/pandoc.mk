@@ -18,9 +18,9 @@ META_FILES = $(patsubst $(SRC)/%,$(CACHE)/%.meta.json,$(SOURCE_FILES))
 
 EXTRA_HTML_TARGETS = $(addprefix $(DEST)/,index.html web.css $(if $(wildcard $(SRC)/favicon.*),favicon.ico apple-touch-icon.png))
 
+.PHONY: html pdf clean external-targets pdf-targets html-targets
 html: $(CACHE)/dynamic.mk $(EXTRA_HTML_TARGETS) | external-targets html-targets
-pdf:  $(CACHE)/dynamic.mk | external-targets pdf-targets
-
+pdf: $(CACHE)/dynamic.mk | external-targets pdf-targets
 external-targets:
 pdf-targets:
 html-targets:
@@ -94,6 +94,7 @@ $(CACHE)/targets.txt: $(CACHE)/index.json
 	@$(foreach target,$(EXTRA_HTML_TARGETS),echo $(target) >> "$@";)
 
 # Optionally, remove all files in $(DEST) that are no longer targeted
+.PHONY: clean
 clean: $(CACHE)/targets.txt
 	@bash -i -c 'read -p "Operation might remove files in \"$(DEST)\". Continue? [y/N]" -n 1 -r; \
 	    [[ $$REPLY =~ ^[Yy]$$ ]] || exit 1'
@@ -113,6 +114,4 @@ $(DEST)/index.html: $(PANDOC_DIR)/page.html $(PANDOC_DIR)/nav.html $(CACHE)/inde
 		$(if $(wildcard $(SRC)/favicon.*),--metadata favicon='$(shell realpath $(DEST)/favicon.ico --relative-to $(@D) --canonicalize-missing)') \
 		--metadata style='$(STYLE)' \
 	    > $@
-
-.PHONY: html pdf clean external-targets pdf-targets html-targets
 
