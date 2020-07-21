@@ -10,33 +10,17 @@ STYLE_TARGETS = $(filter-out _%,$(STYLE_SOURCES))
 STYLE_MODULE_FILES = $(patsubst %,$(ASSET_DIR)/style/%.scss,$(STYLE_MODULES))
 STYLE_TARGET_FILES = $(patsubst %,$(DEST)/%.css,$(STYLE_TARGETS))
 
-# If `snel` is installed & used globally, the stylesheet and favicon should be
-# already available in `$PREFIX/share/snel`; otherwise they should be compiled.
+# If `snel` is installed & used globally, the stylesheets should be already
+# available in `$PREFIX/share/snel`; otherwise they should be compiled.
 ifeq ($(BASE_DIR),$(INCLUDE_DIR))
 $(DEST)/%: $(ASSET_DIR)/%
 	@-mkdir -p $(@D)
 	cp $< $@
-
 else
-# Stylesheet
 $(DEST)/%.css: $(ASSET_DIR)/style/%.scss $(STYLE_MODULE_FILES)
 	@-mkdir -p $(@D)
 	sassc --style compressed $< $@
-
-# Favicon as bitmap
-$(DEST)/favicon.ico: $(ASSET_DIR)/favicon.svg
-	@-mkdir -p $(@D)
-	convert $< -transparent white -resize 16x16 -level '0%,100%,0.6' $@
-
-# Icon for bookmark on Apple devices
-$(DEST)/apple-touch-icon.png: $(ASSET_DIR)/favicon.svg
-	@-mkdir -p $(@D)
-	convert -density 1200 -resize 140x140 -gravity center -extent 180x180 \
-	    	+level-colors '#fff,#711' -colors 16 \
-		-compress Zip -define 'png:format=png8' -define 'png:compression-level=9' \
-		$< $@
 endif
-
 
 # Create HTML documents
 # The following targets are required once but do not influence the build of this
@@ -44,7 +28,7 @@ endif
 $(DEST)/%.html: \
 		$(SRC)/%.md \
 		$(PANDOC_DIR)/page.html \
-		$(wildcard $(SRC)/*.bib) 
+		$(wildcard $(SRC)/*.bib)
 	@echo "Generating document \"$@\"..." 1>&2
 	@-mkdir -p "$(@D)"
 	@-mkdir -p "$(patsubst $(DEST)/%,$(CACHE)/%,$(@D))"
@@ -52,10 +36,10 @@ $(DEST)/%.html: \
 		--metadata hide_web_info='$(HIDE_WEB_INFO)' \
 		--metadata path='$(shell realpath $(@D) --relative-to $(DEST) --canonicalize-missing)' \
 		--metadata root='$(shell realpath $(DEST) --relative-to $(@D) --canonicalize-missing)' \
-		--metadata favicon='$(shell realpath $(DEST)/favicon.ico --relative-to $(@D) --canonicalize-missing)' \
 		--metadata index='$(shell realpath $(DEST)/index.html --relative-to $(@D) --canonicalize-missing)' \
 		--metadata default-style='$(STYLE)' \
 		--metadata last-modified='$(shell date -r "$<" '+%Y-%m-%d')' \
+		$(if $(wildcard $(SRC)/favicon.*),--metadata favicon='$(shell realpath $(DEST)/favicon.ico --relative-to $(@D) --canonicalize-missing)') \
 		--from markdown+smart+fenced_divs+inline_notes+table_captions \
 		--to html5 \
 		--standalone \

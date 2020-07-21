@@ -16,7 +16,7 @@ SOURCE_FILES = $(shell \
 # Headers and extra targets are collected for each source in a corresponding file
 META_FILES = $(patsubst $(SRC)/%,$(CACHE)/%.meta.json,$(SOURCE_FILES))
 
-EXTRA_HTML_TARGETS = $(addprefix $(DEST)/,index.html favicon.ico apple-touch-icon.png web.css)
+EXTRA_HTML_TARGETS = $(addprefix $(DEST)/,index.html web.css $(if $(wildcard $(SRC)/favicon.*),favicon.ico apple-touch-icon.png))
 
 html: $(CACHE)/dynamic.mk $(EXTRA_HTML_TARGETS) | external-targets html-targets
 pdf:  $(CACHE)/dynamic.mk | external-targets pdf-targets
@@ -110,7 +110,7 @@ $(DEST)/index.html: $(PANDOC_DIR)/page.html $(PANDOC_DIR)/nav.html $(CACHE)/inde
 	    --template="$(PANDOC_DIR)/page.html" \
 	    --metadata-file "$(CACHE)/index.json" \
 	    --metadata title="Table of contents" \
-		--metadata favicon='$(shell realpath $(DEST)/favicon.ico --relative-to $(@D) --canonicalize-missing)' \
+		$(if $(wildcard $(SRC)/favicon.*),--metadata favicon='$(shell realpath $(DEST)/favicon.ico --relative-to $(@D) --canonicalize-missing)') \
 		--metadata style='$(STYLE)' \
 	    > $@
 

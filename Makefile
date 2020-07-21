@@ -4,17 +4,15 @@ include include/snel.mk
 
 MAKEFILES := $(patsubst include/%,%,$(wildcard include/*))
 
-assets: $(STATIC_ASSET_FILES)
+assets: $(STYLE_TARGET_FILES)
 
 install: assets
 	install --mode 755 -D --target-directory $(INCLUDE_DIR)/ \
 		$(addprefix include/,$(MAKEFILES))
 	install --mode=644 -D --target-directory $(SHARE_DIR)/ \
-	    $(STATIC_ASSET_FILES)
-	install --mode=644 -D --target-directory $(SHARE_DIR)/ \
-	    $(addprefix $(ASSET_DIR)/,index.jq)
+	    $(addprefix $(ASSET_DIR)/,index.jq) $(STYLE_TARGET_FILES)
 	install --mode=644 -D --target-directory $(SHARE_DIR)/pandoc/ \
-	    $(addprefix $(PANDOC_DIR)/,nav.html index.html page.html metadata.json)
+	    $(addprefix $(PANDOC_DIR)/,nav.html page.html metadata.json)
 	install --mode=755 -D --target-directory $(SHARE_DIR)/pandoc/ \
 	    $(PANDOC_DIR)/extract-references.py
 

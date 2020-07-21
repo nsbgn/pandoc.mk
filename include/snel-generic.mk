@@ -1,6 +1,19 @@
 # This adds generic recipes for images and other things that you might often
 # link to.
 
+# Favicon as bitmap
+$(DEST)/favicon.ico: $(SRC)/favicon.svg
+	@-mkdir -p $(@D)
+	convert $< -transparent white -resize 16x16 -level '0%,100%,0.6' $@
+
+# Icon for bookmark on Apple devices
+$(DEST)/apple-touch-icon.png: $(SRC)/favicon.svg
+	@-mkdir -p $(@D)
+	convert -density 1200 -resize 140x140 -gravity center -extent 180x180 \
+	    	+level-colors '#fff,#711' -colors 16 \
+		-compress Zip -define 'png:format=png8' -define 'png:compression-level=9' \
+		$< $@
+
 # SVG gets optimized.
 $(DEST)/%.svg: $(SRC)/%.svg
 	@-mkdir -p $(@D)
