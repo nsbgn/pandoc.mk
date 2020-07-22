@@ -28,8 +28,11 @@ endif
 ifndef DEST
     DEST := build
 endif
-ifndef STYLE
-    STYLE := letter
+ifndef STYLE_PDF
+    STYLE_PDF := letter
+endif
+ifndef STYLE_HTML
+    STYLE_HTML := web
 endif
 ifndef CACHE
     CACHE := $(DEST)/cache
@@ -38,7 +41,4 @@ ifndef IGNORE
     IGNORE=Makefile .git .gitignore
 endif
 IGNORE:=$(IGNORE) $(CACHE) $(DEST)
-ifndef HIDE_WEB_INFO
-	HIDE_WEB_INFO=
-endif
 
