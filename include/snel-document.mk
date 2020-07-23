@@ -69,9 +69,10 @@ $(DEST)/%.pdf: $(SRC)/%.md $(PANDOC_DIR)/page.html $(STYLE_TARGET_FILES)
 	pandoc \
 	    --shift-heading-level-by=1 \
 	    --pdf-engine=weasyprint \
+        --pdf-engine-opt=-u"$(@D)" \
 	    --template '$(PANDOC_DIR)/page.html' \
 	    --metadata default-style='$(STYLE_PDF)' \
-	    --metadata root='$(DEST)' \
+        --metadata root='$(shell realpath $(DEST) --relative-to $(@D) --canonicalize-missing)' \
 	    --to pdf \
 	    $< \
 	| ps2pdf \
