@@ -23,7 +23,7 @@
         h1, h2 { 
             page-break-before: always;
         }
-        header + h2, h1 + h2 {
+        h1:first-child, header + h2, h1 + h2 {
             page-break-before: auto; /* override page break if h2 comes immediately
                                       after bigger header */
         }
