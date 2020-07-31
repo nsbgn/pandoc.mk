@@ -16,11 +16,11 @@ SOURCE_FILES = $(shell \
 # Headers and extra targets are collected for each source in a corresponding file
 META_FILES = $(patsubst $(SRC)/%,$(CACHE)/%.meta.json,$(SOURCE_FILES))
 
-EXTRA_HTML_TARGETS = $(addprefix $(DEST)/,index.html web.css $(if $(wildcard $(SRC)/favicon.*),favicon.ico apple-touch-icon.png))
+EXTRA_HTML_TARGETS = $(addprefix $(DEST)/,index.html $(if $(wildcard $(SRC)/favicon.*),favicon.ico apple-touch-icon.png))
 
 .PHONY: html pdf clean external-targets pdf-targets html-targets
 html: $(CACHE)/dynamic.mk $(EXTRA_HTML_TARGETS) | external-targets html-targets
-pdf: $(CACHE)/dynamic.mk | external-targets pdf-targets
+pdf: $(CACHE)/dynamic.mk | pdf-targets
 external-targets:
 pdf-targets:
 html-targets:
@@ -80,7 +80,7 @@ $(CACHE)/index.json: $(JQ_DIR)/index.jq \
 # and any external content referred inside
 $(CACHE)/dynamic.mk: $(CACHE)/index.json
 	@echo "Generating Makefile \"$@\"..."
-	@jq -L"$(JQ_DIR)" --arg dest "$(DEST)" -r 'include "index"; targets($$dest) | as_makefile' < $< > $@
+	@jq -L"$(JQ_DIR)" --arg dest "$(DEST)" -r 'include "index"; targets($$dest; "$(STYLE_HTML)"; "$(STYLE_PDF)") | as_makefile' < $< > $@
 
 # Overview of final targets
 $(CACHE)/targets.txt: $(CACHE)/index.json
@@ -88,7 +88,7 @@ $(CACHE)/targets.txt: $(CACHE)/index.json
 	@jq \
 	    -L"$(JQ_DIR)" \
 	    --arg dest "$(DEST)" \
-	    -r 'include "index"; targets($$dest) | to_entries[].value[]' \
+	    -r 'include "index"; targets($$dest; "$(STYLE_HTML)"; "$(STYLE_PDF)") | to_entries[].value[]' \
 	    < "$<" \
 	    > "$@"
 	@$(foreach target,$(EXTRA_HTML_TARGETS),echo $(target) >> "$@";)

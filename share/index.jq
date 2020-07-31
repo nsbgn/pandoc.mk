@@ -121,20 +121,26 @@ def index:
 
 # Get publishable targets from an index, as an object containing the names of
 # the relevant Makefile recipes.
-def targets($dest):
+def targets($dest; $style_html; $style_pdf):
     def in_dir($dir; $file):
         $dir + [$file] | join("/") | ltrimstr("./") | ($dest + "/" + .)
     ;
     [ all_children
         | ., (.frontmatter // empty)
         | select(has("directory") and has("basename") and (has("external") | not)) 
-        | {"target": "pdf-targets", "name": in_dir(.directory; .basename + ".pdf")}
-        , {"target": "html-targets", "name": in_dir(.directory; .basename + ".html")}
-        , {"target": "external-targets", "name": in_dir(.directory; .targets?[])}
-        , {"target": "external-targets", "name": in_dir(["."]; (.meta.style // empty) + ".css")}
+        | in_dir(.directory; .basename + ".pdf") as $pdf
+        | in_dir(.directory; .basename + ".html") as $html
+        | [in_dir(["."]; (.meta.style // $style_html) + ".css")] as $css_html
+        | [in_dir(["."]; (.meta.style // $style_pdf) + ".css")] as $css_pdf
+        | [in_dir(.directory; .targets?[])] as $external
+        | {"target": "pdf-targets", "deps": [$pdf]}
+        , {"target": "html-targets", "deps": [$html]}
+        , {"target": $html, "deps": [] }
+        , {"target": $pdf, "deps": ($css_pdf + $external)}
+        , {"target": "external-targets", "deps": ($css_html + $external)}
     ]
     | group_by(.target)
-    | map({(.[0].target): map(.name)})
+    | map({(.[0].target): map(.deps) | add | unique})
     | add
     | . // {}
 ;
