@@ -12,11 +12,11 @@ SHARE_DIR := $(PREFIX)/share/snel
 # Otherwise, we find them relative to the current makefile
 ifeq ($(BASE_DIR),$(INCLUDE_DIR))
     ASSET_DIR := $(SHARE_DIR)
-    JQ_DIR := $(SHARE_DIR)
+    JQ_DIR := $(SHARE_DIR)/jq
     PANDOC_DIR := $(SHARE_DIR)/pandoc
 else
     ASSET_DIR := $(BASE_DIR)/../share
-    JQ_DIR := $(BASE_DIR)/../share
+    JQ_DIR := $(BASE_DIR)/../share/jq
     PANDOC_DIR := $(BASE_DIR)/../share/pandoc
 endif
 

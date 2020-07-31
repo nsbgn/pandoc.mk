@@ -25,7 +25,7 @@ pdf: $(CACHE)/dynamic.mk
 include $(CACHE)/dynamic.mk
 
 # Record metadata headers for each document
-$(CACHE)/%.md.headers.json: $(SRC)/%.md $(PANDOC_DIR)/metadata.json $(JQ_DIR)/index.jq
+$(CACHE)/%.md.headers.json: $(SRC)/%.md $(PANDOC_DIR)/metadata.json $(JQ_DIR)/snel.jq
 	@-mkdir -p "$(@D)"
 	@pandoc --template='$(PANDOC_DIR)/metadata.json' \
 	    --to=plain \
@@ -48,7 +48,7 @@ $(CACHE)/%.md.meta.json: $(CACHE)/%.md.headers.json $(CACHE)/%.md.targets.json
 	    -L"$(JQ_DIR)" \
 	    --arg path "$(patsubst $(CACHE)/%.md.meta.json,%.md,$@)" \
 	    --slurp \
-	    'include "index"; add | tree(["."] + ($$path | split("/")))' \
+	    'include "snel"; add | tree(["."] + ($$path | split("/")))' \
 	    $^ \
 	    > $@
 
@@ -62,14 +62,14 @@ $(CACHE)/filetree.json: $(SOURCE_FILES)
 	    > $@
 
 # Overview of files & directories with metadata, readable for index template
-$(CACHE)/index.json: $(JQ_DIR)/index.jq \
+$(CACHE)/index.json: $(JQ_DIR)/snel.jq \
 	    $(CACHE)/filetree.json \
 	    $(META_FILES) \
 	    $(wildcard $(SRC)/index.base.json)
 	@-mkdir -p $(@D)
 	@echo "Generating index data \"$@\"..." 1>&2
 	@jq  -L$(JQ_DIR) --slurp \
-	    'include "index"; index' \
+	    'include "snel"; index' \
 	    $(filter %.json, $^) \
 	    > $@
 
@@ -77,7 +77,10 @@ $(CACHE)/index.json: $(JQ_DIR)/index.jq \
 # and any external content referred inside
 $(CACHE)/dynamic.mk: $(CACHE)/index.json
 	@echo "Generating Makefile \"$@\"..."
-	@jq -L"$(JQ_DIR)" --arg dest "$(DEST)" -r 'include "index"; targets($$dest; "$(STYLE_HTML)"; "$(STYLE_PDF)") | as_makefile' < $< > $@
+	@jq -L"$(JQ_DIR)" \
+	    --arg dest "$(DEST)" \
+	    -r 'include "snel"; targets($$dest; "$(STYLE_HTML)"; "$(STYLE_PDF)") | as_makefile' \
+		< $< > $@
 
 # Overview of final targets
 $(CACHE)/targets.txt: $(CACHE)/index.json
@@ -85,7 +88,7 @@ $(CACHE)/targets.txt: $(CACHE)/index.json
 	@jq \
 	    -L"$(JQ_DIR)" \
 	    --arg dest "$(DEST)" \
-	    -r 'include "index"; targets($$dest; "$(STYLE_HTML)"; "$(STYLE_PDF)") | [.[].deps[]] | unique | .[]' \
+	    -r 'include "snel"; targets($$dest; "$(STYLE_HTML)"; "$(STYLE_PDF)") | [.[].deps[]] | unique | .[]' \
 	    < "$<" \
 	    > "$@"
 	@$(foreach target,$(EXTRA_HTML_TARGETS),echo $(target) >> "$@";)
