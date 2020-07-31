@@ -18,12 +18,9 @@ META_FILES = $(patsubst $(SRC)/%,$(CACHE)/%.meta.json,$(SOURCE_FILES))
 
 EXTRA_HTML_TARGETS = $(addprefix $(DEST)/,index.html $(if $(wildcard $(SRC)/favicon.*),favicon.ico apple-touch-icon.png))
 
-.PHONY: html pdf clean external-targets pdf-targets html-targets
-html: $(CACHE)/dynamic.mk $(EXTRA_HTML_TARGETS) | external-targets html-targets
-pdf: $(CACHE)/dynamic.mk | pdf-targets
-external-targets:
-pdf-targets:
-html-targets:
+.PHONY: html pdf
+html: $(CACHE)/dynamic.mk $(EXTRA_HTML_TARGETS)
+pdf: $(CACHE)/dynamic.mk
 
 include $(CACHE)/dynamic.mk
 
@@ -88,7 +85,7 @@ $(CACHE)/targets.txt: $(CACHE)/index.json
 	@jq \
 	    -L"$(JQ_DIR)" \
 	    --arg dest "$(DEST)" \
-	    -r 'include "index"; targets($$dest; "$(STYLE_HTML)"; "$(STYLE_PDF)") | to_entries[].value[]' \
+	    -r 'include "index"; targets($$dest; "$(STYLE_HTML)"; "$(STYLE_PDF)") | [.[].deps[]] | unique | .[]' \
 	    < "$<" \
 	    > "$@"
 	@$(foreach target,$(EXTRA_HTML_TARGETS),echo $(target) >> "$@";)

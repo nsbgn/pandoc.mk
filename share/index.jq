@@ -119,8 +119,8 @@ def index:
     | annotate_leaves
 ;
 
-# Get publishable targets from an index, as an object containing the names of
-# the relevant Makefile recipes.
+# Get a list of target documents and their Makefile dependencies as an array of
+# {"target":..., "deps":...} objects.
 def targets($dest; $style_html; $style_pdf):
     def in_dir($dir; $file):
         $dir + [$file] | join("/") | ltrimstr("./") | ($dest + "/" + .)
@@ -133,19 +133,17 @@ def targets($dest; $style_html; $style_pdf):
         | [in_dir(["."]; (.meta.style // $style_html) + ".css")] as $css_html
         | [in_dir(["."]; (.meta.style // $style_pdf) + ".css")] as $css_pdf
         | [in_dir(.directory; .targets?[])] as $external
-        | {"target": "pdf-targets", "deps": [$pdf]}
-        , {"target": "html-targets", "deps": [$html]}
+        | {"target": "pdf", "deps": [$pdf]}
+        , {"target": "html", "deps": ([$html] + $css_html + $external)}
         , {"target": $html, "deps": [] }
         , {"target": $pdf, "deps": ($css_pdf + $external)}
-        , {"target": "external-targets", "deps": ($css_html + $external)}
     ]
     | group_by(.target)
-    | map({(.[0].target): map(.deps) | add | unique})
-    | add
-    | . // {}
+    | map({"target":(.[0].target), "deps": (map(.deps) | add | unique)})
+    | . // []
 ;
 
 # Turn a target object into makefile recipes.
 def as_makefile:
-    to_entries[] | (.key + ": " + (.value | join(" ")))
+    .[] | (.target + ": " + (.deps | join(" ")))
 ;
