@@ -1,30 +1,32 @@
 @import "snel";
 @import "colors";
 
+$object-space: 2.5em;
+$line-height: 1.8em; // Vertical space around objects like lists and quotes
+$paragraph-space: 0.6em; // Space around paragraphs and text objects
+
 @include text
     ( $font: ("Palatino Linotype", "Book Antiqua", "Palatino", serif)
     , $font-size: 11pt
-    , $align: justify );
-
-@include header
-    ( $title-align: center
-    , $include-link: false );
-
+    , $align: justify
+    , $underline-link: false );
+@include page-header
+    ( $include-link: false );
+@include header-block
+    ( );
+@include description-list
+    ( );
+@include list-2
+    ( );
+@include code
+    ( $size: 0.8em );
 @include print
-    ( $page-size: A4 );
+    ( $page-size: A4 
+    , $page-breaks: false
+    , $page-numbering: false );
 
-h2:before {
-    content: "";
-    display: inline-block;
-    margin-right: 1em;;
-    width: 14%;
-    height: 10px;
-    background-color: $color-link;
-}
-a {
-    text-decoration: none;
-}
 
+// Tables in the CV are used just for alignment
 table {
     width: 98%;
     margin: 0 auto;
@@ -36,69 +38,4 @@ th, td {
 table a {
     font-family: monospace;
     font-size: 0.9em;
-}
-
-h1 {
-    margin: 0 0 0.4em 0;
-}
-h2 {
-    margin: 1.5em 0 1em;
-}
-h3 {
-    margin: 1.8em 0 0.5em;
-}
-
-
-$DL_SIZE: 17%; 
-dl {
-    margin: 0;
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    width: 100%;
-}
-dl dt {
-    flex: 0 0 $DL_SIZE;
-    margin: 0.25em 0;
-    text-overflow: ellipsis;
-    font-weight: 600;
-    overflow: hidden;
-}
-dl dd {
-    flex: 0 0 (100%-$DL_SIZE);
-    margin: 0.25em 0 0 auto;
-    text-align: left;
-}
-
-
-ul {
-    list-style-type: none;
-    padding: 0;
-}
-li {
-    position: relative;
-    margin: 0 0 0 0.5em;
-    padding: 0 0 0 1em;
-}
-li:before {
-    content: "▪";
-    position: absolute;
-    left: -0.5em;
-}
-dd>ul {
-    margin: 0 0 0 1em;
-}
-dd>ul>li {
-    margin: 0;
-}
-li p {
-    margin: 0 0 0.4em 0;
-    display: inline-block;
-    vertical-align: top;
-}
-
-
-code {
-    white-space: pre-wrap;
-    font-size: 0.8em;
 }

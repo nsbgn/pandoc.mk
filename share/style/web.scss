@@ -21,13 +21,15 @@ $object-space: 2.5em;
     , $align: left );
 @include list();
 @include description-list();
-@include code();
+@include code
+    ( $font: ("Courier New", monospace) );
 @include quote();
 @include hr
     ( $decoration: "*" );
-@include header
-    ( $title-align: left
-    , $include-link: true );
+@include page-header
+    ( $include-link: true );
+@include header-line
+    ( $title-align: left );
 @include figure();
 @include table();
 @include misc();

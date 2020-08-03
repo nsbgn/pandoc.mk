@@ -1,14 +1,21 @@
 /* Printing *****************************************************************/
 
-@mixin print($page-size: A4, $vmargin: 1.5cm, $hmargin: 2cm) {
+@mixin print
+    ( $page-size: A4
+    , $vmargin: 1.5cm
+    , $hmargin: 2cm
+    , $page-breaks: true
+    , $page-numbering: true ) {
 
     @page {
         size: $page-size;
         margin: $vmargin $hmargin;
         counter-increment: page;
 
-        @bottom-right {
-            content: counter(page); 
+        @if $page-numbering {
+            @bottom-right {
+                content: counter(page); 
+            }
         }
     }
 
@@ -16,19 +23,21 @@
         .noprint {
             display: none;
         }
-        .pgbrk {
-            page-break-after: always;
-        }
 
-        h1, h2 { 
-            page-break-before: always;
-        }
-        h1:first-child, header + h2, h1 + h2 {
-            page-break-before: auto; /* override page break if h2 comes immediately
-                                      after bigger header */
-        }
-        h1, h2, h3, h4 {
-            page-break-after: avoid;
+        @if $page-breaks {
+            .pgbrk {
+                page-break-after: always;
+            }
+            h1, h2 { 
+                page-break-before: always;
+            }
+            h1:first-child, header + h2, h1 + h2 {
+                page-break-before: auto; /* override page break if h2 comes immediately
+                                          after bigger header */
+            }
+            h1, h2, h3, h4 {
+                page-break-after: avoid;
+            }
         }
 
         body {
