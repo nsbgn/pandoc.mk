@@ -19,12 +19,16 @@ $object-space: 2.5em;
     ( $font: ("Palatino Linotype", "Book Antiqua", "Palatino", serif)
     , $font-size: 13pt
     , $align: justify );
-@include text-objects();
+@include list();
+@include description-list();
+@include code();
+@include quote();
 @include hr
     ( $decoration: "\2022"
     , $font-size: 0.4em );
 @include header
     ( $title-align: center
     , $include-link: false );
-@include figures();
+@include figure();
+@include table();
 @include misc();

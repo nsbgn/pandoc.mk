@@ -1,6 +1,6 @@
 @import "snel";
-
 @import "colors";
+
 $vmargin: 5em; // Vertical margin on the page
 $hmargin: 3em; // Horizontal margin on the page
 $minwidth: 35em; // Minimum width before margin scales down
@@ -19,11 +19,15 @@ $object-space: 2.5em;
     ( $font: ("Courier New", monospace)
     , $font-size: 12pt
     , $align: left );
-@include text-objects();
+@include list();
+@include description-list();
+@include code();
+@include quote();
 @include hr
     ( $decoration: "*" );
 @include header
     ( $title-align: left
     , $include-link: true );
-@include figures();
+@include figure();
+@include table();
 @include misc();

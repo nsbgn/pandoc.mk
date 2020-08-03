@@ -8,8 +8,6 @@
         font-size: $font-size;
     }
 
-    /* Basic page elements *******************************************************/
-
     p, ul, ol, dl {
         margin: $object-space 0;
         line-height: $line-height;
@@ -20,7 +18,6 @@
     p {
         margin: $paragraph-space 0;
     }
-
     a {
         text-decoration: underline;
         color: $color-link;
@@ -42,6 +39,7 @@
     , $line-height: 1.8em 
     , $include-link: true
     ) {
+
     header {
         text-transform: uppercase;
         margin: 0 0 1.5em;
@@ -66,7 +64,6 @@
             }   
         }
     }
-
 
     h1 {
         font-style: normal;
@@ -109,11 +106,12 @@
     h4 + p { // ... except paragraphs, which come inline.
         clear: none;
     }
+
 }
 
-@mixin text-objects {
 
-    /* Lists ********************************************************************/
+/* Lists ********************************************************************/
+@mixin list {
 
     ul, ol {
         list-style-type: square;
@@ -128,8 +126,10 @@
         vertical-align: top;
     }
 
-    /* Description lists ********************************************************/
+}
 
+/* Description lists ********************************************************/
+@mixin description-list {
     $dl-width: 17%; // How wide the titles of description lists are
 
     dl {
@@ -150,9 +150,11 @@
         flex: 0 0 (100% - $dl-width);
         margin: 0.25em 0 0 auto;
     }
+}
 
 
-    /* Quotes and line blocks ***************************************************/
+/* Quotes and line blocks ***************************************************/
+@mixin quote {
 
     blockquote, .line-block {
         margin: $object-space 0 $object-space $indentation;
@@ -190,21 +192,24 @@
         }
     }
 
+}
 
-    /* Source code **************************************************************/
+/* Source code **************************************************************/
+@mixin code {
 
     code {
         white-space: pre-wrap;
         font-family: "Courier New", monospace;
     }
-
     code pre {
         margin: $paragraph-space 0;
     }
+
 }
 
-@mixin hr ($decoration: "*", $font-size: 1.2em) {
-    /* Separating lines *********************************************************/
+
+/* Separating lines *********************************************************/
+@mixin hr($decoration: "*", $font-size: 1.2em) {
 
     hr {
         border: none;
@@ -229,12 +234,39 @@
     }
 }
 
-@mixin figures {
+/* Image *******************************************************************/
+@mixin figure {
 
     $figure-space: 2.5em; // Vertical space around figures & tables
     $caption-space: .8em;
 
-    /* Tables *******************************************************************/
+    figure {
+        margin: $figure-space 0;
+        text-align: center;
+
+        img {
+            display: inline-block;
+            width: 100%;
+            vertical-align: top; // gets rid of space under inlined image
+        }
+        figcaption {
+            font-style: italic;
+            margin: $caption-space 0 $paragraph-space;
+            
+            * {
+                margin: 0;
+            } 
+        }
+    }
+
+}
+
+
+/* Table *******************************************************************/
+@mixin table {
+
+    $figure-space: 2.5em; // Vertical space around figures & tables
+    $caption-space: .8em;
 
     table {
         margin: $figure-space auto;
@@ -274,26 +306,5 @@
         }
     }
 
-
-    /* Images *******************************************************************/
-
-    figure {
-        margin: $figure-space 0;
-        text-align: center;
-
-        img {
-            display: inline-block;
-            width: 100%;
-            vertical-align: top; // gets rid of space under inlined image
-        }
-        figcaption {
-            font-style: italic;
-            margin: $caption-space 0 $paragraph-space;
-            
-            * {
-                margin: 0;
-            } 
-        }
-    }
 }
 
