@@ -12,13 +12,13 @@ $object-space: 2.5em;
 
 @include index();
 @include page();
-@include table-of-contents();
-@include print
-    ( $page-size: A5 );
+@include screen();
+@include print();
 @include text
     ( $font: ("Courier New", monospace)
     , $font-size: 12pt
     , $align: left );
+@include table-of-contents();
 @include list();
 @include description-list();
 @include code

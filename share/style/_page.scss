@@ -1,9 +1,15 @@
+/* This file contains the styling for the page: its dimensions, and how they
+ * scale, both on the screen and on printed pages. */
+
 @mixin page {
+
     body {
-        color: $color-text;
-        background-color: $color-page;
         margin: $vmargin $hmargin;
     }
+
+}
+
+@mixin screen {
 
     // Once the width reaches a lower limit, margins start shrinking proportionally
     @media screen and (max-width: ($minwidth)) {
@@ -20,5 +26,58 @@
             width: $maxwidth;
         }
     }
+
+}
+
+@mixin print
+    ( $page-size: A4
+    , $vmargin: 1.5cm
+    , $hmargin: 2cm
+    , $page-breaks: true
+    , $page-numbering: true ) {
+
+    @page {
+        size: $page-size;
+        margin: $vmargin $hmargin;
+        counter-increment: page;
+
+        @if $page-numbering {
+            @bottom-right {
+                content: counter(page); 
+            }
+        }
+    }
+
+    @media print {
+        .noprint {
+            display: none;
+        }
+
+        @if $page-breaks {
+            .pgbrk {
+                page-break-after: always;
+            }
+            h1, h2 { 
+                page-break-before: always;
+            }
+            h1:first-child, header + h2, h1 + h2 {
+                page-break-before: auto; /* override page break if h2 comes immediately
+                                          after bigger header */
+            }
+            h1, h2, h3, h4 {
+                page-break-after: avoid;
+            }
+        }
+
+        body {
+            margin: 0;
+        }
+        main, section {
+            margin: 0;
+            width: auto;
+            max-width: none;
+        }
+    }
+
 }
 

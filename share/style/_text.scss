@@ -1,3 +1,6 @@
+/* This file contains styling for the content of a page: paragraphs, headers,
+ * links, lists, figures, rules... */
+
 @mixin text
     ( $font
     , $font-size
@@ -8,6 +11,8 @@
     body {
         font-family: $font;
         font-size: $font-size;
+        color: $color-text;
+        background-color: $color-page;
     }
 
     p, ul, ol, dl {

@@ -1,4 +1,5 @@
-/* Table of contents (site-wide) *********************************************/
+/* The index is a site-wide table of contents. It lists the available document
+ * files. */
 
 @mixin index {
     #index {
@@ -15,9 +16,6 @@
             margin-left: 2em;
             font-weight: normal;
         }
-        //ul ul li::before {
-        //    content: "↳\ ";
-        //}
         a, span {
             text-transform: lowercase;
         }
