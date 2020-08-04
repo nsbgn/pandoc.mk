@@ -121,7 +121,7 @@ def index:
 
 # Get a list of target documents and their Makefile dependencies as an array of
 # {"target":..., "deps":...} objects.
-def targets($dest; $default_style):
+def targets($dest; $target_formats; $default_style):
     def in_dir($dir; $file):
         $dir + [$file] | join("/") | ltrimstr("./") | ($dest + "/" + .)
     ;
@@ -130,17 +130,19 @@ def targets($dest; $default_style):
         | (if (. | type) == "array" then .[] else . end) 
         | tostring
         | ascii_downcase 
-        | (if ([. == ("pdf", "html")] | any) then . else error("unrecognized " + .) end)
+        | (if ([. == $target_formats[]] | any) then . elif . == "all" then $target_formats[] else error("unrecognized " + .) end)
     ;
     [ all_children
         | ., (.frontmatter // empty)
         | select(has("directory") and has("basename") and (has("external") | not)) 
-        | extensions as $ext
-        | in_dir(.directory; .basename + "." + $ext) as $doc
+        | extensions as $format
+        | in_dir(.directory; .basename + "." + $format) as $doc
         | [in_dir(.directory; .targets?[])] as $external
-        | [in_dir(["."]; (.meta.style // $default_style) + ".css")] as $css
-        | {"target": $ext, "deps": ([$doc] + (if $ext == "html" then ($css + $external) else [] end)) }
-        , {"target": $doc, "deps": (if $ext == "pdf" then ($css + $external) else [] end ) }
+        | [in_dir([]; (.meta.style // $default_style) + ".css")] as $css
+        | (if $format == "html" then ($css + $external) else [] end) as $linked
+        | (if $format == "pdf"  then ($css + $external) else [] end) as $embedded
+        | {"target": $format, "deps": ([$doc] + $linked) }
+        , {"target": $doc, "deps": $embedded }
     ]
     | group_by(.target)
     | map({"target":(.[0].target), "deps": (map(.deps) | add | unique)})
