@@ -3,10 +3,9 @@
 
 @mixin screen
     ( $vmargin: 5em
-    , $hmargin:  3em
+    , $hmargin: 3em
     , $minwidth: 35em // Minimum width before margin scales down
-    , $maxwidth: 40em // Maximum width before margin scales up
-    ){
+    , $maxwidth: 40em ){ // Maximum width before margin scales up
 
     body {
         margin: $vmargin $hmargin;

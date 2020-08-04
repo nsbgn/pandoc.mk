@@ -4,9 +4,10 @@
 @mixin text
     ( $font
     , $font-size
+    , $line-height
+    , $margin
     , $align: left
-    , $underline-link: true
-    ) {
+    , $underline-link: true ) {
 
     body {
         font-family: $font;
@@ -16,14 +17,10 @@
     }
 
     p, ul, ol, dl {
-        margin: $vspace-object 0;
+        margin: $margin 0;
         line-height: $line-height;
-        //word-wrap: break-word;
-        letter-spacing: 0.01em;
         text-align: $align;
-    }
-    p {
-        margin: $vspace-text 0;
+        letter-spacing: 0.01em;
     }
     a {
         @if $underline-link {
@@ -47,7 +44,9 @@
 
 
 /* Headers ******************************************************************/
-@mixin page-header ( $include-link: true ) {
+
+@mixin page-header
+    ( $include-link: true ) {
 
     header {
         text-transform: uppercase;
@@ -76,31 +75,28 @@
 
 }
 
+// This header style adds Markdown-like (===, ---) to subheaders
 @mixin header-line
-    ( $title-align: left
-    , $paragraph-space: 0.6em
-    , $line-height: 1.8em 
-    ){
-
-    // This header style adds Markdown-like (===, ---) to subheaders
+    ( $line-height // Must match line height on normal text
+    , $align: left ){ // Alignment of title
 
     h1 {
         font-style: normal;
         font-size: 1.8em;
         margin-top: 0.1em;
-        text-align: $title-align;
+        text-align: $align;
         font-weight: 300;
         text-transform: uppercase;
     }
     h2 {
-        margin: 2em 0 $paragraph-space;
+        margin: 2em 0 0;
         font-size: 1.2em;
         font-weight: 600;
         padding-bottom: 0.5em;
         border-bottom: 3px double $color-text;
     }
     h3 {
-        margin: 2em 0 $paragraph-space;
+        margin: 2em 0 0;
         font-size: 1.1em;
         font-weight: normal;
         padding-bottom: 0.25em;
@@ -128,9 +124,8 @@
 
 }
 
+// This header style adds blocks for clarity and aesthetics
 @mixin header-block {
-
-    // This header style adds blocks for clarity and aesthetics
 
     h1 {
         margin: 0 0 0.4em 0;
@@ -166,10 +161,14 @@
 }
 
 /* Lists ********************************************************************/
-@mixin list {
-    // Default list style
+
+// Default list style
+@mixin list
+    ( $indentation
+    , $margin ){
 
     ul, ol {
+        margin: $margin 0;
         list-style-type: square;
     }
     main li {
@@ -184,11 +183,13 @@
 
 }
 
-@mixin list-controlled {
-    // This list style is the one used for CVs because it allows more control
-    // over placement of the bullet points.
+// This list style is the one used for CVs because it allows more control over
+// placement of the bullet points.
+@mixin list-controlled
+    ( $margin ) {
 
     ul {
+        margin: $margin 0;
         list-style-type: none;
         padding: 0;
     }
@@ -218,11 +219,14 @@
 
 
 /* Description lists ********************************************************/
-@mixin description-list {
+
+@mixin description-list
+    ( $margin ) {
+
     $dl-width: 17%; // How wide the titles of description lists are
 
     dl {
-        margin: 0;
+        margin: $margin 0;
         display: flex;
         flex-direction: row;
         flex-wrap: wrap;
@@ -243,10 +247,13 @@
 
 
 /* Quotes and line blocks ***************************************************/
-@mixin quote {
+
+@mixin quote 
+    ( $indentation
+    , $margin) {
 
     blockquote, .line-block {
-        margin: $vspace-object 0 $vspace-object $indentation;
+        margin: $margin 0 $margin $indentation;
         font-style: italic;
         quotes: "\201C""\201D""\2018""\2019";
         position: relative;
@@ -284,7 +291,11 @@
 }
 
 /* Source code **************************************************************/
-@mixin code ($font: monospace, $size: 1em) {
+
+@mixin code
+    ( $margin
+    , $font: monospace
+    , $size: 1em ) {
 
     code {
         white-space: pre-wrap;
@@ -292,20 +303,24 @@
         font-size: $size;
     }
     code pre {
-        margin: $vspace-text 0;
+        margin: $margin 0;
     }
 
 }
 
 
 /* Separating lines *********************************************************/
-@mixin hr($decoration: "*", $font-size: 1.2em) {
+
+@mixin hr
+    ( $margin
+    , $decoration: "*"
+    , $font-size: 1.2em ) {
 
     hr {
         border: none;
         border-top: 1px solid $color-text;
         text-align: center;
-        margin: 2.5em auto;
+        margin: $margin auto;
         width: 100%;
         position: relative;
     }
@@ -325,13 +340,14 @@
 }
 
 /* Image *******************************************************************/
-@mixin figure {
 
-    $figure-space: 2.5em; // Vertical space around figures & tables
+@mixin figure
+    ( $margin ){
+
     $caption-space: .8em;
 
     figure {
-        margin: $figure-space 0;
+        margin: $margin 0;
         text-align: center;
 
         img {
@@ -341,7 +357,7 @@
         }
         figcaption {
             font-style: italic;
-            margin: $caption-space 0 $vspace-text;
+            margin: $caption-space 0 0;
             
             * {
                 margin: 0;
@@ -353,18 +369,19 @@
 
 
 /* Table *******************************************************************/
-@mixin table {
 
-    $figure-space: 2.5em; // Vertical space around figures & tables
+@mixin table
+    ( $margin ) {
+
     $caption-space: .8em;
 
     table {
-        margin: $figure-space auto;
+        margin: $margin auto;
         border-collapse: collapse;
     }
     caption {
         font-style: italic;
-        margin: $caption-space 0 $vspace-text;
+        margin: $caption-space 0 0;
         caption-side: bottom;
     }
     th, td {

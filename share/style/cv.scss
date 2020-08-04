@@ -1,16 +1,13 @@
 @import "snel";
 @import "colors";
 
-
-$vmargin: 5em; // Vertical margin on the page
-$hmargin: 3em; // Horizontal margin on the page
-$line-height: 1.8em; // Vertical space around objects like lists and quotes
-$vspace-text: 0.6em; // Margins between paragraphs, lists, etcetera
-$vspace-object: 2.5em; // Margins around figures, tables and quotes
+$vspace-object: 2.5em;
 
 @include text
     ( $font: ("Palatino Linotype", "Book Antiqua", "Palatino", serif)
     , $font-size: 11pt
+    , $line-height: 1.8em
+    , $margin: 0.6em
     , $align: justify
     , $underline-link: false );
 @include page-header
@@ -18,11 +15,12 @@ $vspace-object: 2.5em; // Margins around figures, tables and quotes
 @include header-block
     ( );
 @include description-list
-    ( );
+    ( $margin: 0.6em );
 @include list-controlled
-    ( );
+    ( $margin: $vspace-object );
 @include code
-    ( $size: 0.8em );
+    ( $size: 0.8em
+    , $margin: $vspace-object );
 @include print
     ( $page-size: A4 
     , $page-breaks: false

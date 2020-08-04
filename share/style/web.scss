@@ -1,35 +1,39 @@
 @import "snel";
 @import "colors";
 
-$line-height: 1.8em;
-$indentation: 2.5em; // Indentation for lists items and blockquotes
-$vspace-text: 0.6em; // Margins between paragraphs, lists, etcetera
-$vspace-object: 2.5em; // Margins around figures, tables and quotes
+$vspace-object: 2.5em;
 
 @include index
     ( );
 @include text
     ( $font: ("Courier New", monospace)
     , $font-size: 12pt
+    , $line-height: 1.8em
+    , $margin: 0.6em
     , $align: left );
 @include page-header
     ( $include-link: true );
 @include header-line
-    ( $title-align: left );
+    ( $align: left
+    , $line-height: 1.8em );
 @include list
-    ( );
+    ( $indentation: 2.5em
+    , $margin: $vspace-object );
 @include description-list
-    ( );
+    ( $margin: 0.6em );
 @include code
-    ( $font: ("Courier New", monospace) );
+    ( $font: ("Courier New", monospace)
+    , $margin: $vspace-object );
 @include quote
-    ( );
+    ( $indentation: 2.5em
+    , $margin: $vspace-object );
 @include figure
-    ( );
+    ( $margin: $vspace-object );
 @include table
-    ( );
+    ( $margin: $vspace-object );
 @include hr
-    ( $decoration: "*" );
+    ( $decoration: "*"
+    , $margin: $vspace-object );
 @include table-of-contents
     ( );
 @include misc

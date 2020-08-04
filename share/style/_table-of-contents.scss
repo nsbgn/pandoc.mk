@@ -2,8 +2,7 @@
 
 @mixin table-of-contents
     ( $hmargin: 3em
-    , $maxwidth: 40em
-    ) {
+    , $maxwidth: 40em ) {
 
     $toc-space: 1.5em; // Horizontal space between ToC and page
     $toc-width: 9em; // Width of table of contents when moved to the side
