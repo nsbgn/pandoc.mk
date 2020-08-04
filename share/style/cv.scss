@@ -10,9 +10,10 @@ $vspace-object: 2.5em;
     , $margin: 0.6em
     , $align: justify
     , $underline-link: false );
-@include page-header
-    ( $include-link: false );
-@include header-block
+@include title
+    ( $include-link: false
+    , $size: 1.6em );
+@include header-bar
     ( );
 @include description-list
     ( $margin: 0.6em );

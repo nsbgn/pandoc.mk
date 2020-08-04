@@ -45,8 +45,21 @@
 
 /* Headers ******************************************************************/
 
-@mixin page-header
-    ( $include-link: true ) {
+@mixin title
+    ( $include-link: true 
+    , $align: left 
+    , $size: 1.8em ) {
+
+    h1 {
+        font-style: normal;
+        font-size: $size;
+        letter-spacing: 0.08em;
+        margin-top: 0.1em;
+        margin: 0 0 0.4em 0;
+        text-align: $align;
+        font-weight: 300;
+        text-transform: uppercase;
+    }
 
     header {
         text-transform: uppercase;
@@ -76,18 +89,9 @@
 }
 
 // This header style adds Markdown-like (===, ---) to subheaders
-@mixin header-line
-    ( $line-height // Must match line height on normal text
-    , $align: left ){ // Alignment of title
+@mixin header-lined
+    ( $line-height ){ // Must match line height on normal text
 
-    h1 {
-        font-style: normal;
-        font-size: 1.8em;
-        margin-top: 0.1em;
-        text-align: $align;
-        font-weight: 300;
-        text-transform: uppercase;
-    }
     h2 {
         margin: 2em 0 0;
         font-size: 1.2em;
@@ -125,16 +129,8 @@
 }
 
 // This header style adds blocks for clarity and aesthetics
-@mixin header-block {
+@mixin header-bar {
 
-    h1 {
-        margin: 0 0 0.4em 0;
-        font-size: 1.6em;
-        letter-spacing: 0.08em;
-        text-align: left;
-        font-weight: 300;
-        text-transform: uppercase;
-    }
     h2 {
         margin: 1.5em 0 1em;
         font-size: 1.2em;
@@ -250,7 +246,7 @@
 
 @mixin quote 
     ( $indentation
-    , $margin) {
+    , $margin ) {
 
     blockquote, .line-block {
         margin: $margin 0 $margin $indentation;

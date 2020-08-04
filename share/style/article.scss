@@ -1,20 +1,19 @@
 @import "snel";
 @import "colors";
 
-$vspace-text: 0.6em;
 $vspace-object: 2.5em;
 
 @include text
     ( $font: ("Palatino Linotype", "Book Antiqua", "Palatino", serif)
     , $font-size: 13pt
-    , $margin: $vspace-text
+    , $margin: 0.6em
     , $line-height: 2em
     , $align: justify );
-@include page-header
-    ( $include-link: false );
-@include header-line
-    ( $align: center
-    , $line-height: 2em );
+@include title
+    ( $include-link: false
+    , $align: center );
+@include header-lined
+    ( $line-height: 2em );
 @include list
     ( $indentation: 2.5em
     , $margin: $vspace-object );

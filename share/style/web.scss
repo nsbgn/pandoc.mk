@@ -11,11 +11,11 @@ $vspace-object: 2.5em;
     , $line-height: 1.8em
     , $margin: 0.6em
     , $align: left );
-@include page-header
-    ( $include-link: true );
-@include header-line
-    ( $align: left
-    , $line-height: 1.8em );
+@include title
+    ( $include-link: true
+    , $align: left );
+@include header-lined
+    ( $line-height: 1.8em );
 @include list
     ( $indentation: 2.5em
     , $margin: $vspace-object );
