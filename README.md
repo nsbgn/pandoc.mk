@@ -46,18 +46,32 @@ Usage
 To install `snel` globally, do `make` and `sudo make install`. To use it, 
 create a `Makefile` with content like this:
 
+
     SRC=/path/to/source/directory  # defaults to "."
     DEST=/path/to/build/directory  # defaults to "./build"
     include snel.mk  # or "/path/to/snel.mk", if it wasn't installed globally
 
-Executing `make html` from there will then generate the `$(DEST)` directory 
-containing a [lightweight](http://idlewords.com/talks/website_obesity.htm) 
-website made from the Markdown files found in the `$(SRC)` directory. All 
-entries in the created `index.html` are visible without further tapping, 
-hovering or sliding --- it is supposed to act as a vantage point.
 
-Alternatively, executing `make pdf` will use `weasyprint` to make PDF 
-documents from those same Markdown files, with the same workflow.
+Then, executing `make` will generate a `$(DEST)` directory containing HTML and 
+PDF files --- that is, if you have populated the `$(SRC)` directory with 
+Markdown files such as these:
+    
+
+    ---
+    title: An example.
+    make: [html, pdf]
+    style: article
+    ---
+
+    Lorem ipsum dolor sit amet...
+
+
+The `make` entry in the metadata should contain all the target extensions. 
+Markdown files without a `make` entry in the metadata will be ignored. `html` 
+targets will be incorporated in a 
+[lightweight](http://idlewords.com/talks/website_obesity.htm) website, such 
+that all entries in the created `index.html` are visible without further 
+tapping, hovering or sliding --- it is supposed to act as a vantage point.
 
 `snel` will also attempt to automatically build any resource the Markdown 
 files link to. If there is no recipe for a particular resource, simply add it 

@@ -1,5 +1,5 @@
 # This adds recipes for collecting all the Markdown files from a particular
-# directory that have `publish: true` in the metadata. It also generates an
+# directory that have `make: [html,pdf]` in the metadata. It also generates an
 # index file for them.
 
 include $(dir $(abspath $(lastword $(MAKEFILE_LIST))))/snel-variables.mk
@@ -9,7 +9,7 @@ SOURCE_FILES = $(shell \
     find -L "$(SRC)" \
 	$(patsubst %,-path '%' -prune -o,$(IGNORE)) \
 	-iname '*.md' \
-	-exec grep -li --perl-regexp '^publish:\s+((?!(false|null)).*)$$' {} \; \
+	-exec grep -li --perl-regexp '^\s*make:\s*((?!(false|null|\[\])).*)$$' {} \; \
 	-print \
 )
 
@@ -79,7 +79,7 @@ $(CACHE)/dynamic.mk: $(CACHE)/index.json
 	@echo "Generating Makefile \"$@\"..."
 	@jq -L"$(JQ_DIR)" \
 	    --arg dest "$(DEST)" \
-	    -r 'include "snel"; targets($$dest; "$(STYLE_HTML)"; "$(STYLE_PDF)") | as_makefile' \
+	    -r 'include "snel"; targets($$dest; "$(STYLE)") | as_makefile' \
 		< $< > $@
 
 # Overview of final targets
@@ -88,7 +88,7 @@ $(CACHE)/targets.txt: $(CACHE)/index.json
 	@jq \
 	    -L"$(JQ_DIR)" \
 	    --arg dest "$(DEST)" \
-	    -r 'include "snel"; targets($$dest; "$(STYLE_HTML)"; "$(STYLE_PDF)") | [.[].deps[]] | unique | .[]' \
+	    -r 'include "snel"; targets($$dest; "$(STYLE)") | [.[].deps[]] | unique | .[]' \
 	    < "$<" \
 	    > "$@"
 	@$(foreach target,$(EXTRA_HTML_TARGETS),echo $(target) >> "$@";)

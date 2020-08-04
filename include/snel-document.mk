@@ -36,7 +36,7 @@ $(DEST)/%.html: \
 		--metadata path='$(shell realpath $(@D) --relative-to $(DEST) --canonicalize-missing)' \
 		--metadata root='$(shell realpath $(DEST) --relative-to $(@D) --canonicalize-missing)' \
 		--metadata index='$(shell realpath $(DEST)/index.html --relative-to $(@D) --canonicalize-missing)' \
-		--metadata default-style='$(STYLE_HTML)' \
+		--metadata default-style='$(STYLE)' \
 		--metadata last-modified='$(shell date -r "$<" '+%Y-%m-%d')' \
 		$(if $(wildcard $(SRC)/favicon.*),--metadata favicon='$(shell realpath $(DEST)/favicon.ico --relative-to $(@D) --canonicalize-missing)') \
 		--from markdown+smart+fenced_divs+inline_notes+table_captions \
@@ -71,7 +71,7 @@ $(DEST)/%.pdf: $(SRC)/%.md $(PANDOC_DIR)/page.html # additional deps generated b
 	    --pdf-engine=weasyprint \
         --pdf-engine-opt=-u"$(@D)" \
 	    --template '$(PANDOC_DIR)/page.html' \
-	    --metadata default-style='$(STYLE_PDF)' \
+	    --metadata default-style='$(STYLE)' \
         --metadata root='$(shell realpath $(DEST) --relative-to $(@D) --canonicalize-missing)' \
 	    --to pdf \
 	    $< \

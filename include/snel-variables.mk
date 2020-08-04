@@ -28,10 +28,7 @@ endif
 ifndef DEST
     DEST := build
 endif
-ifndef STYLE_PDF
-    STYLE_PDF := letter
-endif
-ifndef STYLE_HTML
+ifndef STYLE
     STYLE_HTML := web
 endif
 ifndef CACHE

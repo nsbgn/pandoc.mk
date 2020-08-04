@@ -85,10 +85,10 @@ def frontmatter:
 
 # Drafts can be excluded from being uploaded and included in the table of
 # contents. To not count as a draft, a document should be explicitly marked as
-# "publish" in the metadata.
-def explicit_publish:
-    def publish: has("contents") or .external or .meta.publish | bool;
-    (( all_children | select(publish | not)) |= mark) | remove_marked
+# "make" in the metadata.
+def explicit_make:
+    def make: has("contents") or .external or .meta.make | bool;
+    (( all_children | select(make | not)) |= mark) | remove_marked
 ;
 
 # Sort content first according to sort order in metadata.
@@ -113,7 +113,7 @@ def index:
     | directory
     | basename
     | link
-    | explicit_publish
+    | explicit_make
     | frontmatter
     | sort_content
     | annotate_leaves
@@ -121,22 +121,26 @@ def index:
 
 # Get a list of target documents and their Makefile dependencies as an array of
 # {"target":..., "deps":...} objects.
-def targets($dest; $style_html; $style_pdf):
+def targets($dest; $default_style):
     def in_dir($dir; $file):
         $dir + [$file] | join("/") | ltrimstr("./") | ($dest + "/" + .)
+    ;
+    def extensions:
+        .meta.make 
+        | (if (. | type) == "array" then .[] else . end) 
+        | tostring
+        | ascii_downcase 
+        | (if ([. == ("pdf", "html")] | any) then . else error("unrecognized " + .) end)
     ;
     [ all_children
         | ., (.frontmatter // empty)
         | select(has("directory") and has("basename") and (has("external") | not)) 
-        | in_dir(.directory; .basename + ".pdf") as $pdf
-        | in_dir(.directory; .basename + ".html") as $html
-        | [in_dir(["."]; (.meta.style // $style_html) + ".css")] as $css_html
-        | [in_dir(["."]; (.meta.style // $style_pdf) + ".css")] as $css_pdf
+        | extensions as $ext
+        | in_dir(.directory; .basename + "." + $ext) as $doc
         | [in_dir(.directory; .targets?[])] as $external
-        | {"target": "pdf", "deps": [$pdf]}
-        , {"target": "html", "deps": ([$html] + $css_html + $external)}
-        , {"target": $html, "deps": [] }
-        , {"target": $pdf, "deps": ($css_pdf + $external)}
+        | [in_dir(["."]; (.meta.style // $default_style) + ".css")] as $css
+        | {"target": $ext, "deps": ([$doc] + (if $ext == "html" then ($css + $external) else [] end)) }
+        , {"target": $doc, "deps": (if $ext == "pdf" then ($css + $external) else [] end ) }
     ]
     | group_by(.target)
     | map({"target":(.[0].target), "deps": (map(.deps) | add | unique)})
