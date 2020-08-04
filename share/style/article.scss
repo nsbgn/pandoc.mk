@@ -5,32 +5,40 @@ $vmargin: 5em; // Vertical margin on the page
 $hmargin: 3em; // Horizontal margin on the page
 $minwidth: 35em; // Minimum width before margin scales down
 $maxwidth: 40em; // Maximum width before margin scales up
+
 $line-height: 2em; // Vertical space around objects like lists and quotes
 $indentation: 2.5em; // Indentation for lists items and blockquotes
-$paragraph-space: 0.6em; // Space around paragraphs and text objects
-$object-space: 2.5em;
+
+$vspace-text: 0.6em; // Margins between paragraphs, lists, etcetera
+$vspace-object: 2.5em; // Margins around figures, tables and quotes
+
 
 @include page
-    ();
+    ( );
 @include print
     ( $page-size: A5 );
-@include table-of-contents
-    ();
 @include text
     ( $font: ("Palatino Linotype", "Book Antiqua", "Palatino", serif)
     , $font-size: 13pt
     , $align: justify );
-@include list();
-@include description-list();
-@include code();
-@include quote();
-@include hr
-    ( $decoration: "\2022"
-    , $font-size: 0.4em );
 @include page-header
     ( $include-link: false );
 @include header-line
     ( $title-align: center );
-@include figure();
-@include table();
-@include misc();
+@include list
+    ( );
+@include description-list
+    ( );
+@include code
+    ( );
+@include quote
+    ( );
+@include figure
+    ( );
+@include table
+    ( );
+@include hr
+    ( $decoration: "\2022"
+    , $font-size: 0.4em );
+@include misc
+    ( );

@@ -5,31 +5,43 @@ $vmargin: 5em; // Vertical margin on the page
 $hmargin: 3em; // Horizontal margin on the page
 $minwidth: 35em; // Minimum width before margin scales down
 $maxwidth: 40em; // Maximum width before margin scales up
-$line-height: 1.8em; // Vertical space around objects like lists and quotes
-$indentation: 2.5em; // Indentation for lists items and blockquotes
-$paragraph-space: 0.6em; // Space around paragraphs and text objects
-$object-space: 2.5em;
 
-@include index();
-@include page();
-@include screen();
-@include print();
+$line-height: 1.8em;
+$indentation: 2.5em; // Indentation for lists items and blockquotes
+$vspace-text: 0.6em; // Margins between paragraphs, lists, etcetera
+$vspace-object: 2.5em; // Margins around figures, tables and quotes
+
+@include index
+    ( );
+@include page
+    ( );
+@include screen
+    ( );
+@include print
+    ( );
 @include text
     ( $font: ("Courier New", monospace)
     , $font-size: 12pt
     , $align: left );
-@include table-of-contents();
-@include list();
-@include description-list();
-@include code
-    ( $font: ("Courier New", monospace) );
-@include quote();
-@include hr
-    ( $decoration: "*" );
 @include page-header
     ( $include-link: true );
 @include header-line
     ( $title-align: left );
-@include figure();
-@include table();
-@include misc();
+@include list
+    ( );
+@include description-list
+    ( );
+@include code
+    ( $font: ("Courier New", monospace) );
+@include quote
+    ( );
+@include figure
+    ( );
+@include table
+    ( );
+@include hr
+    ( $decoration: "*" );
+@include table-of-contents
+    ( );
+@include misc
+    ( );

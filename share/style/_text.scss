@@ -16,14 +16,14 @@
     }
 
     p, ul, ol, dl {
-        margin: $object-space 0;
+        margin: $vspace-object 0;
         line-height: $line-height;
         //word-wrap: break-word;
         letter-spacing: 0.01em;
         text-align: $align;
     }
     p {
-        margin: $paragraph-space 0;
+        margin: $vspace-text 0;
     }
     a {
         @if $underline-link {
@@ -167,6 +167,7 @@
 
 /* Lists ********************************************************************/
 @mixin list {
+    // Default list style
 
     ul, ol {
         list-style-type: square;
@@ -183,7 +184,9 @@
 
 }
 
-@mixin list-2 {
+@mixin list-controlled {
+    // This list style is the one used for CVs because it allows more control
+    // over placement of the bullet points.
 
     ul {
         list-style-type: none;
@@ -243,7 +246,7 @@
 @mixin quote {
 
     blockquote, .line-block {
-        margin: $object-space 0 $object-space $indentation;
+        margin: $vspace-object 0 $vspace-object $indentation;
         font-style: italic;
         quotes: "\201C""\201D""\2018""\2019";
         position: relative;
@@ -289,7 +292,7 @@
         font-size: $size;
     }
     code pre {
-        margin: $paragraph-space 0;
+        margin: $vspace-text 0;
     }
 
 }
@@ -338,7 +341,7 @@
         }
         figcaption {
             font-style: italic;
-            margin: $caption-space 0 $paragraph-space;
+            margin: $caption-space 0 $vspace-text;
             
             * {
                 margin: 0;
@@ -361,7 +364,7 @@
     }
     caption {
         font-style: italic;
-        margin: $caption-space 0 $paragraph-space;
+        margin: $caption-space 0 $vspace-text;
         caption-side: bottom;
     }
     th, td {

@@ -1,9 +1,9 @@
 @import "snel";
 @import "colors";
 
-$object-space: 2.5em;
 $line-height: 1.8em; // Vertical space around objects like lists and quotes
-$paragraph-space: 0.6em; // Space around paragraphs and text objects
+$vspace-text: 0.6em; // Margins between paragraphs, lists, etcetera
+$vspace-object: 2.5em; // Margins around figures, tables and quotes
 
 @include text
     ( $font: ("Palatino Linotype", "Book Antiqua", "Palatino", serif)
@@ -16,7 +16,7 @@ $paragraph-space: 0.6em; // Space around paragraphs and text objects
     ( );
 @include description-list
     ( );
-@include list-2
+@include list-controlled
     ( );
 @include code
     ( $size: 0.8em );
