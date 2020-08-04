@@ -1,6 +1,9 @@
 @import "snel";
 @import "colors";
 
+
+$vmargin: 5em; // Vertical margin on the page
+$hmargin: 3em; // Horizontal margin on the page
 $line-height: 1.8em; // Vertical space around objects like lists and quotes
 $vspace-text: 0.6em; // Margins between paragraphs, lists, etcetera
 $vspace-object: 2.5em; // Margins around figures, tables and quotes
@@ -25,6 +28,10 @@ $vspace-object: 2.5em; // Margins around figures, tables and quotes
     , $page-breaks: false
     , $page-numbering: false );
 
+
+.email {
+    font-family: monospace;
+}
 
 // Tables in the CV are used just for alignment
 table {

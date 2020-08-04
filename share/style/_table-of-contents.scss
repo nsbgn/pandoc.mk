@@ -1,6 +1,9 @@
 /* The table of contents provides an overview of headers within a document.*/
 
-@mixin table-of-contents {
+@mixin table-of-contents
+    ( $hmargin: 3em
+    , $maxwidth: 40em
+    ) {
 
     $toc-space: 1.5em; // Horizontal space between ToC and page
     $toc-width: 9em; // Width of table of contents when moved to the side

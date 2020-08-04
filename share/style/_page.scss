@@ -1,15 +1,16 @@
 /* This file contains the styling for the page: its dimensions, and how they
  * scale, both on the screen and on printed pages. */
 
-@mixin page {
+@mixin screen
+    ( $vmargin: 5em
+    , $hmargin:  3em
+    , $minwidth: 35em // Minimum width before margin scales down
+    , $maxwidth: 40em // Maximum width before margin scales up
+    ){
 
     body {
         margin: $vmargin $hmargin;
     }
-
-}
-
-@mixin screen {
 
     // Once the width reaches a lower limit, margins start shrinking proportionally
     @media screen and (max-width: ($minwidth)) {

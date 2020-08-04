@@ -1,23 +1,12 @@
 @import "snel";
 @import "colors";
 
-$vmargin: 5em; // Vertical margin on the page
-$hmargin: 3em; // Horizontal margin on the page
-$minwidth: 35em; // Minimum width before margin scales down
-$maxwidth: 40em; // Maximum width before margin scales up
-
 $line-height: 1.8em;
 $indentation: 2.5em; // Indentation for lists items and blockquotes
 $vspace-text: 0.6em; // Margins between paragraphs, lists, etcetera
 $vspace-object: 2.5em; // Margins around figures, tables and quotes
 
 @include index
-    ( );
-@include page
-    ( );
-@include screen
-    ( );
-@include print
     ( );
 @include text
     ( $font: ("Courier New", monospace)
@@ -44,4 +33,8 @@ $vspace-object: 2.5em; // Margins around figures, tables and quotes
 @include table-of-contents
     ( );
 @include misc
+    ( );
+@include screen
+    ( );
+@include print
     ( );
