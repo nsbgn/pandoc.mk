@@ -18,7 +18,8 @@ META_FILES = $(patsubst $(SRC)/%,$(CACHE)/%.meta.json,$(SOURCE_FILES))
 
 EXTRA_HTML_TARGETS = $(addprefix $(DEST)/,index.html $(if $(wildcard $(SRC)/favicon.*),favicon.ico apple-touch-icon.png))
 
-.PHONY: html pdf
+.PHONY: all html pdf
+all: html pdf
 html: $(CACHE)/dynamic.mk $(EXTRA_HTML_TARGETS)
 pdf: $(CACHE)/dynamic.mk
 
