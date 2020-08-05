@@ -28,6 +28,17 @@ def remove_marked:
     end
 ;
 
+# Obtain all target formats ("html", "pdf"...) for a particular page.
+def target_formats($all_formats):
+    (.meta.make // empty)
+    | ( if (. | type) == "array" then .[] else . end ) 
+    | tostring | ascii_downcase 
+    | ( if ([. == $all_formats[]] | any) then . 
+        elif . == "all" then $all_formats[] 
+        else error("unrecognized format:" + .) 
+        end )
+;
+
 # Wrap an object in other objects so that the original object exists at a
 # particular "path". Like `{} | setpath(["a","b"], …)`, but instead of making
 # objects like `{"a":{"b":…}}`, this makes objects like `{"name":"a",
@@ -67,10 +78,12 @@ def basename:
     )
 ;
 
-# Any Markdown page gets a link to its HTML page.
+# Any Markdown page gets a link to its HTML page (or PDF if it has no HTML
+# target).
 def link:
     (all_children | select(has("directory") and has("basename") and (.name | test(".(md|markdown)$";"i")))) |= (
-        .link = ((.directory + [.basename + ".html"]) | join("/") | ltrimstr("./"))
+        [target_formats(["html","pdf"])][0] as $ext |
+        .link = ((.directory + [.basename + "." + $ext]) | join("/") | ltrimstr("./"))
     )
 ;
 
@@ -121,21 +134,14 @@ def index:
 
 # Get a list of target documents and their Makefile dependencies as an array of
 # {"target":..., "deps":...} objects.
-def targets($dest; $target_formats; $default_style):
+def targets($dest; $all_formats; $default_style):
     def in_dir($dir; $file):
         $dir + [$file] | join("/") | ltrimstr("./") | ($dest + "/" + .)
-    ;
-    def extensions:
-        .meta.make 
-        | (if (. | type) == "array" then .[] else . end) 
-        | tostring
-        | ascii_downcase 
-        | (if ([. == $target_formats[]] | any) then . elif . == "all" then $target_formats[] else error("unrecognized " + .) end)
     ;
     [ all_children
         | ., (.frontmatter // empty)
         | select(has("directory") and has("basename") and (has("external") | not)) 
-        | extensions as $format
+        | target_formats($all_formats) as $format
         | in_dir(.directory; .basename + "." + $format) as $doc
         | [in_dir(.directory; .targets?[])] as $external
         | [in_dir([]; (.meta.style // $default_style) + ".css")] as $css
