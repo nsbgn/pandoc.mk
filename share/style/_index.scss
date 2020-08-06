@@ -36,3 +36,100 @@
     }
 }
 
+// This index style is an earlier version that expanded horizontally rather
+// than vertically. I decided it didn't actually make things easier to view.
+@mixin index-horizontal
+    ( $vmargin: 2em // vmargin around page
+    , $hmargin: 3em // hmargin around page
+    , $column-hspace: 4em // hspacing between columns
+    , $column-vspace: 2em // vspacing between wrapped columns
+    , $section-vspace: 1.5em // vertical spacing between subheaders
+    , $header-vspace: 0.6em // vertical space under column header 
+    , ){
+    #index {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        a {
+            text-decoration: none;
+            color: $color-text;
+        }
+        a, span {
+            text-transform: lowercase;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        a.selected, .selected>a {
+            font-style: italic;
+        }
+        a.selected:hover, .selected>a:hover {
+            text-decoration: none;
+        }
+        span {
+            cursor: default;
+            color: mix($color-text, $color-page, 30%);
+        }
+        
+        ul {
+            margin: 0;
+            list-style: none;
+        }
+
+        > ul {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-start;
+            align-items: flex-start;
+            padding: ($vmargin) ($hmargin - ($column-hspace/2));
+
+            > li {
+                padding: ($column-vspace/2) ($column-hspace/2);
+                
+                > a, > span {
+                    white-space: nowrap;
+                    font-size: 2.9em;
+                }
+                
+                > ul {
+                    text-align: left;
+                    padding: 0 0.2em;
+                    margin-top: ($header-vspace - $section-vspace);
+                    
+                    > li {
+                        padding-top: $section-vspace;
+                        
+                        > a, > span {
+                            font-size: 1.5em;
+                        }
+
+                        > ul {
+                            padding-top: 0.15em;
+
+                            a, span {
+                                font-size: 0.8em;
+                            }
+                            li, ul {
+                                display: inline;
+                            }
+                        }
+
+                    }
+                }
+            }
+        }
+
+        // Items between which a dot is placed
+        ul ul ul li + li:before {
+            content: "\ \2022\00a0\ ";
+            font-size: 0.6em;
+            color: mix($color-text, $color-page, 60%);
+        }
+    }
+}
