@@ -1,0 +1,41 @@
+@import "snel";
+@import "colors";
+
+@include text
+    ( $font: ("Palatino Linotype", "Book Antiqua", "Palatino", serif)
+    , $font-size: 11pt
+    , $line-height: 1.8em
+    , $margin: 0.6em
+    , $align: justify
+    , $underline-link: false );
+@include title
+    ( $include-link: false
+    , $size: 1.6em );
+@include header-bar
+    ( );
+@include description-list
+    ( $margin: 0.6em );
+@include list-controlled
+    ( $margin: 2.5em );
+
+
+@page {
+    size: 16cm 9cm;
+    margin: 2cm 3cm;
+}
+
+@media print {
+    header {
+        page-break-after: always;
+    }
+    hr {
+
+        page-break-before: always;
+    }
+}
+hr {
+    visibility: hidden;
+    height: 1px;
+    width: 1px;
+    margin: 0 -1px -1px 0;
+}
