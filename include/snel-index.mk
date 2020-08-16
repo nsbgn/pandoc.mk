@@ -38,7 +38,7 @@ $(CACHE)/%.md.headers.json: $(SRC)/%.md $(PANDOC_DIR)/metadata.json $(JQ_DIR)/sn
 $(CACHE)/%.md.targets.json: $(SRC)/%.md 
 	@-mkdir -p "$(@D)"
 	@pandoc -f markdown -t json -i $< \
-	    | jq -r '{"targets":[ .blocks[] | recurse(.c?[]?) | select(.t? == "Image") | .c[2][0] | select(test("^[a-z]+://") | not) ]}' \
+	    | jq -r '{"targets":[ .blocks[] | recurse(.c?[]?,.[]?) | select(.t? == "Image") | .c[2][0] | select(test("^[a-z]+://") | not) ]}' \
 	    > $@
 
 # Combination of headers + targets
