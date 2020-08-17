@@ -20,17 +20,17 @@ to someone:
 As of now, the core recipes call for [pandoc](http://pandoc.org/) 2.8 or 
 higher, [jq](https://stedolan.github.io/jq/) 1.6 or higher,
 [weasyprint](https://weasyprint.org/),
-[find](https://www.gnu.org/software/findutils/),and 
+[find](https://www.gnu.org/software/findutils/), 
 [tree](http://mama.indstate.edu/users/ice/tree/),
 [sass](http://sass-lang.com/), and
 [xargs](https://savannah.gnu.org/projects/findutils/) --- but you could easily 
-substitute or add any ingredient.
-
-Optional additional recipes use such programs as 
-[ImageMagick](http://www.imagemagick.org/),
-[optipng](http://optipng.sourceforge.net/),
+substitute or add any ingredient. Optional additional recipes use such 
+programs as [ImageMagick](http://www.imagemagick.org/),
+[optipng](http://optipng.sourceforge.net/), and
 [svgo](https://github.com/svg/svgo) for image processing, as well as
-[lftp](http://lftp.yar.ru/)/[rsync](https://rsync.samba.org/) for uploading. 
+[lftp](http://lftp.yar.ru/) or 
+[rsync](https://rsync.samba.org/)+[ssh](http://www.openssh.com/) for 
+uploading. 
  
 Website generators that take a similar bare-bones approach are 
 [simple-template](https://github.com/simple-template/pandoc), 
@@ -71,8 +71,8 @@ to. If there is no recipe for a particular resource, simply add it to your
         gnuplot -c script.gnuplot $<
 
 To clean up leftovers files that are no longer linked, do `make clean`. Given 
-an appropriate configuration, the results can be uploaded with `lftp` or 
-`rsync` & `ssh` by calling `make upload`.
+an appropriate configuration, the results can be uploaded by calling `make 
+upload`.
 
 
 License
