@@ -1,36 +1,38 @@
 snel
 ==============================================================================
 
-`snel` consists of two parts, either of which, I hope, may prove useful to 
-someone:
-
-1.  A [make](https://www.gnu.org/software/make)-recipe for generating a static 
-    website and/or PDF documents.
-
-2.  Minimalist, monochrome CSS stylesheets.
-
-
 Plain text formats like [Markdown](http://commonmark.org/help/) and 
 [YAML](http://www.yaml.org/spec/) are lightweight, understandable, and easy to 
 modify. In the spirit of the [UNIX 
 philosophy](https://en.wikipedia.org/wiki/Unix_philosophy), I glued a couple 
-of standard tools into an application for static website generation and 
-document typesetting.
+of standard tools into `snel`, a method for generating PDF documents and 
+static websites. The method encourages a radical separation of style from 
+content: source text and data are converted to documents and graphs by a clean 
+and transparent process, documented in the Makefile.
 
-As of now, the recipe calls for [pandoc](http://pandoc.org/) 2.8 or higher, 
-[jq](https://stedolan.github.io/jq/) 1.6 or higher,
-[find](https://www.gnu.org/software/findutils/),
+This repository consists of two parts, both of which, I hope, may prove useful 
+to someone:
+
+1.  Recipes for [make](https://www.gnu.org/software/make).
+
+2.  Minimalist CSS stylesheets.
+
+As of now, the core recipes call for [pandoc](http://pandoc.org/) 2.8 or 
+higher, [jq](https://stedolan.github.io/jq/) 1.6 or higher,
+[weasyprint](https://weasyprint.org/),
+[find](https://www.gnu.org/software/findutils/),and 
 [tree](http://mama.indstate.edu/users/ice/tree/),
-[xargs](https://savannah.gnu.org/projects/findutils/),
-[sass](http://sass-lang.com/),
-[ImageMagick](http://www.imagemagick.org/),
-[optipng](http://optipng.sourceforge.net/) and optionally
-[lftp](http://lftp.yar.ru/),
-[svgo](https://github.com/svg/svgo),
-and [weasyprint](https://weasyprint.org/). These are mostly standard programs, 
-and you could easily substitute or add any ingredient.
+[sass](http://sass-lang.com/), and
+[xargs](https://savannah.gnu.org/projects/findutils/) --- but you could easily 
+substitute or add any ingredient.
 
-Website generators that take a similar approach are 
+Optional additional recipes use such programs as 
+[ImageMagick](http://www.imagemagick.org/),
+[optipng](http://optipng.sourceforge.net/),
+[svgo](https://github.com/svg/svgo) for image processing, as well as
+[lftp](http://lftp.yar.ru/)/[rsync](https://rsync.samba.org/) for uploading. 
+ 
+Website generators that take a similar bare-bones approach are 
 [simple-template](https://github.com/simple-template/pandoc), 
 [jqt](https://fadado.github.io/jqt/) and 
 [pansite](https://github.com/wcaleb/website). Should this be a bit primitive 
@@ -44,18 +46,13 @@ Usage
 -------------------------------------------------------------------------------
 
 To install `snel` globally, do `make` and `sudo make install`. To use it, 
-create a `Makefile` with content like this:
+create a `Makefile` with at least the following content:
 
+    include snel.mk # or "/path/to/snel.mk", when not installed globally
 
-    SRC=/path/to/source/directory  # defaults to "."
-    DEST=/path/to/build/directory  # defaults to "./build"
-    include snel.mk  # or "/path/to/snel.mk", if it wasn't installed globally
-
-
-Then, executing `make` will generate a `$(DEST)` directory containing HTML and 
-PDF files --- that is, if you have populated the `$(SRC)` directory with 
-Markdown files such as these:
-    
+Then, executing `make` will generate the `$(DEST)` (default: `build`) 
+directory containing HTML and PDF files --- that is, if you have populated the 
+`$(SRC)` (default: `.`) directory with Markdown files such as these:
 
     ---
     title: An example.
@@ -63,22 +60,15 @@ Markdown files such as these:
     style: article
     ---
 
-    Lorem ipsum dolor sit amet...
+    Consider this graph: ![](graph.svg)
 
+Markdown files without a `make` entry in the metadata will be ignored. `snel` 
+will also attempt to automatically build any resource the Markdown files link 
+to. If there is no recipe for a particular resource, simply add it to your 
+`Makefile`. Example:
 
-The `make` entry in the metadata should contain all the target extensions. 
-Markdown files without a `make` entry in the metadata will be ignored. `html` 
-targets will be incorporated in a 
-[lightweight](http://idlewords.com/talks/website_obesity.htm) website, such 
-that all entries in the created `index.html` are visible without further 
-tapping, hovering or sliding --- it is supposed to act as a vantage point.
-
-`snel` will also attempt to automatically build any resource the Markdown 
-files link to. If there is no recipe for a particular resource, simply add it 
-to your `Makefile`. Example:
-
-    $(DEST)/%/graph.jpg: $(SRC)/%/data.dat script
-        gnuplot -c script $<
+    $(DEST)/%/graph.svg: $(SRC)/%/data.dat script.gnuplot
+        gnuplot -c script.gnuplot $<
 
 To clean up leftovers files that are no longer linked, do `make clean`. Given 
 an appropriate configuration, the results can be uploaded with `lftp` or 

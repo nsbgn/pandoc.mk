@@ -1,5 +1,7 @@
 /* The index is a site-wide table of contents. It lists the available document
- * files. */
+ * files. All entries should be visible without further tapping, hovering or
+ * sliding --- it is supposed to act as a vantage point.
+ */
 
 @mixin index {
     #index {
