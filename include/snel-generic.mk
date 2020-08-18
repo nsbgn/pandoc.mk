@@ -61,6 +61,12 @@ $(DEST)/%.small.jpg: $(SRC)/%.jpg
 	@echo "Original size $$(ls -sh $< | cut -d' ' -f1)."
 	@echo "Compressed to $$(ls -sh $@ | cut -d' ' -f1)."
 
+
+# Strip EXIF data
+$(DEST)/%.jpg: $(SRC)/%.jpg
+	cp $< $@
+	exiftool --all='' $@
+
 # Any file in the source is also available at the destination
 $(DEST)/%: $(SRC)/%
 	@-mkdir -p $(@D)
