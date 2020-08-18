@@ -80,7 +80,8 @@ $(CACHE)/dynamic.mk: $(CACHE)/index.json
 	@echo "Generating Makefile \"$@\"..."
 	@jq -L"$(JQ_DIR)" \
 	    --arg dest "$(DEST)" \
-	    -r 'include "snel"; targets($$dest; "$(STYLE)") | as_makefile' \
+		--arg style "$(STYLE)" \
+	    -r 'include "snel"; targets($$dest; $$style) | as_makefile' \
 		< $< > $@
 
 # Overview of final targets
@@ -89,7 +90,8 @@ $(CACHE)/targets.txt: $(CACHE)/index.json
 	@jq \
 	    -L"$(JQ_DIR)" \
 	    --arg dest "$(DEST)" \
-	    -r 'include "snel"; targets($$dest; "$(STYLE)") | [.[].deps[]] | unique | .[]' \
+		--arg style "$(STYLE)" \
+	    -r 'include "snel"; targets($$dest; $$style) | [.[].deps[]] | unique | .[]' \
 	    < "$<" \
 	    > "$@"
 	@$(foreach target,$(EXTRA_HTML_TARGETS),echo $(target) >> "$@";)
