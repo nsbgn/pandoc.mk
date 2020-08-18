@@ -151,7 +151,7 @@ def targets($dest; $default_style):
         | select(has("directory") and has("basename") and (has("external") | not)) 
         | .formats[] as $format
         | in_dir(.directory; .basename + "." + $format) as $doc
-        | [in_dir(.directory; .targets?[])] as $external
+        | [in_dir(.directory; .resources?[])] as $external
         | [in_dir([]; (.meta.style // $default_style) + ".css")] as $css
         | (if $format == "html" then ($css + $external) else [] end) as $linked
         | (if $format == "pdf"  then ($css + $external) else [] end) as $embedded

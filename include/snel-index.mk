@@ -34,15 +34,15 @@ $(CACHE)/%.md.headers.json: $(SRC)/%.md $(PANDOC_DIR)/metadata.json $(JQ_DIR)/sn
 	    | jq '{"meta":.}' \
 	    > $@
 
-# Record extra targets for each document
-$(CACHE)/%.md.targets.json: $(SRC)/%.md 
+# Record external resources linked in each document
+$(CACHE)/%.md.resources.json: $(SRC)/%.md 
 	@-mkdir -p "$(@D)"
 	@pandoc -f markdown -t json -i $< \
-	    | jq -r '{"targets":[ .blocks[] | recurse(.c?[]?,.[]?) | select(.t? == "Image") | .c[2][0] | select(test("^[a-z]+://") | not) ]}' \
+	    | jq -r '{"resources":[ .blocks[] | recurse(.c?[]?,.[]?) | select(.t? == "Image") | .c[2][0] | select(test("^[a-z]+://") | not) ]}' \
 	    > $@
 
 # Combination of headers + targets
-$(CACHE)/%.md.meta.json: $(CACHE)/%.md.headers.json $(CACHE)/%.md.targets.json 
+$(CACHE)/%.md.meta.json: $(CACHE)/%.md.headers.json $(CACHE)/%.md.resources.json 
 	@-mkdir -p "$(@D)"
 	@echo "Generating metadata \"$@\"..." 1>&2
 	@jq \
