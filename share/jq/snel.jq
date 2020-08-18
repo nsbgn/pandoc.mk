@@ -7,6 +7,11 @@ def bool:
     [. == (null,false,0,{},[])] | any | not
 ;
 
+# Is a given array at least length $n?
+def at_least($n):
+    (. | length) >= $n
+;
+
 # Generate this object and all its children.
 def all_children:
     ., recurse(.contents?[]?)
@@ -46,9 +51,10 @@ def target_formats($all_formats):
 # objects like `{"a":{"b":…}}`, this makes objects like `{"name":"a",
 # "contents":[{"name":"b",…}]}`.
 def tree($path):
-    if ($path | length) <= 1
-    then .name = $path[0]
-    else { "name": $path[0], "contents": [ tree($path[1:]) ] }
+    { "name": $path[0] } + 
+    if $path | at_least(2) 
+    then { "contents": [ tree($path[1:]) ] } 
+    else .
     end
 ;
 
@@ -89,7 +95,7 @@ def formats($all_formats):
 
 # Any page is linked to its first target.
 def link:
-    (all_children | select(has("directory") and has("basename") and ((.formats | length) > 0))) |= (
+    (all_children | select(has("directory") and has("basename") and (.formats | at_least(1)))) |= (
         .link = ((.directory + [.basename + "." + .formats[0]]) | join("/") | ltrimstr("./"))
     )
 ;
@@ -107,7 +113,7 @@ def frontmatter:
 # contents. To not count as a draft, a document should be explicitly marked as
 # "make" in the metadata.
 def explicit_make:
-    def make: has("contents") or .external or ((.formats | length) > 0);
+    def make: has("contents") or .external or (.formats | at_least(1));
     (( all_children | select(make | not)) |= mark) | remove_marked
 ;
 
