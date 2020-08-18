@@ -4,8 +4,8 @@
 @include text
     ( $font: ("Palatino Linotype", "Book Antiqua", "Palatino", serif)
     , $font-size: 11pt
-    , $line-height: 1.8em
-    , $margin: 0.6em
+    , $line-height: 1.6em
+    , $margin: 0.3em
     , $align: justify
     , $underline-link: false );
 @include title
@@ -21,7 +21,7 @@
 
 @page {
     size: 16cm 9cm;
-    margin: 2cm 3cm;
+    margin: 1cm 1cm;
 }
 
 @media print {
@@ -38,4 +38,8 @@ hr {
     height: 1px;
     width: 1px;
     margin: 0 -1px -1px 0;
+}
+
+.notes {
+    display: none;
 }
