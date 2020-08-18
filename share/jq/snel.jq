@@ -9,7 +9,7 @@ def bool:
 
 # Generate this object and all its children.
 def all_children:
-    ., recurse(.contents[]?)
+    ., recurse(.contents?[]?)
 ;
 
 # To remove an object, we first mark it for removal, then actually remove it
@@ -28,15 +28,23 @@ def remove_marked:
     end
 ;
 
-# Obtain all target formats ("html", "pdf"...) for a particular page.
+# Enumerate the listed `make` formats of a page.
+def formats:
+    (.meta.make // empty) 
+    |   if . == "null" then empty else . end # fix for wrong YAML parse
+    |   if (. | type) == "array" then .[] else . end
+    |   tostring
+    |   ascii_downcase 
+
+;
+
+# Enumerate the `make` formats of a page (including "all").
 def target_formats($all_formats):
-    (.meta.make // empty)
-    | ( if (. | type) == "array" then .[] else . end ) 
-    | tostring | ascii_downcase 
-    | ( if ([. == $all_formats[]] | any) then . 
-        elif . == "all" then $all_formats[] 
-        else error("unrecognized format:" + .) 
-        end )
+    formats |
+    if [. == $all_formats[]] | any then . 
+    elif . == "all" then $all_formats[] 
+    else error("unrecognized format: " + .) 
+    end
 ;
 
 # Wrap an object in other objects so that the original object exists at a
