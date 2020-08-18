@@ -28,23 +28,17 @@ def remove_marked:
     end
 ;
 
-# Enumerate the listed `make` formats of a page.
-def formats:
+# Enumerate the `make` formats of a page.
+def target_formats($all_formats):
     (.meta.make // empty) 
     |   if . == "null" then empty else . end # fix for wrong YAML parse
     |   if (. | type) == "array" then .[] else . end
     |   tostring
     |   ascii_downcase 
-
-;
-
-# Enumerate the `make` formats of a page (including "all").
-def target_formats($all_formats):
-    formats |
-    if [. == $all_formats[]] | any then . 
-    elif . == "all" then $all_formats[] 
-    else error("unrecognized format: " + .) 
-    end
+    |   if [. == $all_formats[]] | any then . 
+        elif . == "all" then $all_formats[] 
+        else error("unrecognized format: " + .) 
+        end
 ;
 
 # Wrap an object in other objects so that the original object exists at a
@@ -86,12 +80,17 @@ def basename:
     )
 ;
 
-# Any Markdown page gets a link to its HTML page (or PDF if it has no HTML
-# target).
+# Any page gets its target formats.
+def formats($all_formats):
+    all_children |= (
+        .formats = [ target_formats($all_formats) ]
+    )
+;
+
+# Any page is linked to its first target.
 def link:
-    (all_children | select(has("directory") and has("basename") and (.name | test(".(md|markdown)$";"i")))) |= (
-        [target_formats(["html","pdf"])][0] as $ext |
-        .link = ((.directory + [.basename + "." + $ext]) | join("/") | ltrimstr("./"))
+    (all_children | select(has("directory") and has("basename") and ((.formats | length) > 0))) |= (
+        .link = ((.directory + [.basename + "." + .formats[0]]) | join("/") | ltrimstr("./"))
     )
 ;
 
@@ -108,7 +107,7 @@ def frontmatter:
 # contents. To not count as a draft, a document should be explicitly marked as
 # "make" in the metadata.
 def explicit_make:
-    def make: has("contents") or .external or .meta.make | bool;
+    def make: has("contents") or .external or ((.formats | length) > 0);
     (( all_children | select(make | not)) |= mark) | remove_marked
 ;
 
@@ -129,10 +128,11 @@ def annotate_leaves:
 
 # Combines the given stream of JSON objects by merging them, and performs the
 # given operations to turn it into a proper index.
-def index:
+def index($all_formats):
     merge
     | directory
     | basename
+    | formats($all_formats)
     | link
     | explicit_make
     | frontmatter
@@ -142,14 +142,14 @@ def index:
 
 # Get a list of target documents and their Makefile dependencies as an array of
 # {"target":..., "deps":...} objects.
-def targets($dest; $all_formats; $default_style):
+def targets($dest; $default_style):
     def in_dir($dir; $file):
         $dir + [$file] | join("/") | ltrimstr("./") | ($dest + "/" + .)
     ;
     [ all_children
         | ., (.frontmatter // empty)
         | select(has("directory") and has("basename") and (has("external") | not)) 
-        | target_formats($all_formats) as $format
+        | .formats[] as $format
         | in_dir(.directory; .basename + "." + $format) as $doc
         | [in_dir(.directory; .targets?[])] as $external
         | [in_dir([]; (.meta.style // $default_style) + ".css")] as $css

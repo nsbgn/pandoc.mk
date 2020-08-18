@@ -70,7 +70,7 @@ $(CACHE)/index.json: $(JQ_DIR)/snel.jq \
 	@-mkdir -p $(@D)
 	@echo "Generating index data \"$@\"..." 1>&2
 	@jq  -L$(JQ_DIR) --slurp \
-	    'include "snel"; index' \
+		'include "snel"; index(["html","pdf"])' \
 	    $(filter %.json, $^) \
 	    > $@
 
@@ -80,7 +80,7 @@ $(CACHE)/dynamic.mk: $(CACHE)/index.json
 	@echo "Generating Makefile \"$@\"..."
 	@jq -L"$(JQ_DIR)" \
 	    --arg dest "$(DEST)" \
-	    -r 'include "snel"; targets($$dest; ["html", "pdf"]; "$(STYLE)") | as_makefile' \
+	    -r 'include "snel"; targets($$dest; "$(STYLE)") | as_makefile' \
 		< $< > $@
 
 # Overview of final targets
@@ -89,7 +89,7 @@ $(CACHE)/targets.txt: $(CACHE)/index.json
 	@jq \
 	    -L"$(JQ_DIR)" \
 	    --arg dest "$(DEST)" \
-	    -r 'include "snel"; targets($$dest; ["html", "pdf"]; "$(STYLE)") | [.[].deps[]] | unique | .[]' \
+	    -r 'include "snel"; targets($$dest; "$(STYLE)") | [.[].deps[]] | unique | .[]' \
 	    < "$<" \
 	    > "$@"
 	@$(foreach target,$(EXTRA_HTML_TARGETS),echo $(target) >> "$@";)
