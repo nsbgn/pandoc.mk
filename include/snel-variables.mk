@@ -8,17 +8,17 @@ PREFIX := /usr/local
 INCLUDE_DIR := $(PREFIX)/include
 SHARE_DIR := $(PREFIX)/share/snel
 
-# If installed in $PREFIX/include, we find other assets in $PREFIX/share/snel.
-# Otherwise, we find them relative to the current makefile
+# If installed globally in $PREFIX/include, then we should be able to find
+# other assets in $PREFIX/share/snel. Otherwise, we can find them relative to
+# the current makefile.
 ifeq ($(BASE_DIR),$(INCLUDE_DIR))
     ASSET_DIR := $(SHARE_DIR)
-    JQ_DIR := $(SHARE_DIR)/jq
-    PANDOC_DIR := $(SHARE_DIR)/pandoc
 else
     ASSET_DIR := $(BASE_DIR)/../share
-    JQ_DIR := $(BASE_DIR)/../share/jq
-    PANDOC_DIR := $(BASE_DIR)/../share/pandoc
 endif
+STYLE_DIR := $(ASSET_DIR)/style
+JQ_DIR := $(ASSET_DIR)/jq
+PANDOC_DIR := $(ASSET_DIR)/pandoc
 
 # Source and destination directories, and FTP credentials. These are
 # expected to be changed in the `make` call or before the `include` statement.
@@ -29,7 +29,7 @@ ifndef DEST
     DEST := build
 endif
 ifndef STYLE
-    STYLE_HTML := web
+    STYLE := web
 endif
 ifndef CACHE
     CACHE := $(DEST)/cache
