@@ -32,7 +32,7 @@ ifndef STYLE
     STYLE := web
 endif
 ifndef CACHE
-    CACHE := $(DEST)/cache
+    CACHE := $(DEST)/.cache
 endif
 ifndef IGNORE
     IGNORE=Makefile .git .gitignore

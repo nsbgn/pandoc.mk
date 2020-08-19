@@ -25,6 +25,12 @@ pdf: $(CACHE)/dynamic.mk
 
 include $(CACHE)/dynamic.mk
 
+# No targets will be removed for being intermediate. This removes some clutter
+# from the output (all the .headers.json and .resources.json files that get
+# removed) but leaves the cache fuller. At some point, the .meta.json files
+# should be generated in a more clever way.
+.SECONDARY:
+
 # Record metadata headers for each document
 $(CACHE)/%.md.headers.json: $(SRC)/%.md $(PANDOC_DIR)/metadata.json $(JQ_DIR)/snel.jq
 	@-mkdir -p "$(@D)"
