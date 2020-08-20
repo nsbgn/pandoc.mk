@@ -25,39 +25,18 @@ pdf: $(CACHE)/dynamic.mk
 
 include $(CACHE)/dynamic.mk
 
-# No targets will be removed for being intermediate. This removes some clutter
-# from the output (all the .headers.json and .resources.json files that get
-# removed) but leaves the cache fuller. At some point, the .meta.json files
-# should be generated in a more clever way.
-.SECONDARY:
-
-# Record metadata headers for each document
-$(CACHE)/%.md.headers.json: $(SRC)/%.md $(PANDOC_DIR)/metadata.json $(JQ_DIR)/snel.jq
-	@-mkdir -p "$(@D)"
-	@pandoc --template='$(PANDOC_DIR)/metadata.json' \
-	    --to=plain \
-	    $< \
-	    | jq '{"meta":.}' \
-	    > $@
-
-# Record external resources linked in each document
-$(CACHE)/%.md.resources.json: $(SRC)/%.md 
-	@-mkdir -p "$(@D)"
-	@pandoc -f markdown -t json -i $< \
-	    | jq -r '{"resources":[ .blocks[] | recurse(.c?[]?,.[]?) | select(.t? == "Image") | .c[2][0] | select(test("^[a-z]+://") | not) ]}' \
-	    > $@
-
-# Combination of headers + targets
-$(CACHE)/%.md.meta.json: $(CACHE)/%.md.headers.json $(CACHE)/%.md.resources.json 
+# Record metadata for each document, including external resources linked inside
+$(CACHE)/%.md.meta.json: $(SRC)/%.md $(JQ_DIR)/snel.jq $(PANDOC_DIR)/metadata.json $(PANDOC_DIR)/resources.lua
 	@-mkdir -p "$(@D)"
 	@echo "Generating metadata \"$@\"..." 1>&2
-	@jq \
-	    -L"$(JQ_DIR)" \
-	    --arg path "$(patsubst $(CACHE)/%.md.meta.json,%.md,$@)" \
-	    --slurp \
-	    'include "snel"; add | tree(["."] + ($$path | split("/")))' \
-	    $^ \
-	    > $@
+	@pandoc --to=plain --template='$(PANDOC_DIR)/metadata.json' \
+		$(foreach F,$(filter %.lua, $^), --lua-filter='$(F)') \
+		$< \
+	| jq \
+		-L"$(JQ_DIR)" \
+		--arg path "$(patsubst $(CACHE)/%.md.meta.json,%.md,$@)" \
+		'include "snel"; {"meta":., "resources":.resources} | tree(["."] + ($$path | split("/")))' \
+		> $@
 
 # Overview of files & directories, without metadata
 $(CACHE)/filetree.json: $(SOURCE_FILES)
