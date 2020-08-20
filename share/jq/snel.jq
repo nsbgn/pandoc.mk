@@ -35,7 +35,7 @@ def remove_marked:
 
 # Enumerate the `make` formats of a page.
 def target_formats($all_formats):
-    (.meta.make // empty) 
+    (.make // empty) 
     |   if . == "null" then empty else . end # fix for wrong YAML parse
     |   if (. | type) == "array" then .[] else . end
     |   tostring
@@ -104,7 +104,7 @@ def link:
 # than itself.
 def frontmatter:
     (all_children | select(has("contents"))) |= (
-        (.frontmatter = [.contents[] | select(.meta.frontmatter | bool)][0]) |
+        (.frontmatter = [.contents[] | select(.frontmatter | bool)][0]) |
         (.contents = .contents - [.frontmatter])
     )
 ;
@@ -120,7 +120,7 @@ def explicit_make:
 # Sort content first according to sort order in metadata.
 def sort_content:
     (all_children | select(has("contents")) | .contents) |= (
-        sort_by(.meta.sort // .meta.title // .name)
+        sort_by(.sort // .title // .name)
     )
 ;
 
@@ -158,7 +158,7 @@ def targets($dest; $default_style):
         | .formats[] as $format
         | in_dir(.directory; .basename + "." + $format) as $doc
         | [in_dir(.directory; .resources?[])] as $external
-        | [in_dir([]; (.meta.style // $default_style) + ".css")] as $css
+        | [in_dir([]; (.style // $default_style) + ".css")] as $css
         | (if $format == "html" then ($css + $external) else [] end) as $linked
         | (if $format == "pdf"  then ($css + $external) else [] end) as $embedded
         | {"target": $format, "deps": ([$doc] + $linked) }

@@ -35,7 +35,7 @@ $(CACHE)/%.md.meta.json: $(SRC)/%.md $(JQ_DIR)/snel.jq $(PANDOC_DIR)/metadata.js
 	| jq \
 		-L"$(JQ_DIR)" \
 		--arg path "$(patsubst $(CACHE)/%.md.meta.json,%.md,$@)" \
-		'include "snel"; {"meta":., "resources":.resources} | tree(["."] + ($$path | split("/")))' \
+		'include "snel"; tree(["."] + ($$path | split("/")))' \
 		> $@
 
 # Overview of files & directories, without metadata

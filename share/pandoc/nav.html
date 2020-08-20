@@ -1,10 +1,10 @@
 <li>
 $if(it.link)$
-<a href="$it.link$" title="$it.meta.summary$">$if(it.meta.title)$$it.meta.title$$else$$it.name$$endif$</a>
+<a href="$it.link$" title="$it.summary$">$if(it.title)$$it.title$$else$$it.name$$endif$</a>
 $elseif(it.frontmatter.link)$
-<a href="$it.frontmatter.link$" title="$it.frontmatter.meta.summary$">$if(it.frontmatter.meta.title)$$it.frontmatter.meta.title$$else$$it.frontmatter.name$$endif$</a>
+<a href="$it.frontmatter.link$" title="$it.frontmatter.summary$">$if(it.frontmatter.title)$$it.frontmatter.title$$else$$it.frontmatter.name$$endif$</a>
 $else$
-<span>$if(it.meta.title)$$it.meta.title$$else$$it.name$$endif$</span>
+<span>$if(it.title)$$it.title$$else$$it.name$$endif$</span>
 $endif$
 $if(it.contents)$
 <ul$if(it.only_leaves)$ class="only-leaves"$endif$>
