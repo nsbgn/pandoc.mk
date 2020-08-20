@@ -38,18 +38,9 @@ $(CACHE)/%.md.meta.json: $(SRC)/%.md $(JQ_DIR)/snel.jq $(PANDOC_DIR)/metadata.js
 		'include "snel"; tree(["."] + ($$path | split("/")))' \
 		> $@
 
-# Overview of files & directories, without metadata
-$(CACHE)/filetree.json: $(SOURCE_FILES)
-	@-mkdir -p $(@D)
-	@echo "Generating file tree \"$@\"..." 1>&2
-	@tree -JDpi --du --timefmt '%s' --dirsfirst \
-	    -I '$(subst $() $(),|,$(IGNORE))' \
-	    | jq '.[0]' \
-	    > $@
-
-# Overview of files & directories with metadata, readable for index template
+# Overview of files & directories with metadata, readable for index template.
+# Compatible for merging with the output of `tree -JDpi --du --timefmt '%s'` 
 $(CACHE)/index.json: $(JQ_DIR)/snel.jq \
-	    $(CACHE)/filetree.json \
 	    $(META_FILES) \
 	    $(wildcard $(SRC)/index.base.json)
 	@-mkdir -p $(@D)

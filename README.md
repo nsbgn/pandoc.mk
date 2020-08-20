@@ -21,7 +21,6 @@ As of now, the core recipes call for [pandoc](http://pandoc.org/) 2.8 or
 higher, [jq](https://stedolan.github.io/jq/) 1.6 or higher,
 [weasyprint](https://weasyprint.org/),
 [find](https://www.gnu.org/software/findutils/), 
-[tree](http://mama.indstate.edu/users/ice/tree/),
 [sass](http://sass-lang.com/), and
 [xargs](https://savannah.gnu.org/projects/findutils/) --- but you could easily 
 substitute or add any ingredient. Optional additional recipes use such 
