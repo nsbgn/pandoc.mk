@@ -59,26 +59,17 @@ $(CACHE)/index.json: $(JQ_DIR)/snel.jq \
 	    $(filter %.json, $^) \
 	    > $@
 
-# Generate the makefile containing the dynamic targets for HTML/PDF documents
-# and any external content referred inside
-$(CACHE)/dynamic.mk: $(CACHE)/index.json
-	@echo "Generating Makefile \"$@\"..."
-	@jq -L"$(JQ_DIR)" \
-	    --arg dest "$(DEST)" \
-		--arg style "$(STYLE)" \
-	    -r 'include "snel"; targets($$dest; $$style) | as_makefile' \
-		< $< > $@
+# Generate a file enumerating the dynamic targets for HTML/PDF documents and
+# any external content referred inside
+$(CACHE)/targets.json: $(CACHE)/index.json
+	@jq -c -L"$(JQ_DIR)" --arg dest "$(DEST)" --arg style "$(STYLE)" \
+	    'include "snel"; targets($$dest; $$style)' < "$<" > "$@"
 
-# Overview of final targets
-$(CACHE)/targets.txt: $(CACHE)/index.json
-	@echo "Aggregating targets \"$@\"..." 1>&2
-	@jq \
-	    -L"$(JQ_DIR)" \
-	    --arg dest "$(DEST)" \
-		--arg style "$(STYLE)" \
-	    -r 'include "snel"; targets($$dest; $$style) | [.[].deps[]] | unique | .[]' \
-	    < "$<" \
-	    > "$@"
+$(CACHE)/dynamic.mk: $(CACHE)/targets.json
+	@jq -r '.target + ": " + (.dependencies | join(" "))' < "$<" > "$@"
+
+$(CACHE)/targets.txt: $(CACHE)/targets.json
+	@jq -r --slurp '.[].dependencies[] | unique | .[]' < "$<" > "$@"
 	@$(foreach target,$(EXTRA_HTML_TARGETS),echo $(target) >> "$@";)
 
 # Optionally, remove all files in $(DEST) that are no longer targeted

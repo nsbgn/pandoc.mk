@@ -148,8 +148,8 @@ def index($all_formats):
     | annotate_leaves
 ;
 
-# Get a list of target documents and their Makefile dependencies as an array of
-# {"target":..., "deps":...} objects.
+# Get target files and their dependencies as an enumeration of {"target":...,
+# "dependencies":...} objects.
 def targets($dest; $default_style):
     def in_dir($dir; $file):
         $dir + [$file] | join("/") | ltrimstr("./") | ($dest + "/" + .)
@@ -163,15 +163,13 @@ def targets($dest; $default_style):
         | [in_dir([]; (.style // $default_style) + ".css")] as $css
         | (if $format == "html" then ($css + $external) else [] end) as $linked
         | (if $format == "pdf"  then ($css + $external) else [] end) as $embedded
-        | {"target": $format, "deps": ([$doc] + $linked) }
-        , {"target": $doc, "deps": $embedded }
+        | {"target": $format, "dependencies": ([$doc] + $linked) }
+        , {"target": $doc, "dependencies": $embedded }
     ]
     | group_by(.target)
-    | map({"target":(.[0].target), "deps": (map(.deps) | add | unique)})
-    | . // []
-;
-
-# Turn a target object into makefile recipes.
-def as_makefile:
-    .[] | (.target + ": " + (.deps | join(" ")))
+    | map(
+        {"target": (.[0].target)
+        , "dependencies": (map(.dependencies) | add | unique) }
+    )
+    | .[]?
 ;
