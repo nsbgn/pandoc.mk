@@ -49,13 +49,13 @@ def target_formats($all_formats):
 # Wrap an object in other objects so that the original object exists at a
 # particular "path". Like `{} | setpath(["a","b"], …)`, but instead of making
 # objects like `{"a":{"b":…}}`, this makes objects like `{"name":"a",
-# "contents":[{"name":"b",…}]}`.
+# "contents":[{"name":"b",…}]}`. We use `name` and `contents` to be compatible
+# with the output of the `tree` program on the shell. 
 def tree($path):
-    { "name": $path[0] } + 
-    if $path | at_least(2) 
-    then { "contents": [ tree($path[1:]) ] } 
+    if $path | at_least(2)
+    then { "contents": [ tree($path[1:]) ] }
     else .
-    end
+    end | .name = $path[0]
 ;
 
 # Merge an array of page objects into a single page object.
@@ -93,7 +93,7 @@ def formats($all_formats):
     )
 ;
 
-# Any page is linked to its first target.
+# Any page is linked to its first target format.
 def link:
     (all_children | select(has("directory") and has("basename") and (.formats | at_least(1)))) |= (
         .link = ((.directory + [.basename + "." + .formats[0]]) | join("/") | ltrimstr("./"))
@@ -112,9 +112,11 @@ def frontmatter:
 # Drafts can be excluded from being uploaded and included in the table of
 # contents. To not count as a draft, a document should be explicitly marked as
 # "make" in the metadata.
-def explicit_make:
-    def make: has("contents") or .external or (.formats | at_least(1));
-    (( all_children | select(make | not)) |= mark) | remove_marked
+# Anything that does not have a link, nor has any children, should be removed
+# from the index.
+def remove_unlinked:
+    def linked: has("contents") or has("link");
+    (( all_children | select(linked | not)) |= mark) | remove_marked
 ;
 
 # Sort content first according to sort order in metadata.
@@ -140,7 +142,7 @@ def index($all_formats):
     | basename
     | formats($all_formats)
     | link
-    | explicit_make
+    | remove_unlinked
     | frontmatter
     | sort_content
     | annotate_leaves
@@ -154,7 +156,7 @@ def targets($dest; $default_style):
     ;
     [ all_children
         | ., (.frontmatter // empty)
-        | select(has("directory") and has("basename") and (has("external") | not)) 
+        | select(has("directory") and has("basename")) 
         | .formats[] as $format
         | in_dir(.directory; .basename + "." + $format) as $doc
         | [in_dir(.directory; .resources?[])] as $external
