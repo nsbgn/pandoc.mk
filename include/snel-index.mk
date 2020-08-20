@@ -13,9 +13,6 @@ SOURCE_FILES = $(shell \
 	-print \
 )
 
-# Headers and extra targets are collected for each source in a corresponding file
-META_FILES = $(patsubst $(SRC)/%,$(CACHE)/%.meta.json,$(SOURCE_FILES))
-
 EXTRA_HTML_TARGETS = $(addprefix $(DEST)/,index.html $(if $(wildcard $(SRC)/favicon.*),favicon.ico apple-touch-icon.png))
 
 .PHONY: all html pdf
@@ -28,27 +25,26 @@ include $(CACHE)/dynamic.mk
 # Record metadata for each document, including external resources linked inside
 $(CACHE)/%.md.meta.json: $(SRC)/%.md $(JQ_DIR)/snel.jq $(PANDOC_DIR)/metadata.json $(PANDOC_DIR)/resources.lua
 	@-mkdir -p "$(@D)"
-	@echo "Generating metadata \"$@\"..." 1>&2
+	@echo "Generating metadata for \"$<\"..." 1>&2
 	@pandoc --to=plain --template='$(PANDOC_DIR)/metadata.json' \
 		$(foreach F,$(filter %.lua, $^), --lua-filter='$(F)') \
-		$< \
+		"$<" \
 	| jq \
 		-L"$(JQ_DIR)" \
 		--arg path "$(patsubst $(CACHE)/%.md.meta.json,%.md,$@)" \
 		'include "snel"; tree(["."] + ($$path | split("/")))' \
-		> $@
+		> "$@"
 
 # Overview of files & directories with metadata, readable for index template.
 # Compatible for merging with the output of `tree -JDpi --du --timefmt '%s'` 
-$(CACHE)/index.json: $(JQ_DIR)/snel.jq \
-	    $(META_FILES) \
-	    $(wildcard $(SRC)/index.base.json)
+$(CACHE)/index.json: $(JQ_DIR)/snel.jq $(wildcard $(SRC)/index.base.json) \
+	    $(patsubst $(SRC)/%,$(CACHE)/%.meta.json,$(SOURCE_FILES))
 	@-mkdir -p $(@D)
 	@echo "Generating index data \"$@\"..." 1>&2
 	@jq  -L$(JQ_DIR) --slurp \
 		'include "snel"; index(["html","pdf"])' \
 	    $(filter %.json, $^) \
-	    > $@
+	    > "$@"
 
 # Generate a file enumerating the dynamic targets for HTML/PDF documents and
 # any external content referred inside
