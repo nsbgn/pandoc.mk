@@ -42,7 +42,7 @@ def target_formats($all_formats):
     |   ascii_downcase 
     |   if [. == $all_formats[]] | any then . 
         elif . == "all" then $all_formats[] 
-        else error("unrecognized format: " + .) 
+        else error("unrecognized format: \(.)") 
         end
 ;
 
@@ -75,7 +75,10 @@ def merge:
 
 # Add paths to each object, that is, the names of the ancestors.
 def directory:
-    def f($d): .directory = $d | .name as $n | .contents[]? |= f($d+[$n]);
+    def f($d):
+        .dir = ($d | join("/") | ltrimstr("./"))
+        | .name as $n | .contents[]? |= f($d+[$n])
+    ;
     f([])
 ;
 
@@ -95,8 +98,8 @@ def formats($all_formats):
 
 # Any page is linked to its first target format.
 def link:
-    (all_children | select(has("directory") and has("basename") and (.formats | at_least(1)))) |= (
-        .link = ((.directory + [.basename + "." + .formats[0]]) | join("/") | ltrimstr("./"))
+    (all_children | select(has("dir") and has("basename") and (.formats | at_least(1)))) |= (
+        .link = "\(.dir)/\(.basename).\(.formats[0])"
     )
 ;
 
@@ -151,16 +154,12 @@ def index($all_formats):
 # Get target files and their dependencies as an enumeration of {"target":...,
 # "dependencies":...} objects.
 def targets($dest; $default_style):
-    def in_dir($dir; $file):
-        $dir + [$file] | join("/") | ltrimstr("./") | ($dest + "/" + .)
-    ;
     [ all_children
         | ., (.frontmatter // empty)
-        | select(has("directory") and has("basename")) 
         | .formats[] as $format
-        | in_dir(.directory; .basename + "." + $format) as $doc
-        | [in_dir(.directory; .resources?[])] as $external
-        | [in_dir([]; (.style // $default_style) + ".css")] as $css
+        | "\($dest)/\(.dir)/\(.basename).\($format)" as $doc
+        | ["\($dest)/\(.dir)/\(.resources?[])"] as $external
+        | ["\($dest)/\(.style // $default_style).css"] as $css
         | (if $format == "html" then ($css + $external) else [] end) as $linked
         | (if $format == "pdf"  then ($css + $external) else [] end) as $embedded
         | {"target": $format, "dependencies": ([$doc] + $linked) }
