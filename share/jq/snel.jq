@@ -122,6 +122,21 @@ def remove_unlinked:
     (( all_children | select(linked | not)) |= mark) | remove_marked
 ;
 
+
+# Add links to the next and previous page for every linked page.
+def navigation:
+    def f($paths; $i; $j; $key):
+        setpath($paths[$i]+[$key];
+            getpath($paths[$j]) | {link,title,date}
+        )
+    ;
+    [ path(all_children | select(has("link"))) ] as $paths
+    | ($paths | length) as $n
+    | reduce range(0; $n-1) as $i (.; f($paths; $i; $i+1; "next"))
+    | reduce range(1, $n)   as $i (.; f($paths; $i; $i-1; "prev"))
+;
+
+
 # Sort content first according to sort order in metadata.
 def sort_content:
     (all_children | select(has("contents")) | .contents) |= (
@@ -146,6 +161,7 @@ def index($all_formats):
     | formats($all_formats)
     | link
     | remove_unlinked
+    | navigation
     | frontmatter
     | sort_content
     | annotate_leaves
