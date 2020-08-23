@@ -48,14 +48,14 @@ $(DEST)/%.pdf: $(SRC)/%.md $(PANDOC_DIR)/page.html # additional deps generated b
 	@echo "Generating document \"$@\"..." 1>&2
 	@-mkdir -p "$(@D)"
 	@pandoc \
-	    --shift-heading-level-by=1 \
-	    --pdf-engine=weasyprint \
-        --pdf-engine-opt=-u"$(@D)" \
-	    --template '$(PANDOC_DIR)/page.html' \
-	    --metadata default-style='$(STYLE)' \
-        --metadata root='$(shell realpath $(DEST) --relative-to $(@D) --canonicalize-missing)' \
-	    --to pdf \
-	    $< \
+		--shift-heading-level-by=1 \
+		--pdf-engine=weasyprint \
+		--pdf-engine-opt=-u"$(@D)" \
+		--template '$(PANDOC_DIR)/page.html' \
+		--metadata default-style='$(STYLE)' \
+		--metadata root='$(shell realpath $(DEST) --relative-to $(@D) --canonicalize-missing)' \
+		--to pdf \
+		$< \
 	| ps2pdf \
 		-dOptimize=true \
 		-dUseFlateCompression=true \

@@ -10,7 +10,7 @@ $(DEST)/favicon.ico: $(SRC)/favicon.svg
 $(DEST)/apple-touch-icon.png: $(SRC)/favicon.svg
 	@-mkdir -p $(@D)
 	convert -density 1200 -resize 140x140 -gravity center -extent 180x180 \
-	    	+level-colors '#fff,#711' -colors 16 \
+		+level-colors '#fff,#711' -colors 16 \
 		-compress Zip -define 'png:format=png8' -define 'png:compression-level=9' \
 		$< $@
 
@@ -29,7 +29,7 @@ $(DEST)/%.dither.png: $(SRC)/%.jpg
 		-colors 8 \
 		-normalize \
 		-define png:color-type=3 \
-        -define png:compression-level=9  \
+		-define png:compression-level=9  \
 		-define png:format=png8 \
 		-strip \
 		$@

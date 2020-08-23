@@ -12,9 +12,9 @@ SHARE_DIR := $(PREFIX)/share/snel
 # other assets in $PREFIX/share/snel. Otherwise, we can find them relative to
 # the current makefile.
 ifeq ($(BASE_DIR),$(INCLUDE_DIR))
-    ASSET_DIR := $(SHARE_DIR)
+	ASSET_DIR := $(SHARE_DIR)
 else
-    ASSET_DIR := $(BASE_DIR)/../share
+	ASSET_DIR := $(BASE_DIR)/../share
 endif
 STYLE_DIR := $(ASSET_DIR)/style
 JQ_DIR := $(ASSET_DIR)/jq
@@ -23,19 +23,19 @@ PANDOC_DIR := $(ASSET_DIR)/pandoc
 # Source and destination directories, and FTP credentials. These are
 # expected to be changed in the `make` call or before the `include` statement.
 ifndef SRC
-    SRC := .
+	SRC := .
 endif
 ifndef DEST
-    DEST := build
+	DEST := build
 endif
 ifndef STYLE
-    STYLE := web
+	STYLE := web
 endif
 ifndef CACHE
-    CACHE := $(DEST)/.cache
+	CACHE := $(DEST)/.cache
 endif
 ifndef IGNORE
-    IGNORE=Makefile .git .gitignore
+	IGNORE=Makefile .git .gitignore
 endif
 IGNORE:=$(IGNORE) $(CACHE) $(DEST)
 

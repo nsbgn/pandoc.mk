@@ -4,22 +4,22 @@
 include $(dir $(abspath $(lastword $(MAKEFILE_LIST))))/snel-variables.mk
 
 ifndef PROTOCOL
-    PROTOCOL := ssh
+	PROTOCOL := ssh
 endif
 ifndef USER
-    $(error Variable USER is not set)
+	$(error Variable USER is not set)
 endif
 ifndef HOST
-    $(error Variable HOST is not set)
+	$(error Variable HOST is not set)
 endif
 ifndef REMOTE_DIR
-    REMOTE_DIR := /home/$(USER)/public_html
+	REMOTE_DIR := /home/$(USER)/public_html
 endif
 ifndef PORT
 ifeq ($(PROTOCOL),ssh)
-    PORT := 22
+	PORT := 22
 else
-    PORT := 20
+	PORT := 20
 endif
 endif
 

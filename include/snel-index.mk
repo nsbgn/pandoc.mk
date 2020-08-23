@@ -6,7 +6,7 @@ include $(dir $(abspath $(lastword $(MAKEFILE_LIST))))/snel-variables.mk
 
 # Find potential source Markdown files
 SOURCE_FILES = $(shell \
-    find -L "$(SRC)" \
+	find -L "$(SRC)" \
 	$(patsubst %,-path '%' -prune -o,$(IGNORE)) \
 	-iname '*.md' \
 	-exec grep -li --perl-regexp '^\s*make:\s*((?!(false|null|\[\])).*)$$' {} \; \
@@ -38,19 +38,19 @@ $(CACHE)/%.md.meta.json: $(SRC)/%.md $(JQ_DIR)/snel.jq $(PANDOC_DIR)/metadata.js
 # Overview of files & directories with metadata, readable for index template.
 # Compatible for merging with the output of `tree -JDpi --du --timefmt '%s'` 
 $(CACHE)/index.json: $(JQ_DIR)/snel.jq $(wildcard $(SRC)/index.base.json) \
-	    $(patsubst $(SRC)/%,$(CACHE)/%.meta.json,$(SOURCE_FILES))
+		$(patsubst $(SRC)/%,$(CACHE)/%.meta.json,$(SOURCE_FILES))
 	@-mkdir -p $(@D)
 	@echo "Generating index data \"$@\"..." 1>&2
 	@jq  -L$(JQ_DIR) --slurp \
 		'include "snel"; index(["html","pdf"])' \
-	    $(filter %.json, $^) \
-	    > "$@"
+		$(filter %.json, $^) \
+		> "$@"
 
 # Generate a file enumerating the dynamic targets for HTML/PDF documents and
 # any external content referred inside
 $(CACHE)/targets.json: $(CACHE)/index.json
 	@jq -c -L"$(JQ_DIR)" --arg dest "$(DEST)" --arg style "$(STYLE)" \
-	    'include "snel"; targets($$dest; $$style)' < "$<" > "$@"
+		'include "snel"; targets($$dest; $$style)' < "$<" > "$@"
 
 $(CACHE)/dynamic.mk: $(CACHE)/targets.json
 	@jq -r '.target + ": " + (.dependencies | join(" "))' < "$<" > "$@"
@@ -63,21 +63,21 @@ $(CACHE)/targets.txt: $(CACHE)/targets.json
 .PHONY: clean
 clean: $(CACHE)/targets.txt
 	@bash -i -c 'read -p "Operation might remove files in \"$(DEST)\". Continue? [y/N]" -n 1 -r; \
-	    [[ $$REPLY =~ ^[Yy]$$ ]] || exit 1'
+		[[ $$REPLY =~ ^[Yy]$$ ]] || exit 1'
 	@echo
 	find "$(DEST)" -type f -a -not -path '$(CACHE)/*' \
-	    | grep --fixed-strings --line-regexp --invert-match --file=$< \
-	    | xargs --no-run-if-empty rm --verbose
+		| grep --fixed-strings --line-regexp --invert-match --file=$< \
+		| xargs --no-run-if-empty rm --verbose
 
 # Generate static index page 
 $(DEST)/index.html: $(PANDOC_DIR)/page.html $(PANDOC_DIR)/nav.html $(CACHE)/index.json
 	@-mkdir -p $(@D)
 	@echo "Generating index page \"$@\"..." 1>&2
 	@echo | pandoc \
-	    --template="$(PANDOC_DIR)/page.html" \
-	    --metadata-file "$(CACHE)/index.json" \
-	    --metadata title="Table of contents" \
+		--template="$(PANDOC_DIR)/page.html" \
+		--metadata-file "$(CACHE)/index.json" \
+		--metadata title="Table of contents" \
 		$(if $(wildcard $(SRC)/favicon.*),--metadata favicon='$(shell realpath $(DEST)/favicon.ico --relative-to $(@D) --canonicalize-missing)') \
 		--metadata style='$(STYLE)' \
-	    > $@
+		> $@
 
