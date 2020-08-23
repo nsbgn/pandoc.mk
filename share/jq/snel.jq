@@ -12,13 +12,13 @@ def at_least($n):
     (. | length) >= $n
 ;
 
-# Generate this object and all its children.
-def all_children:
+# Generate this object and all its descendants.
+def entries:
     ., recurse(.contents?[]?)
 ;
 
 # To remove an object, we first mark it for removal, then actually remove it
-# later. It would be nicer if we could just do `all_children ... |= empty`,
+# later. It would be nicer if we could just do `entries ... |= empty`,
 # which works in some cases but not all. I suppose it has to do with changing
 # objects as we are iterating over them.
 def mark:
@@ -84,21 +84,21 @@ def directory:
 
 # Every leaf node gets a basename, eg name without extension.
 def basename:
-    (all_children | select(has("contents") | not)) |= (
+    (entries | select(has("contents") | not)) |= (
         .basename = (.name | sub(".([A-z]*)$";""))
     )
 ;
 
 # Any page gets its target formats.
 def formats($all_formats):
-    all_children |= (
+    entries |= (
         .formats = [ target_formats($all_formats) ]
     )
 ;
 
 # Any page is linked to its first target format.
 def link:
-    (all_children | select(has("dir") and has("basename") and (.formats | at_least(1)))) |= (
+    (entries | select(has("dir") and has("basename") and (.formats | at_least(1)))) |= (
         .link = "\(.dir)/\(.basename).\(.formats[0])"
     )
 ;
@@ -106,7 +106,7 @@ def link:
 # Front matter is the page to be associated with the enclosing directory rather
 # than itself.
 def frontmatter:
-    (all_children | select(has("contents"))) |= (
+    (entries | select(has("contents"))) |= (
         (.frontmatter = [.contents[] | select(.frontmatter | bool)][0]) |
         (.contents = .contents - [.frontmatter])
     )
@@ -119,7 +119,7 @@ def frontmatter:
 # from the index.
 def remove_unlinked:
     def linked: has("contents") or has("link");
-    (( all_children | select(linked | not)) |= mark) | remove_marked
+    (( entries | select(linked | not)) |= mark) | remove_marked
 ;
 
 
@@ -130,7 +130,7 @@ def navigation:
             getpath($paths[$j]) | {link,title,date}
         )
     ;
-    [ path(all_children | select(has("link"))) ] as $paths
+    [ path(entries | select(has("link"))) ] as $paths
     | ($paths | length) as $n
     | reduce range(0; $n-1) as $i (.; f($paths; $i; $i+1; "next"))
     | reduce range(1, $n)   as $i (.; f($paths; $i; $i-1; "prev"))
@@ -139,7 +139,7 @@ def navigation:
 
 # Sort content first according to sort order in metadata.
 def sort_content:
-    (all_children | select(has("contents")) | .contents) |= (
+    (entries | select(has("contents")) | .contents) |= (
         sort_by(.sort // .title // .name)
     )
 ;
@@ -147,7 +147,7 @@ def sort_content:
 # Add a note that tells us whether this has only children who have no more
 # subchildren.
 def annotate_leaves:
-    (all_children | select(has("contents"))) |= (
+    (entries | select(has("contents"))) |= (
         .only_leaves = (.contents | all(has("contents") | not))
     )
 ;
@@ -170,7 +170,7 @@ def index($all_formats):
 # Get target files and their dependencies as an enumeration of {"target":...,
 # "dependencies":...} objects.
 def targets($dest; $default_style):
-    [ all_children
+    [ entries
         | ., (.frontmatter // empty)
         | .formats[] as $format
         | "\($dest)/\(.dir)/\(.basename).\($format)" as $doc
