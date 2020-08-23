@@ -17,35 +17,6 @@ def entries:
     ., recurse(.contents?[]?)
 ;
 
-# To remove an object, we first mark it for removal, then actually remove it
-# later. It would be nicer if we could just do `entries ... |= empty`,
-# which works in some cases but not all. I suppose it has to do with changing
-# objects as we are iterating over them.
-def mark:
-    .remove = true
-;
-
-# Remove all objects marked for removal.
-def remove_marked:
-    if .remove == true
-    then empty
-    else (.contents // empty) |= map(remove_marked)
-    end
-;
-
-# Enumerate the `make` formats of a page.
-def target_formats($all_formats):
-    (.make // empty) 
-    |   if . == "null" then empty else . end # fix for wrong YAML parse
-    |   if (. | type) == "array" then .[] else . end
-    |   tostring
-    |   ascii_downcase 
-    |   if [. == $all_formats[]] | any then . 
-        elif . == "all" then $all_formats[] 
-        else error("unrecognized format: \(.)") 
-        end
-;
-
 # Wrap an object in other objects so that the original object exists at a
 # particular "path". Like `{} | setpath(["a","b"], …)`, but instead of making
 # objects like `{"a":{"b":…}}`, this makes objects like `{"name":"a",
@@ -67,7 +38,7 @@ def merge:
             then [ .[].value ] | add | group_by(.name) | map(merge)
             elif [ .[].value == .[0].value ] | all
             then .[0].value
-            else error("can't merge incompatible values")
+            else error("can't merge incompatible values for key '\(.[0].key)'")
             end
         ) }
     ) | from_entries
@@ -75,10 +46,7 @@ def merge:
 
 # Add paths to each object, that is, the names of the ancestors.
 def directory:
-    def f($d):
-        .dir = ($d | join("/") | ltrimstr("./"))
-        | .name as $n | .contents[]? |= f($d+[$n])
-    ;
+    def f($d): .dir=($d|join("/")) | .name as $n | .contents[]?|=f($d+[$n]);
     f([])
 ;
 
@@ -92,13 +60,22 @@ def basename:
 # Any page gets its target formats.
 def formats($all_formats):
     entries |= (
-        .formats = [ target_formats($all_formats) ]
+        .formats = [
+            (.make // empty) |
+            if . == "null" then empty else . end | # fix for wrong YAML parse
+            if (. | type) == "array" then .[] else . end |
+            tostring | ascii_downcase |
+            if [. == $all_formats[]] | any then . 
+            elif . == "all" then $all_formats[] 
+            else error("unrecognized format: \(.)") 
+            end
+        ]
     )
 ;
 
 # Any page is linked to its first target format.
 def link:
-    (entries | select(has("dir") and has("basename") and (.formats | at_least(1)))) |= (
+    (entries | select(.formats | at_least(1))) |= (
         .link = "\(.dir)/\(.basename).\(.formats[0])"
     )
 ;
@@ -112,14 +89,24 @@ def frontmatter:
     )
 ;
 
-# Drafts can be excluded from being uploaded and included in the table of
-# contents. To not count as a draft, a document should be explicitly marked as
-# "make" in the metadata.
-# Anything that does not have a link, nor has any children, should be removed
-# from the index.
-def remove_unlinked:
-    def linked: has("contents") or has("link");
-    (( entries | select(linked | not)) |= mark) | remove_marked
+# Anything that does not have a link, nor has any children, should be
+# considered a draft and removed from the index.
+# To remove an object, we first mark it for removal, then actually remove it
+# later. It would be nicer if we could just do `entries ... |= empty`,
+# which works in some cases but not all. I suppose it has to do with changing
+# objects as we are iterating over them.
+def clean:
+    def mark:
+        .r = true
+    ;
+    def remove:
+        if .r == true
+        then empty
+        else (.contents//empty) |= map(remove)
+        end
+    ;
+    ((entries | select((has("contents") or has("link")) | not)) |= mark)
+    | remove
 ;
 
 
@@ -138,7 +125,7 @@ def navigation:
 
 
 # Sort content first according to sort order in metadata.
-def sort_content:
+def sorting:
     (entries | select(has("contents")) | .contents) |= (
         sort_by(.sort // .title // .name)
     )
@@ -160,10 +147,10 @@ def index($all_formats):
     | basename
     | formats($all_formats)
     | link
-    | remove_unlinked
+    | clean
     | navigation
     | frontmatter
-    | sort_content
+    | sorting
     | annotate_leaves
 ;
 
