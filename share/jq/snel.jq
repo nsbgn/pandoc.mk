@@ -89,24 +89,13 @@ def frontmatter:
     )
 ;
 
-# Anything that does not have a link, nor has any children, should be
-# considered a draft and removed from the index.
-# To remove an object, we first mark it for removal, then actually remove it
-# later. It would be nicer if we could just do `entries ... |= empty`,
-# which works in some cases but not all. I suppose it has to do with changing
-# objects as we are iterating over them.
+# Any page that has no link should be excluded from the index. It would be
+# nicer if we could remove in one swoop with `entries | ... |= empty`. It only
+# works sometimes, presumably since we'd change the objects we'd iterate over.
 def clean:
-    def mark:
-        .r = true
-    ;
-    def remove:
-        if .r == true
-        then empty
-        else (.contents//empty) |= map(remove)
-        end
-    ;
-    ((entries | select((has("contents") or has("link")) | not)) |= mark)
-    | remove
+    if has("contents") then .contents |= map(clean)
+    elif has("link")   then .
+    else empty end
 ;
 
 
