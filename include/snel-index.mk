@@ -70,7 +70,7 @@ clean: $(CACHE)/targets.txt
 		| xargs --no-run-if-empty rm --verbose
 
 # Generate static index page 
-$(DEST)/index.html: $(PANDOC_DIR)/page.html $(PANDOC_DIR)/nav.html $(CACHE)/index.json
+$(DEST)/index.html: $(PANDOC_DIR)/page.html $(PANDOC_DIR)/nav.html $(CACHE)/index.json $(DEST)/$(STYLE).css
 	@-mkdir -p $(@D)
 	@echo "Generating index page \"$@\"..." 1>&2
 	@echo | pandoc \
