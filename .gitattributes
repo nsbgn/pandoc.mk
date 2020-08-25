@@ -1,0 +1,4 @@
+# Linguist recognizes `jq` as `JSONiq` which is wrong. There is no `jq`
+# language defined yet but we set it anyway
+# See: https://github.com/github/linguist/blob/master/lib/linguist/languages.yml
+*.jq linguist-language=jq
