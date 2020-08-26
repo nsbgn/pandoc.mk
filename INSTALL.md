@@ -53,12 +53,12 @@ However, note that:
     error. If it is not available in your repositories, grab it 
     [here](https://github.com/stedolan/jq/releases/latest).
 
--   `weasyprint` is not yet available everywhere. Install it with pip instead:
+-   `weasyprint` is not yet available everywhere. Substitute with 
+    [wkhtmltopdf](https://wkhtmltopdf.org/) or install it with pip instead:
 
         pip3 install weasyprint
 
 -   Unfortunately, `svgo` is a node.js tool. Install it with npm:
 
         npm install -g svgo
-
 
