@@ -103,10 +103,10 @@ def clean:
 def navigation:
     def f($paths; $i; $j; $key):
         setpath($paths[$i]+[$key];
-            getpath($paths[$j]) | {link,title,date}
+            getpath($paths[$j]) | {link,title}
         )
     ;
-    [ path(entries | select(has("link"))) ] as $paths
+    [ path(entries | select(.formats | at_least(1))) ] as $paths
     | ($paths | length) as $n
     | reduce range(0; $n-1) as $i (.; f($paths; $i; $i+1; "next"))
     | reduce range(1, $n)   as $i (.; f($paths; $i; $i-1; "prev"))
@@ -146,21 +146,18 @@ def index($all_formats):
 # Get target files and their dependencies as an enumeration of {"target":...,
 # "dependencies":...} objects.
 def targets($dest; $default_style):
-    [ entries
-        | ., (.frontmatter // empty)
-        | .formats[] as $format
-        | "\($dest)/\(.dir)/\(.basename).\($format)" as $doc
-        | ["\($dest)/\(.dir)/\(.resources?[])"] as $external
-        | ["\($dest)/\(.style // $default_style).css"] as $css
-        | (if $format == "html" then ($css + $external) else [] end) as $linked
-        | (if $format == "pdf"  then ($css + $external) else [] end) as $embedded
-        | {"target": $format, "dependencies": ([$doc] + $linked) }
-        , {"target": $doc, "dependencies": $embedded }
-    ]
-    | group_by(.target)
-    | map(
-        {"target": (.[0].target)
-        , "dependencies": (map(.dependencies) | add | unique) }
-    )
-    | .[]?
+    entries
+    | ., (.frontmatter // empty)
+    | .formats[] as $format
+    | "\($dest)/\(.dir)/\(.basename).\($format)" as $doc
+    | ["\($dest)/\(.dir)/\(.resources?[])"] as $external
+    | ["\($dest)/\(.style // $default_style).css"] as $css
+    | (if $format == "html" then ($css + $external) else [] end) as $linked
+    | (if $format == "pdf"  then ($css + $external) else [] end) as $embedded
+    | {"target": $format, "dependencies": ([$doc] + $linked) }
+    , {"target": $doc, "dependencies": ($embedded) }
+    , {"target": $doc, "dependencies": ["NEXT_LINK := \( .next.link // empty)"]}
+    , {"target": $doc, "dependencies": ["PREV_LINK := \( .prev.link // empty)"]}
+    , {"target": $doc, "dependencies": ["NEXT_TITLE := \( .next.title // empty)"]}
+    , {"target": $doc, "dependencies": ["PREV_TITLE := \( .prev.title // empty)"]}
 ;

@@ -52,8 +52,11 @@ ${contents:nav()}
 $else$
 <main>
 <header>
-<div>$if(title-prefix)$$title-prefix$$if(date)$ &middot; $endif$$endif$$if(date)$$date$$endif$$if(last-modified)$ / ed.$last-modified$$endif$</div>
-$if(index)$<a href="$index$">&#8801;</a>$endif$$if(title)$<h1>$title$</h1>$elseif(default-title)$<h1>$default-title$</h1>$endif$
+<div>$if(title-prefix)$$title-prefix$$if(date)$ &middot; $endif$$endif$$if(date)$$date$$endif$$if(last-modified)$ / ed.$last-modified$$endif$</div>$--
+$if(next-link)$<a title="$next-title$" href="$root$/$next-link$">&blacktriangleright;</a>$endif$$--
+$if(index)$<a href="$index$">&#8801;</a>$endif$$--
+$if(prev-link)$<a title="$prev-title$" href="$root$/$prev-link$">&blacktriangleleft;</a>$endif$$--
+$if(title)$<h1>$title$</h1>$elseif(default-title)$<h1>$default-title$</h1>$endif$
 </header>
 $if(toc)$
 <nav id="$idprefix$toc">
