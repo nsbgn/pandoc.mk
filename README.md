@@ -5,21 +5,21 @@ Plain text formats like [Markdown](http://commonmark.org/help/) and
 [YAML](http://www.yaml.org/spec/) are lightweight, understandable, and easy to 
 modify. In the spirit of the [UNIX 
 philosophy](https://en.wikipedia.org/wiki/Unix_philosophy), I glued a couple 
-of standard tools into `snel`, a method for generating documents and static 
+of common tools into `snel`, a method for generating documents and static 
 websites. The method encourages a radical separation of style from content: 
 source text & data are converted to documents & graphs by a clean and 
-transparent process, documented in the Makefile. It provides a common base and 
+transparent process, documented in a `Makefile`. It provides a common base and 
 a consistent style for text projects — be it a thesis, a website, a resume…
 
-The repository consists of two parts, both of which, I hope, may prove useful 
-to someone:
+The repository consists of two parts, either of which, I hope, may prove 
+useful to someone:
 
 1.  Recipes for [make](https://www.gnu.org/software/make). As of now, the core 
     recipes call for [pandoc](http://pandoc.org/), 
     [jq](https://stedolan.github.io/jq/), 
     [weasyprint](https://weasyprint.org/), [sass](http://sass-lang.com/) and 
-    [find](https://www.gnu.org/software/findutils/) --- but you could 
-    substitute or add any ingredient. 
+    [find](https://www.gnu.org/software/findutils/) — but you could substitute 
+    or add any ingredient. 
 
 2.  Minimalist CSS stylesheets. Change them to fit your tastes.
  
@@ -52,7 +52,7 @@ to your `Makefile`. For the above example, that could be:
     $(DEST)/graph.svg: $(SRC)/data.dat
         echo 'set terminal svg; set output "$@"; plot "$<"' | gnuplot
 
-To remove leftover files in the `build/` directory from a previous run, do 
+To remove obsolete files of a previous run from the `build/` directory, do 
 `make clean`. With the proper configuration, the results can be uploaded with 
 [lftp](http://lftp.yar.ru/) or [rsync](https://rsync.samba.org/) by calling 
 `make upload`.
@@ -78,6 +78,6 @@ License
 ------------------------------------------------------------------------------
 
 To the greatest possible extent, I dedicate all content in this
-repository to the [public domain](https://unlicense.org/) (see the
-`UNLICENSE` file).
+repository to the [public domain](https://unlicense.org/) (see 
+[`UNLICENSE.md`](UNLICENSE.md)).
 
