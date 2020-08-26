@@ -5,10 +5,11 @@ Plain text formats like [Markdown](http://commonmark.org/help/) and
 [YAML](http://www.yaml.org/spec/) are lightweight, understandable, and easy to 
 modify. In the spirit of the [UNIX 
 philosophy](https://en.wikipedia.org/wiki/Unix_philosophy), I glued a couple 
-of standard tools into `snel`, a method for generating PDF documents and 
-static websites. The method encourages a radical separation of style from 
-content: source text and data are converted to documents and graphs by a clean 
-and transparent process, documented in the Makefile.
+of standard tools into `snel`, a method for generating documents and static 
+websites. The method encourages a radical separation of style from content: 
+source text and data are converted to documents and graphs by a clean and 
+transparent process, documented in the Makefile. It provides a common base for 
+all prose-heavy projects --- be it a thesis, a resume or a website.
 
 This repository consists of two parts, both of which, I hope, may prove useful 
 to someone:
@@ -17,19 +18,11 @@ to someone:
 
 2.  Minimalist CSS stylesheets.
 
-As of now, the core recipes call for [pandoc](http://pandoc.org/) 2.8 or 
-higher, [jq](https://stedolan.github.io/jq/) 1.6 or higher,
-[weasyprint](https://weasyprint.org/),
-[find](https://www.gnu.org/software/findutils/), 
-[sass](http://sass-lang.com/), and
-[xargs](https://savannah.gnu.org/projects/findutils/) --- but you could easily 
-substitute or add any ingredient. Optional additional recipes use such 
-programs as [ImageMagick](http://www.imagemagick.org/),
-[optipng](http://optipng.sourceforge.net/), and
-[svgo](https://github.com/svg/svgo) for image processing, as well as
-[lftp](http://lftp.yar.ru/) or 
-[rsync](https://rsync.samba.org/)+[ssh](http://www.openssh.com/) for 
-uploading. 
+As of now, the core recipes call for [pandoc](http://pandoc.org/), 
+[jq](https://stedolan.github.io/jq/), [weasyprint](https://weasyprint.org/), 
+[sass](http://sass-lang.com/) and 
+[find](https://www.gnu.org/software/findutils/) --- but you could substitute 
+or add any ingredient. 
  
 Website generators that take a similar bare-bones approach are 
 [simple-template](https://github.com/simple-template/pandoc), 
@@ -44,14 +37,7 @@ for your tastes, try others such as [zola](https://www.getzola.org/),
 Usage
 -------------------------------------------------------------------------------
 
-To install `snel` globally, do `make` and `sudo make install`. To use it, 
-create a `Makefile` with at least the following content:
-
-    include snel.mk # or "/path/to/snel.mk", when not installed globally
-
-Then, executing `make` will generate the `$(DEST)` (default: `build`) 
-directory containing HTML and PDF files --- that is, if you have populated the 
-`$(SRC)` (default: `.`) directory with Markdown files such as these:
+To use `snel`, create a directory with Markdown files like this:
 
     ---
     title: An example.
@@ -61,17 +47,29 @@ directory containing HTML and PDF files --- that is, if you have populated the
 
     Consider this graph: ![](graph.svg)
 
-Markdown files without a `make` entry in the metadata will be ignored. `snel` 
-will also attempt to automatically build any resource the Markdown files link 
-to. If there is no recipe for a particular resource, simply add it to your 
-`Makefile`. Example:
+Then create a `Makefile` with at least the following content:
 
-    $(DEST)/%/graph.svg: $(SRC)/%/data.dat script.gnuplot
-        gnuplot -c script.gnuplot $<
+    include snel.mk
 
-To clean up leftovers files that are no longer linked, do `make clean`. Given 
-an appropriate configuration, the results can be uploaded by calling `make 
-upload`.
+This will import recipes to make PDF and HTML documents corresponding to all 
+Markdown files (given the appropriate value for `make` in the metadata). An 
+index page will be created that links to them all. To start generating, just 
+run `make`.
+
+This will also attempt to automatically create any local resource that the 
+source files link to. If there is no recipe for a particular resource, simply 
+add it to your `Makefile`. For the above example, that could be:
+
+    $(DEST)/graph.svg: $(SRC)/data.dat
+        echo 'set terminal svg; set output "$@"; plot "$<"' | gnuplot
+
+To clean up leftovers files in the `build/` directory that are no longer 
+linked, do `make clean`. With the proper configuration, the results can be 
+uploaded with [lftp](http://lftp.yar.ru/) or [rsync](https://rsync.samba.org/) 
+by calling `make upload`.
+
+See installation directions [here](INSTALL.md). For configuration, consult the 
+files in the `include/` directory.
 
 
 License
