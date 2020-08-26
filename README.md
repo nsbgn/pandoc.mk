@@ -52,13 +52,13 @@ to your `Makefile`. For the above example, that could be:
     $(DEST)/graph.svg: $(SRC)/data.dat
         echo 'set terminal svg; set output "$@"; plot "$<"' | gnuplot
 
-To clean up leftovers files in the `build/` directory, do `make clean`. With 
-the proper configuration, the results can be uploaded with 
+To remove leftover files in the `build/` directory from a previous run, do 
+`make clean`. With the proper configuration, the results can be uploaded with 
 [lftp](http://lftp.yar.ru/) or [rsync](https://rsync.samba.org/) by calling 
 `make upload`.
 
-See installation directions [here](INSTALL.md). For configuration, consult the 
-files in the [`include/`](include/) directory.
+See installation directions at the [`INSTALL.md`](INSTALL.md). For 
+configuration, consult the files in the [`include/`](include/) directory.
 
 
 Similar software
