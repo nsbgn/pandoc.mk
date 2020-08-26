@@ -2,12 +2,12 @@ snel
 ==============================================================================
 
 Plain text formats like [Markdown](http://commonmark.org/help/) and 
-[YAML](http://www.yaml.org/spec/) are lightweight, understandable, and easy to 
-modify. In the spirit of the [UNIX 
-philosophy](https://en.wikipedia.org/wiki/Unix_philosophy), I glued a couple 
-of common tools into `snel`, a method for generating documents and static 
-websites. The method encourages a radical separation of style from content: 
-source text & data are converted to documents & graphs by a clean and 
+[YAML](http://www.yaml.org/spec/) are lightweight, understandable, 
+maintainable in version control, and easy to modify. In the spirit of the 
+[UNIX philosophy](https://en.wikipedia.org/wiki/Unix_philosophy), I glued a 
+couple of common tools into `snel`, a method for generating documents and 
+static websites. The method encourages a radical separation of style from 
+content: source text & data are converted to documents & graphs by a clean and 
 transparent process, documented in a `Makefile`. It provides a common base and 
 a consistent style for text projects — be it a thesis, a website, a resume…
 
