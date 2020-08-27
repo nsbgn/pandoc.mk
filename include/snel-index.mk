@@ -13,12 +13,14 @@ SOURCE_FILES = $(shell \
 	-print \
 )
 
-EXTRA_HTML_TARGETS = $(addprefix $(DEST)/,index.html $(if $(wildcard $(SRC)/favicon.*),favicon.ico apple-touch-icon.png))
+EXTRA_HTML_TARGETS = $(addprefix $(DEST)/,\
+	index.html \
+	$(if $(wildcard $(SRC)/favicon.*),favicon.ico apple-touch-icon.png)\
+)
 
 .PHONY: all html pdf
 all: html pdf
-html: $(CACHE)/dynamic.mk $(EXTRA_HTML_TARGETS)
-pdf: $(CACHE)/dynamic.mk
+all html pdf: $(CACHE)/dynamic.mk
 
 include $(CACHE)/dynamic.mk
 
@@ -51,13 +53,14 @@ $(CACHE)/index.json: $(JQ_DIR)/snel.jq $(wildcard $(SRC)/index.base.json) \
 $(CACHE)/targets.json: $(CACHE)/index.json
 	@jq -c -L"$(JQ_DIR)" --arg dest "$(DEST)" --arg style "$(STYLE)" \
 		'include "snel"; targets($$dest; $$style)' < "$<" > "$@"
+	@($(foreach target,$(EXTRA_HTML_TARGETS),echo "$(target)";)) \
+		| jq -R -c '{"target":"html", "dependencies": [.]}' >> "$@"
 
 $(CACHE)/dynamic.mk: $(CACHE)/targets.json
 	@jq -r '.target + ": " + (.dependencies | join(" "))' < "$<" > "$@"
 
 $(CACHE)/targets.txt: $(CACHE)/targets.json
 	@jq -r --slurp '.[].dependencies[] | unique | .[]' < "$<" > "$@"
-	@$(foreach target,$(EXTRA_HTML_TARGETS),echo $(target) >> "$@";)
 
 # Optionally, remove all files in $(DEST) that are no longer targeted
 .PHONY: clean
