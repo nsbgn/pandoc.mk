@@ -1,7 +1,9 @@
-# This adds recipes for generating PDF or HTML documents and associated
-# resources.
+# This adds recipes for generating PDF or HTML documents, plus associated
+# styles.
 
-include $(dir $(abspath $(lastword $(MAKEFILE_LIST))))/snel-variables.mk
+ifeq (,$(filter %/snel.mk snel.mk,$(MAKEFILE_LIST)))
+$(error The main snel.mk module was not loaded)
+endif
 
 $(DEST)/%.css: $(STYLE_DIR)/%.scss $(wildcard $(STYLE_DIR)/_*.scss)
 	@-mkdir -p $(@D)

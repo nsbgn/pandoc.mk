@@ -1,6 +1,6 @@
 .PHONY: default
 default: 
-	@echo "Run 'make install' to install globally. See README for other options."
+	@echo "Run 'sudo make install' to install globally. See INSTALL.md."
 
 include include/snel.mk
 
@@ -13,11 +13,9 @@ install:
 	install --mode=644 -D --target-directory $(SHARE_DIR)/style/ \
 		$(wildcard $(STYLE_DIR)/*.scss)
 	install --mode=644 -D --target-directory $(SHARE_DIR)/jq/ \
-		$(addprefix $(JQ_DIR)/,snel.jq)
+		$(wildcard $(JQ_DIR)/*.jq)
 	install --mode=644 -D --target-directory $(SHARE_DIR)/pandoc/ \
-		$(addprefix $(PANDOC_DIR)/,nav.html page.html metadata.json resources.lua)
-	install --mode=755 -D --target-directory $(SHARE_DIR)/pandoc/ \
-		$(PANDOC_DIR)/extract-references.py
+		$(wildcard $(PANDOC_DIR)/*)
 
 .PHONY: uninstall
 uninstall:

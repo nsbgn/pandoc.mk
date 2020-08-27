@@ -16,12 +16,12 @@ useful to someone:
 
 1.  Recipes for [make](https://www.gnu.org/software/make). As of now, the core 
     recipes call for [pandoc](http://pandoc.org/), 
-    [jq](https://stedolan.github.io/jq/), 
-    [weasyprint](https://weasyprint.org/), [sass](http://sass-lang.com/) and 
-    [find](https://www.gnu.org/software/findutils/) — but you could substitute 
-    or add any ingredient. 
+    [jq](https://stedolan.github.io/jq/) and
+    [find](https://www.gnu.org/software/findutils/) — and you could easily 
+    substitute or add ingredients. 
 
-2.  Minimalist CSS stylesheets. Change them to fit your tastes.
+2.  Minimalist CSS stylesheets, compiled with [sass](http://sass-lang.com/). 
+    Change them to fit your tastes.
  
 
 Usage
@@ -37,25 +37,27 @@ To use `snel`, fill a directory with Markdown files like this:
 
     Consider this graph: ![](graph.svg)
 
-Then, create a `Makefile` with at least the following content:
+Then, create a `Makefile` with the following content:
 
-    include snel.mk
+    include snel.mk snel-doc.mk
 
-This will import recipes for corresponding PDF and HTML documents, plus an 
-index page that links to them all. Files without an appropriate value for 
-`make` in the metadata will be ignored. To start generating, just run `make`.
+The first import will set PDF and HTML targets for corresponding files in the 
+source directory. It will also compile an index. Documents without an 
+appropriate value for `make` in the metadata will be ignored. The second 
+import will add the default recipes to actually *make* those HTML and PDF 
+targets.
 
-This will also attempt to automatically create any local resource that the 
-source files link to. If there is no recipe for a particular resource, add it 
-to your `Makefile`. For the above example, that could be:
+Any local resource that the source documents *link to* is also automatically 
+targeted. If there is no recipe for a particular resource, add it to your 
+`Makefile`. For the above example, that could be:
 
     $(DEST)/graph.svg: $(SRC)/data.dat
         echo 'set terminal svg; set output "$@"; plot "$<"' | gnuplot
 
-To remove obsolete files of a previous run from the `build/` directory, do 
-`make clean`. With the proper configuration, the results can be uploaded with 
-[lftp](http://lftp.yar.ru/) or [rsync](https://rsync.samba.org/) by calling 
-`make upload`.
+To start generating, run `make`. To remove obsoleted files of a previous run 
+from the `build/` directory, do `make clean`. With the proper configuration, 
+the results can be uploaded with [lftp](http://lftp.yar.ru/) or 
+[rsync](https://rsync.samba.org/) by calling `make upload`.
 
 See installation directions at the [`INSTALL.md`](INSTALL.md). For 
 configuration, consult the files in the [`include/`](include/) directory.
