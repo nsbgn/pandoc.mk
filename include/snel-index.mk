@@ -57,7 +57,7 @@ $(CACHE)/targets.json: $(CACHE)/index.json
 		| jq -R -c '{"target":"html", "dependencies": [.]}' >> "$@"
 
 $(CACHE)/dynamic.mk: $(CACHE)/targets.json
-	@jq -r '.target + ": " + (.dependencies | join(" "))' < "$<" > "$@"
+	@jq -r '"\(.target): \(.dependencies | join(" "))"' < "$<" > "$@"
 
 $(CACHE)/targets.txt: $(CACHE)/targets.json
 	@jq -r --slurp '.[].dependencies[] | unique | .[]' < "$<" > "$@"
