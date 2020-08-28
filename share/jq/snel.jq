@@ -109,7 +109,7 @@ def navigation:
     [ path(entries | select(.formats | at_least(1))) ] as $paths
     | ($paths | length) as $n
     | reduce range(0; $n-1) as $i (.; f($paths; $i; $i+1; "next"))
-    | reduce range(1, $n)   as $i (.; f($paths; $i; $i-1; "prev"))
+    | reduce range(1; $n)   as $i (.; f($paths; $i; $i-1; "prev"))
 ;
 
 
