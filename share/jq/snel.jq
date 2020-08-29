@@ -116,7 +116,7 @@ def navigation:
 # Sort content first according to sort order in metadata.
 def sorting:
     (entries | select(has("contents")) | .contents) |= (
-        sort_by(.sort // .title // .name)
+        sort_by(.[.sortby // ""] // .sort // .title // .name)
     )
 ;
 
