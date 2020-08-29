@@ -103,7 +103,7 @@ def clean:
 def navigation:
     def f($paths; $i; $j; $key):
         setpath($paths[$i]+[$key];
-            getpath($paths[$j]) | {link,title}
+            getpath($paths[$j]) | {link,title,"source":"\(.dir)/\(.name)"}
         )
     ;
     [ path(entries | select(.formats | at_least(1))) ] as $paths
@@ -137,9 +137,9 @@ def index($all_formats):
     | formats($all_formats)
     | link
     | clean
-    | navigation
     | frontmatter
     | sorting
+    | navigation
     | annotate_leaves
 ;
 
@@ -155,7 +155,7 @@ def targets($dest; $default_style):
     | (if $format == "html" then ($css + $external) else [] end) as $linked
     | (if $format == "pdf"  then ($css + $external) else [] end) as $embedded
     | {"target": $format, "dependencies": ([$doc] + $linked) }
-    , {"target": $doc, "dependencies": ($embedded) }
+    , {"target": $doc, "dependencies": ($embedded + [ .next.source//empty, .prev.source//empty ]) }
     , {"target": $doc, "dependencies": ["NEXT_LINK := \( .next.link // empty)"]}
     , {"target": $doc, "dependencies": ["PREV_LINK := \( .prev.link // empty)"]}
     , {"target": $doc, "dependencies": ["NEXT_TITLE := \( .next.title // empty)"]}
