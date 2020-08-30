@@ -44,6 +44,17 @@ def merge:
     ) | from_entries
 ;
 
+# Flatten an object into a 1-layer object, such that
+# '{"a":["b"]}}' becomes '{"a-0":"b"}'. This is used as a hacky way to pass
+# arguments from the JSON index directly from the Makefile to the proper
+# recipe, without an additional file.
+def flat_obj:
+    [   path(..) as $p 
+        | getpath($p) | select([(. | type) != ("object", "array")] | all)
+        | { ($p|join("-")):. }
+    ] | add
+;
+
 # Add paths to each object, that is, the names of the ancestors.
 def directory:
     def f($d): .dir=($d|join("/")) | .name as $n | .contents[]?|=f($d+[$n]);
@@ -154,10 +165,9 @@ def targets($dest; $default_style):
     | ["\($dest)/\(.style // $default_style).css"] as $css
     | (if $format == "html" then ($css + $external) else [] end) as $linked
     | (if $format == "pdf"  then ($css + $external) else [] end) as $embedded
+    | ({next,prev} | flat_obj | to_entries | map("--metadata","\(.key)=\(.value)")) as $args
     | {"target": $format, "dependencies": ([$doc] + $linked) }
     , {"target": $doc, "dependencies": ($embedded + [ .next.source//empty, .prev.source//empty ]) }
-    , {"target": $doc, "dependencies": ["NEXT_LINK := \( .next.link // empty)"]}
-    , {"target": $doc, "dependencies": ["PREV_LINK := \( .prev.link // empty)"]}
-    , {"target": $doc, "dependencies": ["NEXT_TITLE := \( .next.title // empty)"]}
-    , {"target": $doc, "dependencies": ["PREV_TITLE := \( .prev.title // empty)"]}
+    , {"target": $doc, "dependencies": ["EXTRA_PANDOC_ARGS:=\( $args | @sh )"]
+    }
 ;

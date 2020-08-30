@@ -17,16 +17,13 @@ $(DEST)/%.html: \
 	@echo "Generating document \"$@\"..." 1>&2
 	@-mkdir -p "$(@D)"
 	@-mkdir -p "$(patsubst $(DEST)/%,$(CACHE)/%,$(@D))"
-	@pandoc  \
+	pandoc  \
 		--metadata path='$(shell realpath $(@D) --relative-to $(DEST) --canonicalize-missing)' \
 		--metadata root='$(shell realpath $(DEST) --relative-to $(@D) --canonicalize-missing)' \
 		--metadata index='$(shell realpath $(DEST)/index.html --relative-to $(@D) --canonicalize-missing)' \
-		--metadata prev-link='$(PREV_LINK)' \
-		--metadata next-link='$(NEXT_LINK)' \
-		--metadata prev-title='$(PREV_TITLE)' \
-		--metadata next-title='$(NEXT_TITLE)' \
 		--metadata default-style='$(STYLE)' \
 		--metadata last-modified='$(shell date -r "$<" '+%Y-%m-%d')' \
+		$(EXTRA_PANDOC_ARGS) \
 		$(if $(wildcard $(SRC)/favicon.*),--metadata favicon='$(shell realpath $(DEST)/favicon.ico --relative-to $(@D) --canonicalize-missing)') \
 		--from markdown+smart+fenced_divs+inline_notes+table_captions \
 		--to html5 \
