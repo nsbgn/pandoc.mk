@@ -30,9 +30,6 @@ endif
 ifndef DEST
 	DEST := build
 endif
-ifndef STYLE
-	STYLE := web
-endif
 ifndef CACHE
 	CACHE := $(DEST)/.cache
 endif
@@ -88,8 +85,8 @@ $(CACHE)/index.json: $(JQ_DIR)/snel.jq $(wildcard $(SRC)/index.base.json) \
 # Generate a file enumerating the dynamic targets for HTML/PDF documents and
 # any external content referred inside
 $(CACHE)/targets.json: $(CACHE)/index.json
-	@jq -c -L"$(JQ_DIR)" --arg dest "$(DEST)" --arg style "$(STYLE)" \
-		'include "snel"; targets($$dest; $$style)' < "$<" > "$@"
+	@jq -c -L"$(JQ_DIR)" --arg dest "$(DEST)" \
+		'include "snel"; targets($$dest)' < "$<" > "$@"
 	@($(foreach target,$(EXTRA_HTML_TARGETS),echo "$(target)";)) \
 		| jq -R -c '{"target":"html", "dependencies": [.]}' >> "$@"
 
@@ -110,7 +107,7 @@ clean: $(CACHE)/targets.txt
 		| xargs --no-run-if-empty rm --verbose
 
 # Generate static index page 
-$(DEST)/index.html: $(PANDOC_DIR)/page.html $(PANDOC_DIR)/nav.html $(CACHE)/index.json $(DEST)/$(STYLE).css
+$(DEST)/index.html: $(PANDOC_DIR)/page.html $(PANDOC_DIR)/nav.html $(CACHE)/index.json $(DEST)/web.css
 	@-mkdir -p $(@D)
 	@echo "Generating index page \"$@\"..." 1>&2
 	@echo | pandoc \
@@ -118,6 +115,6 @@ $(DEST)/index.html: $(PANDOC_DIR)/page.html $(PANDOC_DIR)/nav.html $(CACHE)/inde
 		--metadata-file "$(CACHE)/index.json" \
 		--metadata title="Table of contents" \
 		$(if $(wildcard $(SRC)/favicon.*),--metadata favicon='$(shell realpath $(DEST)/favicon.ico --relative-to $(@D) --canonicalize-missing)') \
-		--metadata style='$(STYLE)' \
+		--metadata style='web' \
 		> $@
 

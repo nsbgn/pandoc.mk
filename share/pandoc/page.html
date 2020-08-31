@@ -24,8 +24,6 @@ $if(favicon)$
 $endif$
 $if(style)$
 <link rel="stylesheet" href="$if(root)$$root$/$endif$$style$.css">
-$elseif(default-style)$
-<link rel="stylesheet" href="$if(root)$$root$/$endif$$default-style$.css">
 $endif$
 $for(css)$
 <link rel="stylesheet" href="$css$">

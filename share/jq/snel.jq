@@ -156,13 +156,13 @@ def index($all_formats):
 
 # Get target files and their dependencies as an enumeration of {"target":...,
 # "dependencies":...} objects.
-def targets($dest; $default_style):
+def targets($dest):
     entries
     | ., (.frontmatter // empty)
     | .formats[] as $format
     | "\($dest)/\(.dir)/\(.basename).\($format)" as $doc
     | ["\($dest)/\(.dir)/\(.resources?[])"] as $external
-    | ["\($dest)/\(.style // $default_style).css"] as $css
+    | ["\($dest)/\(.style//empty).css"] as $css
     | [ .next.source//empty, .prev.source//empty ] as $neighbours
     | (if $format == "html" then ($css + $external) else [] end) as $linked
     | (if $format == "pdf"  then ($css + $external) else [] end) as $embedded
