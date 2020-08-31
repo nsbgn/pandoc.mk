@@ -2,7 +2,8 @@
 # needs, and it collects the target documents and resources. It also generates
 # the index page linking to them.
 # However, there are no actual recipes to *make* the targets. You'll need to
-# also `include snel-doc.mk`, or instead write your own.
+# also `include snel-html.mk`, `include `snel-pdf.mk`, or instead write your
+# own.
 
 PREFIX:=/usr/local
 INCLUDE_DIR:=$(PREFIX)/include
