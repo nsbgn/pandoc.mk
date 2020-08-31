@@ -5,6 +5,10 @@ ifeq (,$(filter %/snel.mk snel.mk,$(MAKEFILE_LIST)))
 $(error The main snel.mk module was not loaded)
 endif
 
+ifneq (,$(wildcard $(SRC)/favicon.*))
+EXTRA_LINKED+=$(addprefix $(DEST)/,favicon.ico apple-touch-icon.png)
+endif
+
 $(DEST)/%.css: $(STYLE_DIR)/%.scss $(wildcard $(STYLE_DIR)/_*.scss)
 	@-mkdir -p $(@D)
 	sassc --style compressed $< $@
@@ -65,3 +69,14 @@ $(DEST)/%.pdf: \
 		-dPrinted=false \
 		- $@
 
+EXTRA_LINKED+=$(DEST)/index.html
+$(DEST)/index.html: $(CACHE)/index.json $(PANDOC_DIR)/page.html $(PANDOC_DIR)/nav.html $(DEST)/web.css
+	@-mkdir -p $(@D)
+	@echo "Generating index page \"$@\"..." 1>&2
+	@echo | pandoc \
+		--template="$(PANDOC_DIR)/page.html" \
+		--metadata-file "$(CACHE)/index.json" \
+		--metadata title="Table of contents" \
+		$(if $(findstring favicon,$(EXTRA_LINKED)),--metadata favicon='$(shell realpath $(DEST)/favicon.ico --relative-to $(@D) --canonicalize-missing)') \
+		--metadata style='web' \
+		> $@

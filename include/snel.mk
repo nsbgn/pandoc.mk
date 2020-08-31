@@ -47,10 +47,8 @@ SOURCE_FILES = $(shell \
 	-print \
 )
 
-EXTRA_HTML_TARGETS = $(addprefix $(DEST)/,\
-	index.html \
-	$(if $(wildcard $(SRC)/favicon.*),favicon.ico apple-touch-icon.png)\
-)
+# Optionally add otherwise unlinked targets, like index.html, to this variable
+EXTRA_LINKED= 
 
 .PHONY: all html pdf
 all: html pdf
@@ -87,7 +85,7 @@ $(CACHE)/index.json: $(JQ_DIR)/snel.jq $(wildcard $(SRC)/index.base.json) \
 $(CACHE)/targets.json: $(CACHE)/index.json
 	@jq -c -L"$(JQ_DIR)" --arg dest "$(DEST)" \
 		'include "snel"; targets($$dest)' < "$<" > "$@"
-	@($(foreach target,$(EXTRA_HTML_TARGETS),echo "$(target)";)) \
+	@($(foreach target,$(EXTRA_LINKED),echo "$(target)";)) \
 		| jq -R -c '{"target":"html", "dependencies": [.]}' >> "$@"
 
 $(CACHE)/dynamic.mk: $(CACHE)/targets.json
@@ -105,16 +103,4 @@ clean: $(CACHE)/targets.txt
 	find "$(DEST)" -type f -a -not -path '$(CACHE)/*' \
 		| grep --fixed-strings --line-regexp --invert-match --file="$<" \
 		| xargs --no-run-if-empty rm --verbose
-
-# Generate static index page 
-$(DEST)/index.html: $(PANDOC_DIR)/page.html $(PANDOC_DIR)/nav.html $(CACHE)/index.json $(DEST)/web.css
-	@-mkdir -p $(@D)
-	@echo "Generating index page \"$@\"..." 1>&2
-	@echo | pandoc \
-		--template="$(PANDOC_DIR)/page.html" \
-		--metadata-file "$(CACHE)/index.json" \
-		--metadata title="Table of contents" \
-		$(if $(wildcard $(SRC)/favicon.*),--metadata favicon='$(shell realpath $(DEST)/favicon.ico --relative-to $(@D) --canonicalize-missing)') \
-		--metadata style='web' \
-		> $@
 
