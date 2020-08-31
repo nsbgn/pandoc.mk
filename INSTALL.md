@@ -9,9 +9,10 @@ To install it globally, then do:
 
     cd snel && sudo make install
 
-Write `include snel.mk snel-doc.mk` in your project's `Makefile` and you are 
-good to go. However, you don't *need* to install it globally; the recipes will 
-work just fine if you `include /path/to/snel/include/snel.mk` instead.
+Include the appropriate `snel*.mk` files into your project's `Makefile` and 
+you are good to go. However, you don't *need* to install it globally; the 
+recipes will work just fine if you `include /path/to/snel/include/snel.mk` 
+instead.
 
 
 Dependencies

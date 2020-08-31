@@ -39,11 +39,11 @@ To use `snel`, fill a directory with Markdown files like this:
 
 Then, create a `Makefile` with the following content:
 
-    include snel.mk snel-doc.mk
+    include snel.mk snel-html.mk snel-pdf.mk
 
 The first import will set PDF and HTML targets for corresponding files in the 
 source directory. Documents without an appropriate value for `make` in the 
-metadata will be ignored. The second import will add default recipes to 
+metadata will be ignored. The other imports will add default recipes to 
 actually *make* those PDF and HTML targets.
 
 Local resources that are *linked to* by the source documents, are also 
