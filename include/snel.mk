@@ -4,51 +4,39 @@
 # However, there are no actual recipes to *make* the targets. You'll need to
 # also `include snel-doc.mk`, or instead write your own.
 
-# Location of this Makefile.
-BASE_DIR := $(patsubst %/,%,$(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
+PREFIX:=/usr/local
+INCLUDE_DIR:=$(PREFIX)/include
+SHARE_DIR:=$(PREFIX)/share/snel
 
-# Installation directories.
-PREFIX := /usr/local
-INCLUDE_DIR := $(PREFIX)/include
-SHARE_DIR := $(PREFIX)/share/snel
-
-# If installed globally, then we should be able to find other assets in
-# $PREFIX/share/snel. Otherwise, find them relative to the current Makefile.
+# If installed globally, then other assets are in `$PREFIX/share/snel`;
+# otherwise, find them relative to $(BASE_DIR), the location of this Makefile.
+BASE_DIR:=$(patsubst %/,%,$(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
 ifeq ($(BASE_DIR),$(INCLUDE_DIR))
-	ASSET_DIR := $(SHARE_DIR)
+ASSET_DIR:=$(SHARE_DIR)
 else
-	ASSET_DIR := $(BASE_DIR)/../share
+ASSET_DIR:=$(BASE_DIR)/../share
 endif
-STYLE_DIR := $(ASSET_DIR)/style
-JQ_DIR := $(ASSET_DIR)/jq
-PANDOC_DIR := $(ASSET_DIR)/pandoc
+STYLE_DIR:=$(ASSET_DIR)/style
+JQ_DIR:=$(ASSET_DIR)/jq
+PANDOC_DIR:=$(ASSET_DIR)/pandoc
 
 # Source and destination directories.
-ifndef SRC
-	SRC := .
-endif
-ifndef DEST
-	DEST := build
-endif
-ifndef CACHE
-	CACHE := $(DEST)/.cache
-endif
-ifndef IGNORE
-	IGNORE=Makefile .git .gitignore
-endif
-IGNORE:=$(IGNORE) $(CACHE) $(DEST)
+SRC?=.
+DEST?=build
+CACHE?=$(DEST)/.cache
+IGNORE+=$(CACHE) $(DEST)
+
+# Optionally add otherwise unlinked targets, like index.html, to this variable
+EXTRA_LINKED= 
 
 # Find potential source Markdown files.
-SOURCE_FILES = $(shell \
+SOURCE_FILES=$(shell \
 	find -L "$(SRC)" \
 	$(patsubst %,-path '%' -prune -o,$(IGNORE)) \
 	-iname '*.md' \
 	-exec grep -li --perl-regexp '^\s*make:\s*((?!(false|null|\[\])).*)$$' {} \; \
 	-print \
 )
-
-# Optionally add otherwise unlinked targets, like index.html, to this variable
-EXTRA_LINKED= 
 
 .PHONY: all html pdf
 all: html pdf

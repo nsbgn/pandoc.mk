@@ -5,18 +5,14 @@ ifeq (,$(filter %/snel.mk snel.mk,$(MAKEFILE_LIST)))
 $(error The main snel.mk module was not loaded)
 endif
 
-ifndef PROTOCOL
-	PROTOCOL := ssh
-endif
 ifndef USER
 	$(error Variable USER is not set)
 endif
 ifndef HOST
 	$(error Variable HOST is not set)
 endif
-ifndef REMOTE_DIR
-	REMOTE_DIR := /home/$(USER)/public_html
-endif
+PROTOCOL?=ssh
+REMOTE_DIR?=/home/$(USER)/public_html
 ifndef PORT
 ifeq ($(PROTOCOL),ssh)
 	PORT := 22
