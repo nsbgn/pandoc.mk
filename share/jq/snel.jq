@@ -117,7 +117,7 @@ def navigation:
             getpath($paths[$j]) | {link,title,"source":"\(.dir)/\(.name)"}
         )
     ;
-    [ path(entries | select(.formats | at_least(1))) ] as $paths
+    [ path(entries | select(.formats | contains(["html"]))) ] as $paths
     | ($paths | length) as $n
     | reduce range(0; $n-1) as $i (.; f($paths; $i; $i+1; "next"))
     | reduce range(1; $n)   as $i (.; f($paths; $i; $i-1; "prev"))
@@ -163,11 +163,13 @@ def targets($dest; $default_style):
     | "\($dest)/\(.dir)/\(.basename).\($format)" as $doc
     | ["\($dest)/\(.dir)/\(.resources?[])"] as $external
     | ["\($dest)/\(.style // $default_style).css"] as $css
+    | [ .next.source//empty, .prev.source//empty ] as $neighbours
     | (if $format == "html" then ($css + $external) else [] end) as $linked
     | (if $format == "pdf"  then ($css + $external) else [] end) as $embedded
+    | (if $format == "html" then $neighbours else [] end) as $triggers
     | ({next,prev} | flat_obj | to_entries | map("--metadata","\(.key)=\(.value)")) as $args
     | {"target": $format, "dependencies": ([$doc] + $linked) }
-    , {"target": $doc, "dependencies": ($embedded + [ .next.source//empty, .prev.source//empty ]) }
+    , {"target": $doc, "dependencies": ($embedded + $triggers) }
     , {"target": $doc, "dependencies": ["EXTRA_PANDOC_ARGS:=\( $args | @sh )"]
     }
 ;

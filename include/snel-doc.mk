@@ -17,7 +17,7 @@ $(DEST)/%.html: \
 	@echo "Generating document \"$@\"..." 1>&2
 	@-mkdir -p "$(@D)"
 	@-mkdir -p "$(patsubst $(DEST)/%,$(CACHE)/%,$(@D))"
-	pandoc  \
+	@pandoc  \
 		--metadata path='$(shell realpath $(@D) --relative-to $(DEST) --canonicalize-missing)' \
 		--metadata root='$(shell realpath $(DEST) --relative-to $(@D) --canonicalize-missing)' \
 		--metadata index='$(shell realpath $(DEST)/index.html --relative-to $(@D) --canonicalize-missing)' \
