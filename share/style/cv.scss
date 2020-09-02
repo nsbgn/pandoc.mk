@@ -22,6 +22,8 @@ $vspace-object: 2.5em;
 @include code
     ( $size: 0.8em
     , $margin: $vspace-object );
+@include meta
+    ( $footer: false );
 @include print
     ( $page-size: A4 
     , $page-breaks: false

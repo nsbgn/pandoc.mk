@@ -53,10 +53,9 @@ ${contents:nav()}
 $else$
 <main>
 <header>
-<div class="meta">$--
-$if(title-prefix)$<span class="prefix">$title-prefix$</span>$endif$$--
-$if(date)$<span class="date">$date$</span>$endif$$--
-</div>
+$if(title-prefix)$
+<div class="collection">$title-prefix$</div>
+$endif$$--
 $if(index)$
 <nav>
 $if(prev-link)$<a title="$prev-title$" href="$root$/$prev-link$">&blacktriangleleft;</a>$endif$$--
@@ -65,6 +64,7 @@ $if(next-link)$<a title="$next-title$" href="$root$/$next-link$">&blacktriangler
 </nav>
 $endif$
 $if(title)$<h1>$title$</h1>$elseif(default-title)$<h1>$default-title$</h1>$endif$
+
 </header>
 $if(toc)$
 <nav id="$idprefix$toc">
@@ -72,6 +72,13 @@ $toc$
 </nav>
 $endif$
 $body$
+<footer class="meta">
+<dl>
+$if(author)$<dt>Author</dt><dd class="author">$author$</dd>$endif$
+$if(date)$<dt>Written</dt><dd class="date">$date$</dd>$endif$
+$if(last-modified)$<dt>Updated</dt><dd class="last-modified">$last-modified$</dd>$endif$
+</dl>
+</footer>
 </main>
 $endif$
 $for(include-after)$$include-after$$endfor$

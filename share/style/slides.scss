@@ -17,6 +17,8 @@
     ( $margin: 0.6em );
 @include list-controlled
     ( $margin: 2.5em );
+@include meta
+    ( $footer: false );
 
 
 @page {

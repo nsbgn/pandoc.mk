@@ -32,6 +32,8 @@ $vspace-object: 2.5em;
     ( $decoration: "\2022"
     , $font-size: 0.4em 
     , $margin: $vspace-object );
+@include meta
+    ( $footer: false );
 @include misc
     ( );
 @include print

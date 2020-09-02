@@ -64,6 +64,13 @@
     header {
         margin: 0 0 1.5em;
 
+        .collection {
+            color: $color-scenery;
+            font-size: 0.8em;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+        }
+
         @if $include-link {
             nav {
                 float: right;
@@ -75,20 +82,45 @@
                 text-decoration: none;
                 font-family: sans-serif;
             }
-
-            .meta {
-                color: $color-scenery;
-                font-size: 0.8em;
-                letter-spacing: 0.15em;
-                text-transform: uppercase;
-                span + span:before {
-                    content: "\ \00b7\ ";
-                }
-            }
         } @else {
-            div, nav {
+            nav {
                 display: none;
             }   
+        }
+    }
+
+}
+
+// This adds a metadata footer
+@mixin meta
+    ( $footer: true ){
+
+    @if $footer {
+        .meta {
+            margin: 3em 0 0;
+            color: $color-scenery;
+            font-size: 0.8em;
+            dl {
+                text-align: right;
+            }
+            dt {
+                text-transform: lowercase;
+                font-weight: 600;
+            }
+            dd + dt::before {
+                content: ";\ ";
+            }
+            dt::after {
+                content: ":\ ";
+            }
+            dt, dd {
+                display: inline;
+            }
+
+        }
+    } @else {
+        .meta {
+            display: none;
         }
     }
 
@@ -227,23 +259,23 @@
 
     $dl-width: 17%; // How wide the titles of description lists are
 
-    dl {
+    main>dl {
         margin: $margin 0;
         display: flex;
         flex-direction: row;
         flex-wrap: wrap;
         width: 100%;
-    }
-    dl dt {
-        flex: 0 0 $dl-width;
-        margin: 0.25em 0;
-        text-overflow: ellipsis;
-        font-weight: 600;
-        overflow: hidden;
-    }
-    dl dd {
-        flex: 0 0 (100% - $dl-width);
-        margin: 0.25em 0 0 auto;
+        dt {
+            flex: 0 0 $dl-width;
+            margin: 0.25em 0;
+            text-overflow: ellipsis;
+            font-weight: 600;
+            overflow: hidden;
+        }
+        dd {
+            flex: 0 0 (100% - $dl-width);
+            margin: 0.25em 0 0 auto;
+        }
     }
 }
 

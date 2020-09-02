@@ -34,6 +34,8 @@ $vspace-object: 2.5em;
 @include hr
     ( $decoration: "*"
     , $margin: $vspace-object );
+@include meta
+    ( $footer: true );
 @include table-of-contents
     ( );
 @include misc
