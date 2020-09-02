@@ -37,13 +37,15 @@
     , $page-numbering: true ) {
 
     @page {
+        font-family: monospace;
+        font-size: 0.6em;
         size: $page-size;
         margin: $vmargin $hmargin;
         counter-increment: page;
 
         @if $page-numbering {
             @bottom-right {
-                content: counter(page); 
+                content: counter(page) " / " counter(pages);; 
             }
         }
     }
