@@ -4,22 +4,11 @@
 
 local resources = {}
 
-function is_external(str)
-    local i, j = str:find("%a+://")
-    return (str:sub(1,7) == "mailto:") or
-        (i == 1 and j and str:sub(i, j) ~= "file://")
-end
-
-function is_absolute(str)
-    -- See https://stevedonovan.github.io/Penlight/api/source/path.lua.html and
-    -- https://pandoc.org/lua-filters.html#type-commonstate if I ever decide I
-    -- want to include absolute paths too
-    return str:sub(1, 1) == '/'
-end
-
-function add_resource(str)
-    if not (is_external(str) or is_absolute(str)) then
-        table.insert(resources, pandoc.MetaString(str))
+function add_resource(url)
+    -- Test if URL is local & relative
+    if url:sub(1, 1) ~= '/'
+    and (url:match("^%a+://") or url:match("^mailto:")) == nil
+    then table.insert(resources, pandoc.MetaString(url))
     end
 end
 
