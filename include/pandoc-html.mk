@@ -1,8 +1,8 @@
 # This adds recipes for generating HTML documents, plus styles, favicons and
 # index pages.
 
-ifeq (,$(filter %/snel.mk snel.mk,$(MAKEFILE_LIST)))
-$(error The main snel.mk module was not loaded)
+ifeq (,$(filter %/pandoc.mk pandoc.mk,$(MAKEFILE_LIST)))
+$(error The main pandoc.mk module was not loaded)
 endif
 
 ifneq (,$(wildcard $(SRC)/favicon.*))

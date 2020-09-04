@@ -1,15 +1,14 @@
-# This is the main `snel.mk` module. It sets the variables that all of `snel`
-# needs, and it collects the target documents and resources. It also generates
-# the index page linking to them.
-# However, there are no actual recipes to *make* the targets. You'll need to
-# also `include snel-html.mk`, `include `snel-pdf.mk`, or instead write your
-# own.
+# This is the main `pandoc.mk` module. It sets the variables that all of
+# `pandoc.mk` needs, and it collects the target documents and resources. It
+# also generates the index page linking to them. However, there are no actual
+# recipes to *make* the targets. You'll need to also `include pandoc-html.mk`,
+# `include `pandoc-pdf.mk`, or instead write your own.
 
 PREFIX:=/usr/local
 INCLUDE_DIR:=$(PREFIX)/include
-SHARE_DIR:=$(PREFIX)/share/snel
+SHARE_DIR:=$(PREFIX)/share/pandoc.mk
 
-# If installed globally, then other assets are in `$PREFIX/share/snel`;
+# If installed globally, then other assets are in `$PREFIX/share/pandoc.mk`;
 # otherwise, find them relative to $(BASE_DIR), the location of this Makefile.
 BASE_DIR:=$(patsubst %/,%,$(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
 ifeq ($(BASE_DIR),$(INCLUDE_DIR))
@@ -46,7 +45,7 @@ all html pdf: $(CACHE)/dynamic.mk
 include $(CACHE)/dynamic.mk
 
 # Record metadata for each document, including external resources linked inside
-$(CACHE)/%.md.meta.json: $(SRC)/%.md $(JQ_DIR)/snel.jq $(PANDOC_DIR)/metadata.json $(PANDOC_DIR)/resources.lua
+$(CACHE)/%.md.meta.json: $(SRC)/%.md $(JQ_DIR)/pd.jq $(PANDOC_DIR)/metadata.json $(PANDOC_DIR)/resources.lua
 	@-mkdir -p "$(@D)"
 	@echo "Generating metadata for \"$<\"..." 1>&2
 	@pandoc --to=plain --template='$(PANDOC_DIR)/metadata.json' \
@@ -55,17 +54,17 @@ $(CACHE)/%.md.meta.json: $(SRC)/%.md $(JQ_DIR)/snel.jq $(PANDOC_DIR)/metadata.js
 	| jq \
 		-L"$(JQ_DIR)" \
 		--arg path "$(patsubst $(CACHE)/%.md.meta.json,%.md,$@)" \
-		'include "snel"; tree(["."] + ($$path | split("/")))' \
+		'include "pd"; tree(["."] + ($$path | split("/")))' \
 		> "$@"
 
 # Overview of files & directories with metadata, readable for index template.
 # Compatible for merging with the output of `tree -JDpi --du --timefmt '%s'` 
-$(CACHE)/index.json: $(JQ_DIR)/snel.jq $(wildcard $(SRC)/index.base.json) \
+$(CACHE)/index.json: $(JQ_DIR)/pd.jq $(wildcard $(SRC)/index.base.json) \
 		$(patsubst $(SRC)/%,$(CACHE)/%.meta.json,$(SOURCE_FILES))
 	@-mkdir -p $(@D)
 	@echo "Generating index data \"$@\"..." 1>&2
 	@jq  -L$(JQ_DIR) --slurp \
-		'include "snel"; index(["html","pdf"])' \
+		'include "pd"; index(["html","pdf"])' \
 		$(filter %.json, $^) \
 		> "$@"
 
@@ -73,7 +72,7 @@ $(CACHE)/index.json: $(JQ_DIR)/snel.jq $(wildcard $(SRC)/index.base.json) \
 # any external content referred inside
 $(CACHE)/targets.json: $(CACHE)/index.json
 	@jq -c -L"$(JQ_DIR)" --arg dest "$(DEST)" \
-		'include "snel"; targets($$dest)' < "$<" > "$@"
+		'include "pd"; targets($$dest)' < "$<" > "$@"
 	@($(foreach target,$(EXTRA_LINKED),echo "$(target)";)) \
 		| jq -R -c '{"target":"html", "dependencies": [.]}' >> "$@"
 

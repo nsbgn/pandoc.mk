@@ -1,11 +1,11 @@
-snel
+pandoc.mk
 ==============================================================================
 
 Plain text formats like [Markdown](http://commonmark.org/help/) and 
 [YAML](http://www.yaml.org/spec/) are lightweight, understandable, 
 maintainable in version control, and easy to modify. In the spirit of the 
 [UNIX philosophy](https://en.wikipedia.org/wiki/Unix_philosophy), I glued a 
-couple of common tools into `snel`, a method for generating documents and 
+couple of common tools into `pandoc.mk`, a method for generating documents and 
 static websites. The method encourages a radical separation of style from 
 content: source text & data are converted to documents & images by a clean and 
 transparent process, documented in a `Makefile`. It provides a common base and 
@@ -27,7 +27,7 @@ useful to someone:
 Usage
 -------------------------------------------------------------------------------
 
-To use `snel`, fill a directory with Markdown files like this:
+To use `pandoc.mk`, fill a directory with Markdown files like this:
 
     ---
     title: An example.
@@ -39,7 +39,7 @@ To use `snel`, fill a directory with Markdown files like this:
 
 Then, create a `Makefile` with the following content:
 
-    include snel.mk snel-html.mk snel-pdf.mk
+    include pandoc.mk pandoc-html.mk pandoc-pdf.mk
 
 The first import will set PDF and HTML targets for corresponding files in the 
 source directory. Documents without an appropriate value for `make` in the 

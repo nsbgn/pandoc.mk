@@ -1,27 +1,26 @@
 Installation
 ===============================================================================
 
-To use `snel`, clone it:
+To use `pandoc.mk`, clone it:
 
-    git clone https://github.com/slakkenhuis/snel
+    git clone https://github.com/slakkenhuis/pandoc.mk
 
 To install it globally, then do:
 
-    cd snel && sudo make install
+    cd pandoc.mk && sudo make install
 
-Include the appropriate `snel*.mk` files into your project's `Makefile` and 
+Include the appropriate `pandoc*.mk` files into your project's `Makefile` and 
 you are good to go. However, you don't *need* to install it globally; the 
-recipes will work just fine if you `include /path/to/snel/include/snel.mk` 
-instead.
+recipes will work just fine if you `include /path/to/pandoc.mk` instead.
 
 
 Dependencies
 -------------------------------------------------------------------------------
 
-`snel` really doesn't consist of much more than a make-recipe and some styles. 
-Most of the software that its recipes call for is rather common and probably 
-already installed on your computer. For the basic documents and the index, 
-just make sure that you have [pandoc](http://pandoc.org/) >=2.8, 
+`pandoc.mk` really doesn't consist of much more than a make-recipe and some 
+styles. Most of the software that its recipes call for is rather common and 
+probably already installed on your computer. For the basic documents and the 
+index, just make sure that you have [pandoc](http://pandoc.org/) >=2.8, 
 [jq](https://stedolan.github.io/jq/) >=1.6,
 [weasyprint](https://weasyprint.org/) and [sassc](http://sass-lang.com/) (or 
 change the recipes). On Debian-based systems, this should suffice:

@@ -2,7 +2,7 @@
 default: 
 	@echo "Run 'sudo make install' to install globally. See INSTALL.md."
 
-include include/snel.mk
+include include/pandoc.mk
 
 MAKEFILES := $(patsubst include/%,%,$(wildcard include/*))
 

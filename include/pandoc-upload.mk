@@ -1,8 +1,8 @@
 # This adds recipes for uploading the destination directory to a server, via
 # FTP or SSH.
 
-ifeq (,$(filter %/snel.mk snel.mk,$(MAKEFILE_LIST)))
-$(error The main snel.mk module was not loaded)
+ifeq (,$(filter %/pandoc.mk pandoc.mk,$(MAKEFILE_LIST)))
+$(error The main pandoc.mk module was not loaded)
 endif
 
 ifndef USER
