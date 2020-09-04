@@ -37,6 +37,7 @@ SOURCE_FILES=$(shell \
 	-exec grep -li --perl-regexp '^\s*make:\s*((?!(false|null|\[\])).*)$$' {} \; \
 	-print \
 )
+$(if $(SOURCE_FILES),,$(error No suitable source documents found))
 
 .PHONY: all html pdf
 all: html pdf
