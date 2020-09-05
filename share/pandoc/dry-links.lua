@@ -6,10 +6,9 @@
 -- Note also that Pandoc markdown already solves this, partially, with
 -- "automatic links" (https://pandoc.org/MANUAL.html#automatic-links): any link
 -- surrounded with pointy brackets will become a link.
---
 -- Example:
 --    [%d](https://sub.domain.com:80/page/file.ext?arg1=1&arg2=2#anchor) 
--- →  [`domain.com`](https://sub.domain.com:80/page/file.ext?arg1=1&arg2=2#anchor)
+-- →  [domain.com](https://sub.domain.com:80/page/file.ext?arg1=1&arg2=2#anchor)
 
 local function take(pattern, string)
   local output = ''
@@ -53,14 +52,21 @@ end
 return {
   {
     Link = function(a)
+      local url = a.target
       if #a.content == 0 then
-        local url = a.target:gsub('^mailto:', '')
-        a.content = { pandoc.Code(url) }
+        local cls = 'uri'
+        if url:match('^mailto:') then
+          url = url:sub(8)
+          cls = 'email'
+        end
+        a.content = { pandoc.Str(url) }
+        table.insert(a.classes, cls)
       elseif #a.content == 1 and a.content[1].t == 'Str'
           and a.content[1].text:gsub('%%%a','') == '' then
         a.content = {
-          pandoc.Code(subst(a.content[1].text, dissect(a.target)))
+          pandoc.Str(subst(a.content[1].text, dissect(a.target)))
         }
+        table.insert(a.classes, 'uri')
       end
       return a
     end,

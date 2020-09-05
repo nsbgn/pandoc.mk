@@ -339,7 +339,9 @@
     code pre {
         margin: $margin 0;
     }
-
+    .uri, .email {
+        font-family: $font;
+    }
 }
 
 
