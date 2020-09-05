@@ -1,8 +1,11 @@
--- DRY-links.
 -- When this filter encounters a link with empty content, the content is set to
 -- the target URL. Alternatively, if it consists ONLY of single characters
 -- prefixed with a `%`, then it should be set to the corresponding URL fragment
 -- (see the `dissect` function for relevant characters).
+--
+-- Note also that Pandoc markdown already solves this, partially, with
+-- "automatic links" (https://pandoc.org/MANUAL.html#automatic-links): any link
+-- surrounded with pointy brackets will become a link.
 --
 -- Example:
 --    [%d](https://sub.domain.com:80/page/file.ext?arg1=1&arg2=2#anchor) 

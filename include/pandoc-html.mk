@@ -29,7 +29,7 @@ $(DEST)/%.html: \
 		$(SRC)/%.md \
 		$(PANDOC_DIR)/page.html \
 		$(wildcard $(SRC)/*.bib) \
-		$(PANDOC_DIR)/link.lua
+		$(PANDOC_DIR)/dry-links.lua
 	@echo "Generating document \"$@\"..." 1>&2
 	@-mkdir -p "$(@D)"
 	@-mkdir -p "$(patsubst $(DEST)/%,$(CACHE)/%,$(@D))"
